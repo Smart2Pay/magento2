@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Email:etc/email_templates.xsd">
+   <template id="smart2pay_email_payment_confirmation" label="Payment Confirmation" file="payment_confirmation.html" type="text" module="Smart2Pay_GlobalPay" area="adminhtml" />
+   <template id="smart2pay_email_payment_instructions_sibs" label="Payment Instructions (SIBS)" file="payment_instructions_sibs.html" type="text" module="Smart2Pay_GlobalPay" area="adminhtml" />
+   <template id="smart2pay_email_payment_instructions_bt" label="Payment Instructions (Bank Transfer)" file="payment_instructions_bt.html" type="text" module="Smart2Pay_GlobalPay" area="adminhtml" />
+</config>

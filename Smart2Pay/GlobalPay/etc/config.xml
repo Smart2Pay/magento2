@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../Store/etc/config.xsd">
+    <default>
+        <payment>
+            <smart2pay>
+
+                <active>1</active>
+                <environment>demo</environment>
+                <post_url_live><![CDATA[https://api.smart2pay.com]]></post_url_live>
+                <post_url_test><![CDATA[https://apitest.smart2pay.com]]></post_url_test>
+                <mid_live>0</mid_live>
+                <mid_test>0</mid_test>
+                <site_id>0</site_id>
+                <signature_live><![CDATA[]]></signature_live>
+                <signature_test><![CDATA[]]></signature_test>
+                <return_url><![CDATA[]]></return_url>
+                <title><![CDATA[Smart2Pay - Alternative payment methods]]></title>
+                <skin_id>0</skin_id>
+                <debug_form>0</debug_form>
+                <sort_order>0</sort_order>
+
+                <display_surcharge>0</display_surcharge>
+                <display_mode>both</display_mode>
+                <show_methods_in_grid>0</show_methods_in_grid>
+                <grid_column_number>3</grid_column_number>
+                <product_description_ref>1</product_description_ref>
+                <product_description_custom><![CDATA[]]></product_description_custom>
+
+                <notify_customer>0</notify_customer>
+                <smart2pay_email_payment_confirmation>smart2pay_email_payment_confirmation</smart2pay_email_payment_confirmation>
+                <notify_payment_instructions>0</notify_payment_instructions>
+                <smart2pay_email_payment_instructions_sibs>smart2pay_email_payment_instructions_sibs</smart2pay_email_payment_instructions_sibs>
+                <smart2pay_email_payment_instructions_bt>smart2pay_email_payment_instructions_bt</smart2pay_email_payment_instructions_bt>
+
+                <auto_invoice>0</auto_invoice>
+                <auto_ship>0</auto_ship>
+                <order_status>pending</order_status>
+                <order_status_on_2>processing</order_status_on_2>
+                <order_status_on_3>canceled</order_status_on_3>
+                <order_status_on_4>canceled</order_status_on_4>
+                <order_status_on_5>canceled</order_status_on_5>
+
+                <skip_payment_page>1</skip_payment_page>
+                <redirect_in_iframe>0</redirect_in_iframe>
+                <message_data_2><![CDATA[Thank you, the transaction has been processed successfuly. After we receive the final confirmation, we will release the goods.]]></message_data_2>
+                <message_data_4><![CDATA[There was a problem processing your payment. Please try again.]]></message_data_4>
+                <message_data_3><![CDATA[You have canceled the payment.]]></message_data_3>
+                <message_data_7><![CDATA[Thank you, the transaction is pending. After we receive the final confirmation, we will release the goods.]]></message_data_7>
+
+            </smart2pay>
+        </payment>
+    </default>
+</config>

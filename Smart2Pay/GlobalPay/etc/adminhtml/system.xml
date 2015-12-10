@@ -1,0 +1,240 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../Config/etc/system_file.xsd">
+    <system>
+        <section id="payment">
+            <group id="smart2pay" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Smart2Pay</label>
+
+                <group id="smart2pay_general" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Smart2Pay - General Settings</label>
+
+                    <field id="active" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/smart2pay/active</config_path>
+                    </field>
+                    <field id="environment" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Environment</label>
+                        <comment><![CDATA[To obtain your credentials for live and test environments, please contact us at <a href="mailto:support@smart2pay.com">support@smart2pay.com</a>.]]></comment>
+                        <source_model>Smart2Pay\GlobalPay\Model\Config\Source\Environment</source_model>
+                        <config_path>payment/smart2pay/environment</config_path>
+                    </field>
+                    <field id="post_url_live" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Post URL Live</label>
+                        <config_path>payment/smart2pay/post_url_live</config_path>
+                    </field>
+                    <field id="post_url_test" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Post URL Test</label>
+                        <config_path>payment/smart2pay/post_url_test</config_path>
+                    </field>
+                    <field id="mid_live" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>MID Live</label>
+                        <frontend_class>validate-number</frontend_class>
+                        <config_path>payment/smart2pay/mid_live</config_path>
+                    </field>
+                    <field id="mid_test" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>MID Test</label>
+                        <frontend_class>validate-number</frontend_class>
+                        <config_path>payment/smart2pay/mid_test</config_path>
+                    </field>
+                    <field id="site_id" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Site ID</label>
+                        <frontend_class>validate-number</frontend_class>
+                        <config_path>payment/smart2pay/site_id</config_path>
+                    </field>
+                    <field id="signature_live" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Signature Live</label>
+                        <config_path>payment/smart2pay/signature_live</config_path>
+                    </field>
+                    <field id="signature_test" translate="label" type="text" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Signature Test</label>
+                        <config_path>payment/smart2pay/signature_test</config_path>
+                    </field>
+                    <field id="return_url" translate="label" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Return URL</label>
+                        <can_be_empty>0</can_be_empty>
+                        <config_path>payment/smart2pay/return_url</config_path>
+                    </field>
+                    <field id="title" translate="label comment" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Title</label>
+                        <comment><![CDATA[Insert a custom title for this payment module]]></comment>
+                        <config_path>payment/smart2pay/title</config_path>
+                    </field>
+                    <field id="skin_id" translate="label" type="text" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Skin ID</label>
+                        <frontend_class>validate-number</frontend_class>
+                        <config_path>payment/smart2pay/skin_id</config_path>
+                    </field>
+                    <field id="debug_form" translate="label comment" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Debug Form</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <comment><![CDATA[Show form data before submiting it to Smart2Pay]]></comment>
+                        <config_path>payment/smart2pay/debug_form</config_path>
+                    </field>
+                    <field id="sort_order" translate="label" type="text" sortOrder="140" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Sort Order</label>
+                        <frontend_class>validate-number</frontend_class>
+                        <config_path>payment/smart2pay/sort_order</config_path>
+                    </field>
+                </group>
+
+                <group id="smart2pay_methods_settings" translate="label" type="text" sortOrder="200" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Smart2Pay - Methods Display Settings</label>
+
+                    <field id="display_surcharge" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Display surcharge fee to client</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/smart2pay/display_surcharge</config_path>
+                    </field>
+                    <field id="display_mode" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Methods display mode</label>
+                        <source_model>Smart2Pay\GlobalPay\Model\Config\Source\Displaymode</source_model>
+                        <config_path>payment/smart2pay/display_mode</config_path>
+                    </field>
+                    <field id="show_methods_in_grid" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Show methods in grid</label>
+                        <comment><![CDATA[By default, methods will be displayed as a two columns table, having paymentm method's logo or name and description. When set to yes, description is omitted, and columns number can be specified bellow.]]></comment>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/smart2pay/show_methods_in_grid</config_path>
+                    </field>
+                    <field id="grid_column_number" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Grid column number</label>
+                        <comment><![CDATA[Please provide a number, if left blank, the default value is 3 (This value is used only if above option is set to yes)]]></comment>
+                        <frontend_class>validate-number</frontend_class>
+                        <config_path>payment/smart2pay/grid_column_number</config_path>
+                    </field>
+                    <field id="product_description_ref" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Send order number as product description</label>
+                        <comment><![CDATA[If "No" is selected, the below custom description will be send]]></comment>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/smart2pay/product_description_ref</config_path>
+                    </field>
+                    <field id="product_description_custom" translate="label" type="textarea" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Custom product description</label>
+                        <config_path>payment/smart2pay/product_description_custom</config_path>
+                    </field>
+                </group>
+
+                <group id="smart2pay_email_settings" translate="label" type="text" sortOrder="300" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Smart2Pay - Email Settings</label>
+
+                    <field id="notify_customer" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Notify customer by email</label>
+                        <comment><![CDATA[Send a confirmation email to the customer on success payment notification]]></comment>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/smart2pay/notify_customer</config_path>
+                    </field>
+                    <field id="smart2pay_email_payment_confirmation" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Payment Confirmation Template</label>
+                        <source_model>Smart2Pay\GlobalPay\Model\Config\Source\Email\Template</source_model>
+                        <config_path>payment/smart2pay/smart2pay_email_payment_confirmation</config_path>
+                    </field>
+                    <field id="notify_payment_instructions" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Send payment instructions on order creation</label>
+                        <comment><![CDATA[Send a confirmation email to the customer on order creation with payment details]]></comment>
+                        <config_path>payment/smart2pay/notify_payment_instructions</config_path>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    </field>
+                    <field id="smart2pay_email_payment_instructions_sibs" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Payment Instructions Template (for Multibanco SIBS)</label>
+                        <config_path>payment/smart2pay/smart2pay_email_payment_instructions_sibs</config_path>
+                        <source_model>Smart2Pay\GlobalPay\Model\Config\Source\Email\Template</source_model>
+                    </field>
+                    <field id="smart2pay_email_payment_instructions_bt" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Payment Instructions Template (for Bank Transfer)</label>
+                        <config_path>payment/smart2pay/smart2pay_email_payment_instructions_bt</config_path>
+                        <source_model>Smart2Pay\GlobalPay\Model\Config\Source\Email\Template</source_model>
+                    </field>
+                </group>
+
+                <group id="smart2pay_order_settings" translate="label" type="text" sortOrder="400" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Smart2Pay - Order Related Settings</label>
+
+                    <field id="auto_invoice" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Create invoice on success</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/smart2pay/auto_invoice</config_path>
+                    </field>
+                    <field id="auto_ship" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Automate shipping</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/smart2pay/auto_ship</config_path>
+                    </field>
+
+                    <field id="order_status" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>New Order Status</label>
+                        <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
+                        <config_path>payment/smart2pay/order_status</config_path>
+                    </field>
+                    <field id="order_status_on_2" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Order status on SUCCESS</label>
+                        <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
+                        <config_path>payment/smart2pay/order_status_on_2</config_path>
+                    </field>
+                    <field id="order_status_on_3" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Order status on CANCEL</label>
+                        <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
+                        <config_path>payment/smart2pay/order_status_on_3</config_path>
+                    </field>
+                    <field id="order_status_on_4" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Order status on FAIL</label>
+                        <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
+                        <config_path>payment/smart2pay/order_status_on_4</config_path>
+                    </field>
+                    <field id="order_status_on_5" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Order status on EXPIRED</label>
+                        <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
+                        <config_path>payment/smart2pay/order_status_on_5</config_path>
+                    </field>
+                </group>
+
+                <group id="smart2pay_flow_settings" translate="label" type="text" sortOrder="500" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Smart2Pay - Payment Flow Settings</label>
+
+                    <field id="skip_payment_page" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Skip payment page</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/smart2pay/skip_payment_page</config_path>
+                    </field>
+                    <field id="redirect_in_iframe" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Redirect in iframe</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/smart2pay/redirect_in_iframe</config_path>
+                    </field>
+
+                    <field id="message_data_2" translate="label" type="textarea" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Message Success</label>
+                        <config_path>payment/smart2pay/message_data_2</config_path>
+                    </field>
+                    <field id="message_data_4" translate="label" type="textarea" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Message Failed</label>
+                        <config_path>payment/smart2pay/message_data_4</config_path>
+                    </field>
+                    <field id="message_data_3" translate="label" type="textarea" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Message Canceled</label>
+                        <config_path>payment/smart2pay/message_data_3</config_path>
+                    </field>
+                    <field id="message_data_7" translate="label" type="textarea" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Message Pending</label>
+                        <config_path>payment/smart2pay/message_data_7</config_path>
+                    </field>
+                </group>
+
+                <group id="smart2pay_methods" translate="label comment" type="text" sortOrder="600" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Smart2Pay - Select Methods</label>
+                    <comment><![CDATA[Please tick checkboxes for payment methods which you want to activate.<br/>
+                            You can setup surcharges for each payment method by providing a percent, a fixed or a combination of percent and fixed price.<br/>
+                            Fixed price is provided in base currency setup on <em>Currency Setup</em> page.]]></comment>
+
+                    <field id="configured_methods" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Configured Payment Methods</label>
+                        <frontend_model>Smart2Pay\GlobalPay\Block\Adminhtml\System\Config\Field\ConfiguredMethods</frontend_model>
+                        <backend_model>Smart2Pay\GlobalPay\Model\System\Config\Backend\ConfiguredMethods</backend_model>
+                    </field>
+
+                </group>
+
+            </group>
+        </section>
+    </system>
+</config>

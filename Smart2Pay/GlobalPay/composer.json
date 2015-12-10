@@ -1,0 +1,29 @@
+{
+  "name": "Smart2Pay Payment Module",
+  "description": "Use Smart2Pay module to have access to 100+ payment methods.",
+  "type": "magento2-module",
+  "version": "2.0.0",
+  "license": [
+    "OSL-3.0",
+    "AFL-3.0"
+  ],
+  "require": {
+    "php": "~5.5.0|~5.6.0",
+    "magento/magento-composer-installer": "*",
+    "magento/module-sales": "*",
+    "magento/module-payment": "*",
+    "magento/module-quote": "*"
+  },
+  "extra": {
+    "map": [
+      [
+        "*",
+        "Smart2Pay/GlobalPay"
+      ]
+    ]
+  },
+  "autoload": {
+    "psr-4": { "Smart2Pay\\GlobalPay\\": "" },
+    "files": [ "registration.php" ]
+  }
+}
