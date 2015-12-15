@@ -10,6 +10,7 @@ define(
         rendererList
     ) {
         'use strict';
+
         rendererList.push(
             {
                 type: 'smart2pay',

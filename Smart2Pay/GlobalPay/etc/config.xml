@@ -4,6 +4,8 @@
         <payment>
             <smart2pay>
 
+                <model>Smart2Pay\GlobalPay\Model\Smart2Pay</model>
+
                 <active>1</active>
                 <environment>demo</environment>
                 <post_url_live><![CDATA[https://api.smart2pay.com]]></post_url_live>
