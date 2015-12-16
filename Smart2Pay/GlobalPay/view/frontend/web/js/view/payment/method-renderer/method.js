@@ -1,11 +1,10 @@
 define(
     [
         'ko',
-        'Magento_Checkout/js/view/payment/default',
-        'Magento_Checkout/js/model/quote',
-        'Smart2Pay_GlobalPay/js/model/payment/method-list'
+        'uiComponent',
+        'Magento_Checkout/js/model/quote'
     ],
-    function (ko, Component, quote, methodsList) {
+    function (ko, Component, quote) {
         'use strict';
 
         return Component.extend({
@@ -14,13 +13,13 @@ define(
                 template: 'Smart2Pay_GlobalPay/payment/smart2pay'
             },
 
-            // Overwrite properties / functions
+            // Overwrite properties
 
             redirectAfterPlaceOrder: false,
 
             isPlaceOrderActionAllowed: ko.observable(false),
 
-            // END Overwrite properties / functions
+            // END Overwrite properties
 
             selectedS2PPaymentMethod: ko.observable(null),
 
@@ -82,7 +81,11 @@ define(
 
             getS2PMethods: function()
             {
-                return methodsList;
+                return {
+                    "100": { "title": "Method 1", "description": "It works 1..." },
+                    "200": { "title": "Method 2", "description": "It works 2..." },
+                    "300": { "title": "Method 3", "description": "It works 3..." }
+                };
             }
         });
     }

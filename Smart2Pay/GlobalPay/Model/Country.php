@@ -29,6 +29,8 @@ class Country extends \Magento\Framework\Model\AbstractModel implements CountryI
      */
     protected $_eventPrefix = 'smart2pay_globalpay_country';
 
+    private static $db_countries = false;
+
     /**
      * Initialize resource model
      *
@@ -48,6 +50,40 @@ class Country extends \Magento\Framework\Model\AbstractModel implements CountryI
     public function checkCode( $code )
     {
         return $this->_getResource()->checkCode( $code );
+    }
+
+    public function getCountriesArray()
+    {
+        if( !empty( self::$db_countries ) )
+            return self::$db_countries;
+
+        $collection = $this->getCollection();
+
+        $collection->addFieldToSelect( '*' );
+
+        self::$db_countries = array();
+
+        while( ($country_obj = $collection->fetchItem())
+           and ($country_arr = $country_obj->getData()) )
+        {
+            if( empty( $country_arr['country_id'] ) )
+                continue;
+
+            self::$db_countries['items'][$country_arr['country_id']] = $country_arr;
+            self::$db_countries['ids'][$country_arr['country_id']] = $country_arr['code'];
+            self::$db_countries['codes'][$country_arr['code']] = $country_arr['country_id'];
+        }
+
+        return self::$db_countries;
+    }
+
+    public function getCountryIDToCountryCodeArray()
+    {
+        if( !$this->getCountriesArray()
+         or empty( self::$db_countries['ids'] ) )
+            return array();
+
+        return self::$db_countries['ids'];
     }
 
     /**

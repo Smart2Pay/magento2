@@ -36,16 +36,25 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
      */
     private $_countryMethodFactory;
 
+    /**
+     * Country Method Factory
+     *
+     * @var \Smart2Pay\GlobalPay\Model\CountryFactory
+     */
+    private $_countryFactory;
+
     public function __construct(
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
         \Smart2Pay\GlobalPay\Model\CountryMethodFactory $countryMethodFactory,
+        \Smart2Pay\GlobalPay\Model\CountryFactory $countryFactory,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
     )
     {
         $this->_countryMethodFactory = $countryMethodFactory;
+        $this->_countryFactory = $countryFactory;
 
         parent::__construct( $context, $registry, $resource, $resourceCollection, $data );
     }
@@ -115,6 +124,38 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
 
         while( ($configured_method_obj = $collection->fetchItem())
                and ($configured_method_arr = $configured_method_obj->getData()) )
+        {
+            if( empty( $configured_method_arr['method_id'] ) )
+                continue;
+
+            $return_arr[$configured_method_arr['method_id']][$configured_method_arr['country_id']] = $configured_method_arr;
+        }
+
+        return $return_arr;
+    }
+
+    /**
+     * @param bool|array $params
+     *
+     * @return array
+     */
+    public function getAllConfiguredMethodsPerCountryCode( $params = false )
+    {
+        if( empty( $params ) or !is_array( $params ) )
+            $params = array();
+
+        // $return_arr[{country_code}][{method_id}]['surcharge'], $return_arr[{country_code}][{method_id}]['base_amount'], ...
+        $return_arr = array();
+
+        $countryModel = $this->_countryFactory->create();
+        $countryMethodModel = $this->_countryMethodFactory->create();
+
+        $collection = $this->getCollection();
+
+        $collection->addFieldToSelect( '*' );
+
+        while( ($configured_method_obj = $collection->fetchItem())
+           and ($configured_method_arr = $configured_method_obj->getData()) )
         {
             if( empty( $configured_method_arr['method_id'] ) )
                 continue;

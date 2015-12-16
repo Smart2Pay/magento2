@@ -4,9 +4,18 @@ namespace Smart2Pay\GlobalPay\Model;
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Framework\Escaper;
 use Magento\Payment\Helper\Data as PaymentHelper;
+use Smart2Pay\GlobalPay\Model\ConfiguredMethods;
 
 class ConfigProvider implements ConfigProviderInterface
 {
+
+    /**
+     * Country Method Factory
+     *
+     * @var \Smart2Pay\GlobalPay\Model\ConfiguredMethodsFactory
+     */
+    private $_configuredMethodFactory;
+
     /**
      * @var string[]
      */
@@ -30,8 +39,10 @@ class ConfigProvider implements ConfigProviderInterface
      */
     public function __construct(
         PaymentHelper $paymentHelper,
-        Escaper $escaper
+        Escaper $escaper,
+        \Smart2Pay\GlobalPay\Model\ConfiguredMethodsFactory $configuredMethodsFactory
     ) {
+        $this->_configuredMethodFactory = $configuredMethodsFactory;
         $this->escaper = $escaper;
         foreach( $this->methodCodes as $code )
         {
@@ -44,6 +55,8 @@ class ConfigProvider implements ConfigProviderInterface
      */
     public function getConfig()
     {
+        $cm_collection = $this->_configuredMethodFactory->create()->getCollection();
+
         $config = [];
         foreach( $this->methodCodes as $code )
         {

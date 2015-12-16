@@ -19,11 +19,11 @@
         <p data-bind="html: pulamea()"></p>
 
         <div class="items s2p-payment-methods">
-            <!-- ko foreach: { data: getRegion('payment-method-items'), as: 'element'}  -->
-            <!-- ko template: element.getTemplate() --><!-- /ko -->
+            <!-- ko foreach: getS2PMethods() -->
+            <!-- ko template: 'Smart2Pay_GlobalPay/payment/method' --><!-- /ko -->
             <!-- /ko -->
         </div>
-        <!-- ko ifnot: getRegion('payment-method-items')().length > 0 --><div class="no-payments-block"><!-- ko i18n: 'No Payment Methods'--><!-- /ko --></div><!-- /ko -->
+        <!-- ko ifnot: getS2PMethods().length > 0 --><div class="no-payments-block"><!-- ko i18n: 'No Payment Methods'--><!-- /ko --></div><!-- /ko -->
 
         <div class="checkout-agreements-block">
             <!-- ko foreach: $parent.getRegion('before-place-order') -->
