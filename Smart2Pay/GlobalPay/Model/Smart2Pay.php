@@ -84,14 +84,23 @@ class Smart2Pay extends AbstractMethod
         return true;
     }
 
-    /**
-     * Get payment instructions text from config
-     *
-     * @return string
-     */
-    public function getInstructions()
+    public function getFrontConfigArray()
     {
-        return trim($this->getConfigData('instructions'));
+        if( !($full_config_arr = $this->getFullConfigArray()) )
+            return array();
+
+        $export_fileds_arr = array( 'display_surcharge', 'display_mode', 'show_methods_in_grid', 'grid_column_number', );
+
+        $return_arr = array();
+        foreach( $export_fileds_arr as $key )
+        {
+            if( !array_key_exists( $key, $full_config_arr ) )
+                continue;
+
+            $return_arr[$key] = $full_config_arr[$key];
+        }
+
+        return $return_arr;
     }
 
     public function getFullConfigArray()

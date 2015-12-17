@@ -23,6 +23,7 @@ define(
             // END Overwrite properties / functions
 
             selectedS2PPaymentMethod: ko.observable(null),
+            selectedS2PCountry: '',
 
             isPaymentMethodSelected: ko.observable(false),
 
@@ -39,16 +40,16 @@ define(
 
             s2pSelectPaymentMethod: function( method )
             {
-                selectedS2PPaymentMethod(method);
+                this.selectedS2PPaymentMethod(method);
 
                 if( method == 0 )
                 {
-                    isPaymentMethodSelected( false );
-                    isPlaceOrderActionAllowed( false );
+                    this.isPaymentMethodSelected( false );
+                    this.isPlaceOrderActionAllowed( false );
                 } else
                 {
-                    isPaymentMethodSelected( true );
-                    isPlaceOrderActionAllowed( quote.billingAddress() != null );
+                    this.isPaymentMethodSelected( true );
+                    this.isPlaceOrderActionAllowed( quote.billingAddress() != null );
                 }
             },
 
@@ -63,16 +64,89 @@ define(
                     "method": this.item.method,
                     "po_number": null,
                     "additional_data": null,
-                    "s2p_payment_method": self.selectedS2PPaymentMethod
+                    "s2p_payment_method": self.selectedS2PPaymentMethod()
                 };
             },
 
-            pulamea: function ()
+            updateCurrentCountry: function()
             {
-                console.log( quote.billingAddress() );
-                console.log( this.isPaymentMethodSelected() );
-                console.log( this.isPlaceOrderActionAllowed() );
-                return 'o2k2';
+                var new_country = '';
+                if( quote.billingAddress() && quote.billingAddress().countryId )
+                    new_country = quote.billingAddress().countryId;
+
+                console.log( 'Check country [' + this.selectedS2PCountry + '] != [' + new_country + ']' );
+
+                if( this.selectedS2PCountry != new_country )
+                {
+                    console.log( 'NEW country [' + new_country + ']' );
+                    this.selectedS2PCountry = new_country;
+                    this.refreshMethods( new_country );
+                }
+            },
+
+            getSmart2PayData: function ()
+            {
+                var self = this;
+
+                this.isPlaceOrderActionAllowed( false );
+
+                quote.billingAddress.subscribe(function () {
+                    self.updateCurrentCountry();
+                });
+
+                this.updateCurrentCountry();
+
+                return '';
+            },
+
+            refreshMethods: function( country )
+            {
+                methodsList([]);
+
+                if( country
+                 && window.checkoutConfig
+                 && window.checkoutConfig.payment
+                 && window.checkoutConfig.payment.smart2pay
+                 && window.checkoutConfig.payment.smart2pay.methods
+                 && window.checkoutConfig.payment.smart2pay.methods.countries[country]
+                )
+                {
+                    console.log( 'Get new methods for [' + country + ']' );
+
+                    var items_arr = [];
+
+                    for( var method_id in window.checkoutConfig.payment.smart2pay.methods.countries[country] )
+                    {
+                        if( !window.checkoutConfig.payment.smart2pay.methods.methods[method_id] )
+                            continue;
+
+                        //console.log( method_id );
+                        //console.log( window.checkoutConfig.payment.smart2pay.methods.countries[country][method_id].fixed_amount );
+                        //console.log( window.checkoutConfig.payment.smart2pay.methods.countries[country][method_id].surcharge );
+                        //console.log( window.checkoutConfig.payment.smart2pay.methods.methods[method_id].display_name );
+                        //console.log( window.checkoutConfig.payment.smart2pay.methods.methods[method_id].logo_url );
+                        //console.log( window.checkoutConfig.payment.smart2pay.methods.methods[method_id].description );
+
+                        var item_obj = {
+                            id: method_id,
+                            title: window.checkoutConfig.payment.smart2pay.methods.methods[method_id].display_name,
+                            description: window.checkoutConfig.payment.smart2pay.methods.methods[method_id].description,
+                            logo_url: window.checkoutConfig.payment.smart2pay.methods.methods[method_id].logo_url,
+                            fixed_amount: window.checkoutConfig.payment.smart2pay.methods.countries[country][method_id].fixed_amount,
+                            surcharge: window.checkoutConfig.payment.smart2pay.methods.countries[country][method_id].surcharge,
+                            main_renderer: this
+                        };
+
+                        items_arr.push( item_obj );
+                    }
+
+                    methodsList( items_arr );
+                }
+            },
+
+            testFunction: function ()
+            {
+                return 'This is from main renderer.';
             },
 
             getInstructions: function ()

@@ -8,6 +8,7 @@
     </div>
 
     <div class="payment-method-content">
+        <p data-bind="html: getSmart2PayData()"></p>
         <!-- ko foreach: getRegion('messages') -->
         <!-- ko template: getTemplate() --><!-- /ko -->
         <!--/ko-->
@@ -16,14 +17,18 @@
             <!-- ko template: getTemplate() --><!-- /ko -->
             <!--/ko-->
         </div>
-        <p data-bind="html: pulamea()"></p>
 
         <div class="items s2p-payment-methods">
             <!-- ko foreach: getS2PMethods() -->
             <!-- ko template: 'Smart2Pay_GlobalPay/payment/method' --><!-- /ko -->
             <!-- /ko -->
         </div>
-        <!-- ko ifnot: getS2PMethods().length > 0 --><div class="no-payments-block"><!-- ko i18n: 'No Payment Methods'--><!-- /ko --></div><!-- /ko -->
+        <!-- ko if: getS2PMethods().length == 0 && selectedS2PCountry == '' -->
+        <div class="no-payments-block"><!-- ko i18n: 'Please select a country first.'--><!-- /ko --></div>
+        <!-- /ko -->
+        <!-- ko if: getS2PMethods().length == 0 && selectedS2PCountry != '' -->
+        <div class="no-payments-block"><!-- ko i18n: 'No payment methods for selected country.'--><!-- /ko --></div>
+        <!-- /ko -->
 
         <div class="checkout-agreements-block">
             <!-- ko foreach: $parent.getRegion('before-place-order') -->

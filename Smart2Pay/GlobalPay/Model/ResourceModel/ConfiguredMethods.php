@@ -144,7 +144,7 @@ class ConfiguredMethods extends \Magento\Framework\Model\ResourceModel\Db\Abstra
      *
      * @return bool
      */
-    public function insert_or_update( $method_id, $country_id, $params )
+    public function insertOrUpdate( $method_id, $country_id, $params )
     {
         $method_id = intval( $method_id );
         $country_id = intval( $country_id );

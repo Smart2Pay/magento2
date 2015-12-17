@@ -55,26 +55,17 @@ class ConfigProvider implements ConfigProviderInterface
      */
     public function getConfig()
     {
-        $cm_collection = $this->_configuredMethodFactory->create()->getCollection();
+        $configured_methods = $this->_configuredMethodFactory->create();
 
         $config = [];
         foreach( $this->methodCodes as $code )
         {
             if( $this->methods[$code]->isAvailable() )
-                $config['payment'][$code] = $this->methods[$code]->getFullConfigArray();
+                $config['payment'][$code]['settings'] = $this->methods[$code]->getFrontConfigArray();
         }
+
+        $config['payment'][Smart2Pay::METHOD_CODE]['methods'] = $configured_methods->getAllConfiguredMethodsPerCountryCode();
 
         return $config;
     }
-    //
-    ///**
-    // * Get instructions text from config
-    // *
-    // * @param string $code
-    // * @return string
-    // */
-    //protected function getInstructions($code)
-    //{
-    //    return nl2br($this->escaper->escapeHtml($this->methods[$code]->getInstructions()));
-    //}
 }
