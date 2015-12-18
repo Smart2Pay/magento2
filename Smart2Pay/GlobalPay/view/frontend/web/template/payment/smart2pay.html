@@ -3,7 +3,7 @@
         <input type="radio"
                name="payment[method]"
                class="radio"
-               data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()" />
+               data-bind="attr: {'id': getCode()}, value: getCode(), click: selectPaymentMethod, visible: isRadioButtonVisible()" />
         <label data-bind="attr: {'for': getCode()}" class="label"><span data-bind="text: getTitle()"></span></label>
     </div>
 
@@ -23,10 +23,10 @@
             <!-- ko template: 'Smart2Pay_GlobalPay/payment/method' --><!-- /ko -->
             <!-- /ko -->
         </div>
-        <!-- ko if: getS2PMethods().length == 0 && selectedS2PCountry == '' -->
+        <!-- ko if: getS2PMethods().length == 0 && selectedS2PCountry() == '' -->
         <div class="no-payments-block"><!-- ko i18n: 'Please select a country first.'--><!-- /ko --></div>
         <!-- /ko -->
-        <!-- ko if: getS2PMethods().length == 0 && selectedS2PCountry != '' -->
+        <!-- ko if: getS2PMethods().length == 0 && selectedS2PCountry() != '' -->
         <div class="no-payments-block"><!-- ko i18n: 'No payment methods for selected country.'--><!-- /ko --></div>
         <!-- /ko -->
 
@@ -43,7 +43,7 @@
                         click: placeOrder,
                         attr: {'title': $t('Place Order')},
                         enable: (getCode() == isChecked()),
-                        css: {disabled: !isPlaceOrderActionAllowed()}
+                        css: {disabled: !isS2PPlaceOrderActionAllowed()}
                         "
                         disabled>
                     <span data-bind="i18n: 'Place Order'"></span>

@@ -1,3 +1,10 @@
-<h3 data-bind="text: title"></h3>
-<p>Description: <span data-bind="text: description"></span></p>
-<p>Test: <span data-bind="text: main_renderer.testFunction()"></span></p>
+<div class="payment-method-title field choice">
+    <input type="radio"
+           name="pulaincurultau"
+           class="radio"
+           data-bind="attr: {'id': 'smart2pay_'+id}, value: id, click: function(){main_renderer.selectS2PPaymentMethod( id, myself ); return true;}" />
+    <label data-bind="attr: {'for': 'smart2pay_'+id}" class="label">
+        <span data-bind="text: title"></span><br/>
+        <span data-bind="text: description"></span>
+    </label>
+</div>

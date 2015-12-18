@@ -186,6 +186,8 @@ class Smart2Pay extends AbstractMethod
         if (!$this->canOrder()) {
             throw new \Magento\Framework\Exception\LocalizedException(__('The order action is not available.'));
         }
+
+        var_dump( $payment->getAdditionalInformation() ); exit;
         return $this;
     }
 
