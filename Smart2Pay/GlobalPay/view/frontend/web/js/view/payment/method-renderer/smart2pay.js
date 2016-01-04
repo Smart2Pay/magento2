@@ -3,9 +3,11 @@ define(
         'ko',
         'Magento_Checkout/js/view/payment/default',
         'Magento_Checkout/js/model/quote',
+        'Magento_Checkout/js/model/url-builder',
+        'mage/url',
         'Smart2Pay_GlobalPay/js/model/payment/method-list'
     ],
-    function (ko, Component, quote, methodsList) {
+    function (ko, Component, quote, urlBuilder, url, methodsList) {
         'use strict';
 
         return Component.extend({
@@ -19,6 +21,11 @@ define(
             redirectAfterPlaceOrder: false,
 
             isS2PPlaceOrderActionAllowed: ko.observable(false),
+
+            afterPlaceOrder: function()
+            {
+                window.location.replace( url.build( 'smart2pay/payment/send/' ) );
+            },
 
             // END Overwrite properties / functions
 
@@ -45,6 +52,8 @@ define(
                 {
                     this.isS2PPlaceOrderActionAllowed( this.selectedS2PCountry() != '' );
                 }
+
+                this.selectPaymentMethod();
             },
 
             /**
