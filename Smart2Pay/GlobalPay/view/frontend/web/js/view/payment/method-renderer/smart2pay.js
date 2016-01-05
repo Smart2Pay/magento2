@@ -13,14 +13,36 @@ define(
         return Component.extend({
 
             defaults: {
-                template: 'Smart2Pay_GlobalPay/payment/smart2pay'
+                template: 'Smart2Pay_GlobalPay/payment/smart2pay',
+                selectedS2PPaymentMethod: 0,
+                selectedS2PCountry: '',
+                isS2PPlaceOrderActionAllowed: false,
+                addressSubscription: null
+            },
+
+            initObservable: function () {
+                this._super()
+                    .observe([
+                        'selectedS2PPaymentMethod',
+                        'isS2PPlaceOrderActionAllowed'
+                    ]);
+
+                this.addressSubscription = quote.billingAddress.subscribe(function () {
+                    this.updateCurrentCountry();
+                }, this);
+
+                return this;
+            },
+
+            disposeSubscriptions: function () {
+                if (this.addressSubscription) {
+                    this.addressSubscription.dispose();
+                }
             },
 
             // Overwrite properties / functions
 
             redirectAfterPlaceOrder: false,
-
-            isS2PPlaceOrderActionAllowed: ko.observable(false),
 
             afterPlaceOrder: function()
             {
@@ -29,19 +51,14 @@ define(
 
             // END Overwrite properties / functions
 
-            selectedS2PPaymentMethod: ko.observable(0),
-            selectedS2PCountry: ko.observable( '' ),
-
-            addressSubscription: 0,
-
             getSelectedS2PCountry: function()
             {
-                return this.selectedS2PCountry();
+                return this.selectedS2PCountry;
             },
 
             selectS2PPaymentMethod: function( method, method_obj )
             {
-                console.log( 'Method [' + method + ']' );
+                console.log( 'Method [' + method + '] C [' + this.selectedS2PCountry + ']' );
 
                 this.selectedS2PPaymentMethod( method );
 
@@ -50,24 +67,22 @@ define(
                     this.isS2PPlaceOrderActionAllowed( false );
                 } else
                 {
-                    this.isS2PPlaceOrderActionAllowed( this.selectedS2PCountry() != '' );
+                    this.isS2PPlaceOrderActionAllowed( this.selectedS2PCountry != '' );
                 }
 
                 this.selectPaymentMethod();
             },
 
-            /**
-             * Get payment method data
-             */
             getData: function() {
 
-                var self = this;
+                console.log( 'Sending [' + this.selectedS2PPaymentMethod() + '] [' + this.selectedS2PCountry + ']' );
 
                 return {
                     "method": this.item.method,
                     "po_number": null,
                     "additional_data": {
-                        "s2p_method": self.selectedS2PPaymentMethod()
+                        "s2p_method": this.selectedS2PPaymentMethod(),
+                        "selected_country": this.selectedS2PCountry
                     }
                 };
             },
@@ -78,34 +93,18 @@ define(
                 if( quote.billingAddress() && quote.billingAddress().countryId )
                     new_country = quote.billingAddress().countryId;
 
-                console.log( 'Check country [' + this.selectedS2PCountry() + '] != [' + new_country + ']' );
+                console.log( 'Check country [' + this.selectedS2PCountry + '] != [' + new_country + ']' );
 
                 if( (new_country == '' && this.isS2PPlaceOrderActionAllowed())
                  || !this.selectedS2PPaymentMethod() )
                     this.isS2PPlaceOrderActionAllowed( false );
 
-                if( this.selectedS2PCountry() != new_country )
+                if( this.selectedS2PCountry != new_country )
                 {
                     console.log( 'NEW country [' + new_country + ']' );
-                    this.selectedS2PCountry( new_country );
+                    this.selectedS2PCountry = new_country;
                     this.refreshMethods( new_country );
                 }
-            },
-
-            getSmart2PayData: function ()
-            {
-                var self = this;
-
-                if( this.addressSubscription )
-                    this.addressSubscription.dispose();
-                else
-                    this.updateCurrentCountry();
-
-                this.addressSubscription = quote.billingAddress.subscribe(function () {
-                    self.updateCurrentCountry();
-                });
-
-                return '';
             },
 
             refreshMethods: function( country )
@@ -117,9 +116,6 @@ define(
                 this.isS2PPlaceOrderActionAllowed( false );
 
                 if( country
-                 && window.checkoutConfig
-                 && window.checkoutConfig.payment
-                 && window.checkoutConfig.payment.smart2pay
                  && window.checkoutConfig.payment.smart2pay.methods
                  && window.checkoutConfig.payment.smart2pay.methods.countries[country]
                 )
@@ -153,16 +149,6 @@ define(
 
                     methodsList( items_arr );
                 }
-            },
-
-            testFunction: function ()
-            {
-                return 'This is from main renderer.';
-            },
-
-            getInstructions: function ()
-            {
-                return '';
             },
 
             getS2PMethods: function()

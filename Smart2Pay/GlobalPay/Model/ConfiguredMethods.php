@@ -127,7 +127,7 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
         if( !isset( $params['only_active'] ) )
             $params['only_active'] = true;
 
-        // $return_arr[{method_ids}][{country_ids}]['surcharge'], $return_arr[{method_ids}][{country_ids}]['base_amount'], ...
+        // $return_arr[{method_ids}][{country_ids}]['surcharge'], $return_arr[{method_ids}][{country_ids}]['fixed_amount'], ...
         $return_arr = array();
 
         $collection = $this->getCollection();
@@ -156,6 +156,109 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
         }
 
         return $return_arr;
+    }
+
+    /**
+     * @param int $method_id ID of method to get all configurations for
+     * @param bool|array $params
+     *
+     * @return array $return_arr[{country_code}]['surcharge'], $return_arr[{country_ids}]['fixed_amount'], ...
+     */
+    public function getConfiguredMethodDetails( $method_id, $params = false )
+    {
+        $method_id = intval( $method_id );
+        if( empty( $method_id ) )
+            return false;
+
+        if( empty( $params ) or !is_array( $params ) )
+            $params = array();
+
+        if( !isset( $params['only_active'] ) )
+            $params['only_active'] = true;
+        if( !isset( $params['country_code'] ) )
+            $params['country_code'] = '';
+
+        $our_country_id = 0;
+        if( !empty( $params['country_code'] ) )
+        {
+            $params['country_code'] = strtoupper( trim( $params['country_code'] ) );
+
+            if( strlen( $params['country_code'] ) != 2 )
+                return false;
+
+            $c_collection = $this->_countryFactory->create()->getCollection();
+            $c_collection->addFieldToSelect( '*' );
+            $c_collection->addFieldToFilter( $c_collection->getMainTable().'.code', $params['country_code'] );
+            $c_collection->getSelect()->limit( 1 );
+
+            if( ($country_obj = $c_collection->fetchItem())
+            and ($country_arr = $country_obj->getData()) )
+                $our_country_id = $country_arr['country_id'];
+
+            if( empty( $our_country_id ) )
+                return false;
+        }
+
+
+        $collection = $this->getCollection();
+
+        $collection->addFieldToSelect( '*' );
+
+        $collection->addFieldToFilter( $collection->getMainTable().'.method_id', $method_id );
+
+        if( !empty( $our_country_id ) )
+        {
+            $collection->addFieldToFilter(
+                [
+                   $collection->getMainTable() . '.country_id',
+                   $collection->getMainTable() . '.country_id'
+                ],
+                [ 0, $our_country_id ] );
+
+            $collection->setOrder( $collection->getMainTable() . '.country_id', 'DESC' );
+        }
+
+        $method_collection = $this->_methodFactory->create()->getCollection();
+
+        $collection->getSelect()->join(
+            $method_collection->getMainTable(),
+            'main_table.method_id = '.$method_collection->getMainTable().'.method_id'
+        );
+
+        if( !empty( $params['only_active'] ) )
+            $collection->addFieldToFilter( $method_collection->getMainTable().'.active', 1 );
+
+        $data_arr = array();
+        $countries_ids_arr = array();
+        while( ($configured_method_obj = $collection->fetchItem())
+               and ($configured_method_arr = $configured_method_obj->getData()) )
+        {
+            if( !empty( $configured_method_arr['country_id'] ) )
+                $countries_ids_arr[] = $configured_method_arr['country_id'];
+
+            $data_arr[$configured_method_arr['country_id']] = $configured_method_arr;
+        }
+
+        if( empty( $data_arr ) )
+            return false;
+
+        $ids_to_codes_arr = [ 0 => Country::INTERNATIONAL_CODE ];
+        if( !empty( $countries_ids_arr ) )
+        {
+            //! TODO: query countries table to obtain country codes from ids
+            // ATM all method settings are same for all countries...
+        }
+
+        $return_arr = array();
+        foreach( $data_arr as $country_id => $details_arr )
+        {
+            if( !isset( $ids_to_codes_arr[$country_id] ) )
+                continue;
+
+            $return_arr[$ids_to_codes_arr[$country_id]] = $details_arr;
+        }
+
+        return (!empty( $return_arr )?$return_arr:false);
     }
 
     /**

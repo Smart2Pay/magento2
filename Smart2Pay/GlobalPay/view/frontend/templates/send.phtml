@@ -4,6 +4,10 @@
     /** @var \Smart2Pay\GlobalPay\Block\Payment\Send $block */
 
     $smart2pay_details = $block->getSpDetails();
+    $order_details = $block->getOrderDetails();
+
+    var_dump( $order_details );
+    var_dump( $block->getSomeDetails() );
 ?>
 <div class="checkout-success">
     <?php if ($block->getOrderId()):?>
@@ -16,12 +20,13 @@
     <?php endif;?>
 
     <p><?php
-        var_dump( $block->getData() );
+        //var_dump( $block->getData() );
+        // var_dump( $order_details );
     ?></p>
     <form name="smart2pay_payment_form" id="smart2pay_payment_form" method="post">
     <?php
         echo 'iiin form';
-        var_dump( $smart2pay_details );
+        //var_dump( $smart2pay_details );
     ?>
     </form>
 

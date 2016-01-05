@@ -17,6 +17,8 @@ class Country extends \Magento\Framework\Model\AbstractModel implements CountryI
      */
     const CACHE_TAG = 'smart2pay_globalpay_country';
 
+    const INTERNATIONAL_CODE = 'AA';
+
     /**
      * @var string
      */

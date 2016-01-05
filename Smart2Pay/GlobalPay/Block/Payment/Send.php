@@ -22,6 +22,9 @@ class Send extends \Magento\Framework\View\Element\Template
      */
     protected $httpContext;
 
+    /** @var \Smart2Pay\GlobalPay\Model\Smart2Pay */
+    protected $_s2pModel;
+
     /**
      * @param \Magento\Framework\View\Element\Template\Context $context
      * @param \Magento\Checkout\Model\Session $checkoutSession
@@ -34,6 +37,7 @@ class Send extends \Magento\Framework\View\Element\Template
         \Magento\Checkout\Model\Session $checkoutSession,
         \Magento\Sales\Model\Order\Config $orderConfig,
         \Magento\Framework\App\Http\Context $httpContext,
+        \Smart2Pay\GlobalPay\Model\Smart2Pay $s2pModel,
         array $data = []
     ) {
         parent::__construct($context, $data);
@@ -41,6 +45,7 @@ class Send extends \Magento\Framework\View\Element\Template
         $this->_orderConfig = $orderConfig;
         $this->_isScopePrivate = true;
         $this->httpContext = $httpContext;
+        $this->_s2pModel = $s2pModel;
     }
 
     /**
@@ -61,12 +66,13 @@ class Send extends \Magento\Framework\View\Element\Template
      */
     protected function prepareBlockData()
     {
+        $last_quote = $this->_checkoutSession->getQuote();
+
+        $last_quote->getPayment();
+
         $order = $this->_checkoutSession->getLastRealOrder();
 
-        $smart2pay_details = array(
-            'gigi' => 1,
-            'quote_id' => 2,
-        );
+        $smart2pay_details = $this->_s2pModel->getFullConfigArray();
 
         $this->addData(
             [
@@ -83,6 +89,8 @@ class Send extends \Magento\Framework\View\Element\Template
                 'can_view_order'  => $this->canViewOrder($order),
                 'order_id'  => $order->getIncrementId(),
                 'sp_details' => $smart2pay_details,
+                'order_details' => $this->_checkoutSession->getQuote()->getPayment()->getAdditionalInformation(),
+                'some_details' => $this->_checkoutSession->getQuote()->getPayment()->getAdditionalData(),
                 'order_quote_id' => $order->getQuoteId(),
             ]
         );
