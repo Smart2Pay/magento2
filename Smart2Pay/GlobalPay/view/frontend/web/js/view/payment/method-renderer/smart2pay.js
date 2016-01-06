@@ -17,7 +17,8 @@ define(
                 selectedS2PPaymentMethod: 0,
                 selectedS2PCountry: '',
                 isS2PPlaceOrderActionAllowed: false,
-                addressSubscription: null
+                addressSubscription: null,
+                bubuSubscription: null
             },
 
             initObservable: function () {
@@ -31,12 +32,19 @@ define(
                     this.updateCurrentCountry();
                 }, this);
 
+                this.bubuSubscription = this.isS2PPlaceOrderActionAllowed.subscribe(function () {
+                    console.log( 'Este [' + (this.isS2PPlaceOrderActionAllowed()?'true':'false') + ']' );
+                }, this);
+
                 return this;
             },
 
             disposeSubscriptions: function () {
                 if (this.addressSubscription) {
                     this.addressSubscription.dispose();
+                }
+                if (this.bubuSubscription) {
+                    this.bubuSubscription.dispose();
                 }
             },
 
@@ -51,11 +59,6 @@ define(
 
             // END Overwrite properties / functions
 
-            getSelectedS2PCountry: function()
-            {
-                return this.selectedS2PCountry;
-            },
-
             selectS2PPaymentMethod: function( method, method_obj )
             {
                 console.log( 'Method [' + method + '] C [' + this.selectedS2PCountry + ']' );
@@ -64,9 +67,11 @@ define(
 
                 if( method == 0 )
                 {
+                    console.log( 'NO allow' );
                     this.isS2PPlaceOrderActionAllowed( false );
                 } else
                 {
+                    console.log( 'allow' );
                     this.isS2PPlaceOrderActionAllowed( this.selectedS2PCountry != '' );
                 }
 
@@ -81,7 +86,7 @@ define(
                     "method": this.item.method,
                     "po_number": null,
                     "additional_data": {
-                        "s2p_method": this.selectedS2PPaymentMethod(),
+                        "sp_method": this.selectedS2PPaymentMethod(),
                         "selected_country": this.selectedS2PCountry
                     }
                 };
@@ -95,9 +100,9 @@ define(
 
                 console.log( 'Check country [' + this.selectedS2PCountry + '] != [' + new_country + ']' );
 
-                if( (new_country == '' && this.isS2PPlaceOrderActionAllowed())
-                 || !this.selectedS2PPaymentMethod() )
-                    this.isS2PPlaceOrderActionAllowed( false );
+                //if( (new_country == '' && this.isS2PPlaceOrderActionAllowed())
+                // || !this.selectedS2PPaymentMethod() )
+                //    this.isS2PPlaceOrderActionAllowed( false );
 
                 if( this.selectedS2PCountry != new_country )
                 {

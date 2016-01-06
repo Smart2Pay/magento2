@@ -41,7 +41,7 @@
                         data-bind="
                         click: placeOrder,
                         attr: {'title': $t('Place Order')},
-                        enable: (getCode() == isChecked() && isS2PPlaceOrderActionAllowed())
+                        enable: isS2PPlaceOrderActionAllowed()
                         "
                         disabled>
                     <span data-bind="i18n: 'Place Order'"></span>

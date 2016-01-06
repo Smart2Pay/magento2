@@ -18,6 +18,8 @@ class Smart2Pay extends AbstractMethod
 {
     const METHOD_CODE = 'smart2pay';
 
+    const PAYMENT_METHOD_BT = 1, PAYMENT_METHOD_SIBS = 20;
+
     const DEFAULT_EMAIL_TEMPLATE_PAYMENT_CONFIRMATION = 'smart2pay_email_payment_confirmation',
           DEFAULT_EMAIL_TEMPLATE_INSTRUCTIONS_SIBS = 'smart2pay_email_payment_instructions_sibs',
           DEFAULT_EMAIL_TEMPLATE_INSTRUCTIONS_BT = 'smart2pay_email_payment_instructions_bt';
@@ -174,6 +176,29 @@ class Smart2Pay extends AbstractMethod
 
         $config_arr = array_merge( $config_arr, $extra_config_array );
 
+        switch( $config_arr['environment'] )
+        {
+            default:
+            case Environment::ENV_DEMO:
+                $config_arr['post_url'] = 'https://apitest.smart2pay.com';
+                $config_arr['signature'] = 'c439e420-d4d9';
+                $config_arr['mid'] = '1045';
+                $config_arr['site_id'] = '30561';
+            break;
+
+            case Environment::ENV_TEST:
+                $config_arr['post_url'] = 'https://apitest.smart2pay.com';
+                $config_arr['signature'] = $config_arr['signature_test'];
+                $config_arr['mid'] = $config_arr['mid_test'];
+            break;
+
+            case Environment::ENV_LIVE:
+                $config_arr['post_url'] = 'https://apitest.smart2pay.com';
+                $config_arr['signature'] = $config_arr['signature_live'];
+                $config_arr['mid'] = $config_arr['mid_live'];
+            break;
+        }
+
         return $config_arr;
     }
 
@@ -190,7 +215,7 @@ class Smart2Pay extends AbstractMethod
 
         $infoInstance = $this->getInfoInstance();
 
-        $s2p_method = $data->getS2pMethod();
+        $s2p_method = $data->getSpMethod();
         if( ($country_code = $data->getSelectedCountry()) )
             $country_code = strtoupper( trim( $country_code ) );
 
@@ -200,11 +225,23 @@ class Smart2Pay extends AbstractMethod
          or empty( $country_code )
          or !($method_details = $configured_methods_instance->getConfiguredMethodDetails( $s2p_method, [ 'country_code' => $country_code, 'only_active' => true ] )) )
         {
-            throw new \Magento\Framework\Exception\LocalizedException( __( 'Please select a Smart2Pay method first. ['.$s2p_method.']['.$country_code.']' ) );
+            throw new \Magento\Framework\Exception\LocalizedException( __( 'Please select a valid Smart2Pay method first.' ) );
         }
 
-        $infoInstance->setAdditionalInformation( 's2p_method', $s2p_method );
-        $infoInstance->setAdditionalInformation( 's2p_details', $method_details );
+        $details_arr = array();
+        if( !empty( $method_details[$country_code] ) )
+            $details_arr = $method_details[$country_code];
+        elseif( !empty( $method_details[Country::INTERNATIONAL_CODE] ) )
+            $details_arr = $method_details[Country::INTERNATIONAL_CODE];
+
+        if( empty( $details_arr ) or !is_array( $details_arr ) )
+        {
+            throw new \Magento\Framework\Exception\LocalizedException( __( 'Couldn\'t obtain Smart2Pay payment method details. Please retry.' ) );
+        }
+
+        $infoInstance->setAdditionalInformation( 'sp_method', $s2p_method );
+        $infoInstance->setAdditionalInformation( 'sp_surcharge', (isset( $details_arr['surcharge'] )?$details_arr['surcharge']:0) );
+        $infoInstance->setAdditionalInformation( 'sp_fixed_amount', (isset( $details_arr['fixed_amount'] )?$details_arr['fixed_amount']:0) );
 
         return $this;
     }

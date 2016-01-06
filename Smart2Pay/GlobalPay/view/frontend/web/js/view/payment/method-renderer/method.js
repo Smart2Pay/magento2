@@ -61,8 +61,9 @@ define(
                 return {
                     "method": this.item.method,
                     "po_number": null,
-                    "additional_data": null,
-                    "s2p_payment_method": self.selectedS2PPaymentMethod
+                    "additional_data": {
+                        "s2p_payment_method": self.selectedS2PPaymentMethod
+                    }
                 };
             },
 

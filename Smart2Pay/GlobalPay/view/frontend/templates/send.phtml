@@ -3,36 +3,219 @@
 
     /** @var \Smart2Pay\GlobalPay\Block\Payment\Send $block */
 
-    $smart2pay_details = $block->getSpDetails();
-    $order_details = $block->getOrderDetails();
-
-    var_dump( $order_details );
-    var_dump( $block->getSomeDetails() );
+    $form_data = $block->getFormData();
 ?>
-<div class="checkout-success">
-    <?php if ($block->getOrderId()):?>
-        <?php if ($block->getCanViewOrder()) :?>
-            <p><?php echo __('Your order number is: %1.', sprintf('<a href="%s" class="order-number"><strong>%s</strong></a>', $block->escapeHtml($block->getViewOrderUrl()), $block->escapeHtml($block->getOrderId()))) ?></p>
-        <?php  else :?>
-            <p><?php echo __('Your order # is: <span>%1</span>.', $block->escapeHtml($block->getOrderId())) ?></p>
-        <?php endif;?>
-        <p><?php /* @escapeNotVerified */ echo __('We\'ll email you an order confirmation with details and tracking info.') ?></p>
-    <?php endif;?>
-
-    <p><?php
-        //var_dump( $block->getData() );
-        // var_dump( $order_details );
-    ?></p>
-    <form name="smart2pay_payment_form" id="smart2pay_payment_form" method="post">
+<div class="smart2pay-checkout">
     <?php
-        echo 'iiin form';
-        //var_dump( $smart2pay_details );
-    ?>
-    </form>
-
-    <div class="actions-toolbar">
-        <div class="primary">
-            <a class="action primary continue" href="<?php /* @escapeNotVerified */ echo $block->getUrl() ?>"><span><?php /* @escapeNotVerified */ echo __('Continue Shopping') ?></span></a>
+    if( !$block->getOrderOk() )
+    {
+        ?>
+        <p><?php echo $block->getErrorMessage()?></p>
+        <div class="actions-toolbar">
+            <div class="primary">
+                <a class="action primary continue" href="<?php /* @escapeNotVerified */ echo $block->getUrl() ?>"><span><?php /* @escapeNotVerified */ echo __('Continue Shopping') ?></span></a>
+            </div>
         </div>
-    </div>
+        <?php
+    } else
+    {
+        ?>
+        <p><?php echo __( 'Processing order #%1... Please wait.', $block->escapeHtml( $block->getOrderId() ) ) ?></p>
+        <div style="<?php echo ($form_data['debug_form']) ? "display: table;" : "display: none;" ?>">
+
+            <?php
+                if( $form_data['debug_form'] )
+                {
+                    ?>
+                    <p><b>Message to hash</b>: <?php echo $form_data['message_to_hash'];?></p>
+                    <p><b>Hash</b>: <?php echo $form_data['hash']?></p>
+                    <?php
+                }
+            ?>
+
+            <form action="<?php echo  $form_data['post_url'] ?>" id="s2pform" method="post" <?php if($form_data['redirect_in_iframe']) echo 'target="merchantIframe"'; ?>>
+                <table>
+                    <tr>
+                        <td>Environment</td>
+                        <td><strong><?php echo  $form_data['environment'] ?></strong></td>
+                    </tr>
+                    <tr>
+                        <td>MerchantID</td>
+                        <td><input type="text" name="MerchantID" value="<?php echo  $form_data['mid'] ?>" /></td>
+                    </tr>
+                    <tr>
+                        <td>MerchantTransactionID</td>
+                        <td><input type="text" name="MerchantTransactionID" value="<?php echo  $form_data['order_id'] ?>"/></td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td><input type="text" name="Amount" value="<?php echo  $form_data['amount'] ?>"/></td>
+                    </tr>
+                    <tr>
+                        <td>Currency</td>
+                        <td><input type="text" name="Currency" value="<?php echo  $form_data['currency'] ?>"/></td>
+                    </tr>
+                    <tr>
+                        <td>ReturnURL</td>
+                        <td><input type="text" name="ReturnURL" value="<?php echo  $form_data['return_url'] ?>"/></td>
+                    </tr>
+                    <?php
+                    if( !empty( $form_data['site_id'] ) )
+                    {
+                        ?>
+                        <tr>
+                            <td>SiteID</td>
+                            <td><input type="text" name="SiteID" value="<?php echo  $form_data['site_id'] ?>"/></td>
+                        </tr>
+                        <?php
+                    }
+                    ?>
+                    <tr>
+                        <td colspan="2">Optional:</td>
+                    </tr>
+                    <tr>
+                        <td>CustomerName</td>
+                        <td><input type="text" name="CustomerName" value="<?php echo  $form_data['customer_name'] ?>" /></td>
+                    </tr>
+
+                    <tr>
+                        <td>CustomerLastName</td>
+                        <td><input type="text" name="CustomerLastName" value="<?php echo  $form_data['customer_last_name'] ?>"/></td>
+                    </tr>
+
+                    <tr>
+                        <td>CustomerFirstName</td>
+                        <td><input type="text" name="CustomerFirstName" value="<?php echo  $form_data['customer_first_name'] ?>"/></td>
+                    </tr>
+
+                    <tr>
+                        <td>CustomerEmail</td>
+                        <td><input type="text" name="CustomerEmail" value="<?php echo  $form_data['customer_email'] ?>"/></td>
+                    </tr>
+                    <tr>
+                        <td>Country</td>
+                        <td><input type="text" name="Country" value="<?php echo  $form_data['country'] ?>"/></td>
+                    </tr>
+                    <tr>
+                        <td>MethodID</td>
+                        <td><input type="text" name="MethodID" value="<?php echo  $form_data['method_id'] ?>"/></td>
+                    </tr>
+                    <tr>
+                        <td>Description</td>
+                        <td><input type="text" name="Description" value="<?php echo $form_data['order_description'] ?>" /></td>
+                    </tr>
+
+                    <?php
+
+                    if( !empty( $form_data['skip_hpp'] ) )
+                    {
+                        ?>
+                        <tr>
+                            <td>SkipHPP</td>
+                            <td><input type="text" name="SkipHPP" value="1" /></td>
+                        </tr>
+                        <?php
+                    }
+
+                    if( $form_data['redirect_in_iframe'] )
+                    {
+                        ?>
+                        <tr>
+                            <td>RedirectInIframe</td>
+                            <td><input type="text" name="RedirectInIframe" value="1" /></td>
+                        </tr>
+                        <?php
+                    }
+
+                    if( $form_data['skin_id'] )
+                    {
+                        ?>
+                        <tr>
+                            <td>SkinID</td>
+                            <td><input type="text" name="SkinID" value="<?php echo $form_data['skin_id']?>" /></td>
+                        </tr>
+                        <?php
+                    }
+                    ?>
+
+                    <tr>
+                        <td>Hash</td>
+                        <td><input type="text" name="Hash" value="<?php echo  $form_data['hash'] ?>" /></td>
+                    </tr>
+                    <tr>
+                        <td colspan='2'><input type="submit" value="Submit"/></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+
+        <div id="iframe-container" style="display: none; position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; z-index: 1000">
+            <div style="position: relative; width: 100%; height: 100%;">
+                <div style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; background: #333; opacity: 0.5; filter:alpha(opacity=50)"></div>
+                <div style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;">
+                    <div style="display: table; margin: 0px auto; margin-top: 50px;">
+                        <?php
+                            if( $form_data['redirect_in_iframe']
+                                && $form_data['skip_payment_page']
+                                && ($form_data['method_id'] == 1001 || $form_data['method_id'] == 1002 || $form_data['method_id'] == 76)):?>
+                        <iframe style='border: none; margin: 0px auto; background-color: #ffffff;' id="merchantIframe" name="merchantIframe" src="" width="780" height="500">
+                            <?php else:?>
+                            <iframe style='border: none; margin: 0px auto; background-color: transparent;' id="merchantIframe" name="merchantIframe" src="" width="900" height="800">
+                                <?php endif;?>
+                            </iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+
+            jQuery.noConflict();
+
+            function modalIframe(){
+                jQuery("#iframe-container").css({height: jQuery('body').height()});
+                jQuery("#iframe-container").appendTo('body');
+                jQuery("#iframe-container").show();
+            }
+
+            jQuery(document).ready(function() {
+
+                jQuery('#s2pform').submit(function(){
+                    modalIframe();
+                });
+                // autosend form if needed
+                <?php if(!$form_data['debug_form']):?>
+                    jQuery("#s2pform").submit();
+                <?php endif; ?>
+                // get/parse smart2pay message
+                var onmessage = function(e) {
+                    if(e.data == 'close_HPP') {
+                        setTimeout(function() {jQuery('iframe#merchantIframe').remove()}, 300);
+                    }
+                    else if (e.data.substring(0, 7) == "height=") {
+                        var iframe_height = e.data.substring(7);
+                        jQuery('iframe#merchantIframe').attr('height', parseInt(iframe_height)+300);
+                    }
+                    else if (e.data.substring(0, 6) == "width=") {
+                        var iframe_width = e.data.substring(6);
+                        jQuery('iframe#merchantIframe').attr('width', parseInt(iframe_width)+100);
+                    }
+
+                    else if  (e.data.substring(0, 12) == "redirectURL="){
+                        window.location = e.data.substring(12);
+                    }
+                };
+
+                // set event listener for smart2pay
+                if(typeof window.addEventListener != 'undefined') {
+                    window.addEventListener('message', onmessage, false);
+                }
+                else if(typeof window.attachEvent != 'undefined') {
+                    window.attachEvent('onmessage', onmessage);
+                }
+            });
+        </script>
+        <?php
+    }
+    ?>
 </div>

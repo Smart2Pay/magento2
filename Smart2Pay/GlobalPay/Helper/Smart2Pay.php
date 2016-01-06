@@ -32,6 +32,27 @@ class Smart2Pay extends AbstractHelper
         return $currency->getConfigBaseCurrencies();
     }
 
+    public function s2p_mb_substr( $message, $start, $length )
+    {
+        if( function_exists( 'mb_substr' ) )
+            return mb_substr( $message, $start, $length, 'UTF-8' );
+        else
+            return substr( $message, $start, $length );
+    }
+
+    public function s2p_mb_strtolower( $message )
+    {
+        if( function_exists( 'mb_strtolower' ) )
+            return mb_strtolower( $message, 'UTF-8' );
+        else
+            return strtolower( $message );
+    }
+
+    public function computeSHA256Hash( $message )
+    {
+        return hash( 'sha256', $this->s2p_mb_strtolower( $message ) );
+    }
+
     /**
      * Retrieve param by key
      *

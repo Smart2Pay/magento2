@@ -188,7 +188,7 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
 
             $c_collection = $this->_countryFactory->create()->getCollection();
             $c_collection->addFieldToSelect( '*' );
-            $c_collection->addFieldToFilter( $c_collection->getMainTable().'.code', $params['country_code'] );
+            $c_collection->addFieldToFilter( 'main_table.code', $params['country_code'] );
             $c_collection->getSelect()->limit( 1 );
 
             if( ($country_obj = $c_collection->fetchItem())
@@ -204,18 +204,18 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
 
         $collection->addFieldToSelect( '*' );
 
-        $collection->addFieldToFilter( $collection->getMainTable().'.method_id', $method_id );
+        $collection->addFieldToFilter( 'main_table.method_id', $method_id );
 
         if( !empty( $our_country_id ) )
         {
             $collection->addFieldToFilter(
                 [
-                   $collection->getMainTable() . '.country_id',
-                   $collection->getMainTable() . '.country_id'
+                   'main_table.country_id',
+                   'main_table.country_id'
                 ],
                 [ 0, $our_country_id ] );
 
-            $collection->setOrder( $collection->getMainTable() . '.country_id', 'DESC' );
+            $collection->setOrder( 'main_table.country_id', 'DESC' );
         }
 
         $method_collection = $this->_methodFactory->create()->getCollection();
