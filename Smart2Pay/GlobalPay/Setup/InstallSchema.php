@@ -196,6 +196,12 @@ class InstallSchema implements InstallSchemaInterface
             ['nullable' => true],
             'Key-Value extra details for transaction'
         )->addColumn(
+            'payment_status',
+            \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
+            null,
+            ['default' => 0],
+            'Status received from server'
+        )->addColumn(
             'created',
             \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
             null,

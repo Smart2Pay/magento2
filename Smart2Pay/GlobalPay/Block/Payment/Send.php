@@ -31,6 +31,9 @@ class Send extends \Magento\Framework\View\Element\Template
     /** @var \Smart2Pay\GlobalPay\Model\Logger */
     protected $_s2pLogger;
 
+    /** @var \Smart2Pay\GlobalPay\Model\TransactionFactory */
+    protected $_s2pTransaction;
+
     /**
      * Helper
      *
@@ -51,6 +54,7 @@ class Send extends \Magento\Framework\View\Element\Template
         \Magento\Sales\Model\Order\Config $orderConfig,
         \Magento\Framework\App\Http\Context $httpContext,
         \Smart2Pay\GlobalPay\Model\Smart2Pay $s2pModel,
+        \Smart2Pay\GlobalPay\Model\TransactionFactory $s2pTransaction,
         \Smart2Pay\GlobalPay\Model\Logger $s2pLogger,
         \Smart2Pay\GlobalPay\Helper\Smart2Pay $helperSmart2Pay,
         array $data = []
@@ -64,6 +68,7 @@ class Send extends \Magento\Framework\View\Element\Template
         $this->_helper = $helperSmart2Pay;
 
         $this->_s2pModel = $s2pModel;
+        $this->_s2pTransaction = $s2pTransaction;
         $this->_s2pLogger = $s2pLogger;
     }
 
@@ -95,7 +100,7 @@ class Send extends \Magento\Framework\View\Element\Template
 
         elseif( !($additional_info = $order->getPayment()->getAdditionalInformation())
              or !is_array( $additional_info )
-             or empty( $additional_info['sp_method'] ) )
+             or empty( $additional_info['sp_method'] ) or empty( $additional_info['sp_transaction'] ) )
             $order_error_message = __( 'Couldn\'t extract payment information from order.' );
 
         if( !empty( $order_error_message ) )
@@ -111,7 +116,7 @@ class Send extends \Magento\Framework\View\Element\Template
             $environment = Environment::ENV_LIVE;
 
         if( $environment == Environment::ENV_DEMO )
-            $merchant_transaction_id = base_convert( time(), 10, 36 ).'_'.$merchant_transaction_id;
+            $merchant_transaction_id = $this->_helper->convert_to_demo_merchant_transaction_id( $merchant_transaction_id );
 
         $form_data = $smart2pay_config;
         $messageToHash = '';
@@ -187,6 +192,17 @@ class Send extends \Magento\Framework\View\Element\Template
             $form_data['hash'] = $this->_helper->computeSHA256Hash( $messageToHash );
 
             $this->_s2pLogger->write( 'Form hash: ['.$messageToHash.']', 'info' );
+
+            $s2p_transaction = $this->_s2pTransaction->create();
+
+            $s2p_transaction
+                ->setID( $additional_info['sp_transaction'] )
+                ->setMethodID( $form_data['method_id'] )
+                ->setMerchantTransactionID( $form_data['order_id'] )
+                ->setSiteID( $form_data['site_id'] )
+                ->setEnvironment( $form_data['environment'] );
+
+            $s2p_transaction->save();
         }
 
         $this->addData(

@@ -40,6 +40,13 @@ class Logger extends \Magento\Framework\Model\AbstractModel implements LoggerInt
      */
     public function write( $message, $type = 'info', $file = '', $line = '' )
     {
+        if( empty( $file ) or empty( $line ) )
+        {
+            $backtrace = debug_backtrace();
+            $file = $backtrace[0]['file'];
+            $line = $backtrace[0]['line'];
+        }
+
         return $this->_getResource()->write( $message, $type, $file, $line );
     }
 

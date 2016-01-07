@@ -61,6 +61,9 @@ class Smart2Pay extends AbstractMethod
     /** @var \Smart2Pay\GlobalPay\Model\ConfiguredMethods */
     protected $_configuredMethods;
 
+    /** @var \Smart2Pay\GlobalPay\Model\TransactionFactory */
+    protected $_s2pTransaction;
+
     public function __construct(
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
@@ -70,6 +73,7 @@ class Smart2Pay extends AbstractMethod
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
         \Smart2Pay\GlobalPay\Model\ConfiguredMethodsFactory $configuredMethodsFactory,
+        \Smart2Pay\GlobalPay\Model\TransactionFactory $transactionFactory,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
@@ -77,7 +81,13 @@ class Smart2Pay extends AbstractMethod
     {
         parent::__construct( $context, $registry, $extensionFactory, $customAttributeFactory, $paymentData, $scopeConfig, $logger, $resource, $resourceCollection, $data );
 
+        $this->_s2pTransaction = $transactionFactory;
         $this->_configuredMethods = $configuredMethodsFactory;
+    }
+
+    public static function validStatus( $status )
+    {
+
     }
 
     /**
@@ -225,7 +235,7 @@ class Smart2Pay extends AbstractMethod
          or empty( $country_code )
          or !($method_details = $configured_methods_instance->getConfiguredMethodDetails( $s2p_method, [ 'country_code' => $country_code, 'only_active' => true ] )) )
         {
-            throw new \Magento\Framework\Exception\LocalizedException( __( 'Please select a valid Smart2Pay method first.' ) );
+            throw new LocalizedException( __( 'Please select a valid Smart2Pay method first.' ) );
         }
 
         $details_arr = array();
@@ -236,12 +246,21 @@ class Smart2Pay extends AbstractMethod
 
         if( empty( $details_arr ) or !is_array( $details_arr ) )
         {
-            throw new \Magento\Framework\Exception\LocalizedException( __( 'Couldn\'t obtain Smart2Pay payment method details. Please retry.' ) );
+            throw new LocalizedException( __( 'Couldn\'t obtain Smart2Pay payment method details. Please retry.' ) );
         }
+
+        $s2p_transaction = $this->_s2pTransaction->create();
+
+        $s2p_transaction
+            ->setMethodID( $s2p_method )
+            ->setMerchantTransactionID( 'NOTSETYET_'.microtime( true ) );
+
+        $s2p_transaction->save();
 
         $infoInstance->setAdditionalInformation( 'sp_method', $s2p_method );
         $infoInstance->setAdditionalInformation( 'sp_surcharge', (isset( $details_arr['surcharge'] )?$details_arr['surcharge']:0) );
         $infoInstance->setAdditionalInformation( 'sp_fixed_amount', (isset( $details_arr['fixed_amount'] )?$details_arr['fixed_amount']:0) );
+        $infoInstance->setAdditionalInformation( 'sp_transaction', $s2p_transaction->getID() );
 
         return $this;
     }
@@ -259,7 +278,7 @@ class Smart2Pay extends AbstractMethod
     public function order(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {
         if (!$this->canOrder()) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('The order action is not available.'));
+            throw new LocalizedException(__('The order action is not available.'));
         }
 
         return $this;
