@@ -14,22 +14,38 @@ class Smart2Pay extends AbstractHelper
      */
     protected $_currencyFactory;
 
+    /** @var \Magento\Framework\App\Config\ScopeConfigInterface */
+    protected $_scopeConfig;
+
     /**
      * @param \Magento\Framework\App\Helper\Context $context
      * @param \Magento\Directory\Model\CurrencyFactory $currencyFactory
      */
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
-        \Magento\Directory\Model\CurrencyFactory $currencyFactory
+        \Magento\Directory\Model\CurrencyFactory $currencyFactory,
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
     ) {
         $this->_currencyFactory = $currencyFactory;
         parent::__construct( $context );
+
+        $this->_scopeConfig = $scopeConfig;
     }
 
     public function getBaseCurrencies()
     {
         $currency = $this->_currencyFactory->create();
         return $currency->getConfigBaseCurrencies();
+    }
+
+    public function getStoreName()
+    {
+        return $this->scopeConfig->getValue( 'general/store_information/name', \Magento\Store\Model\ScopeInterface::SCOPE_STORE );
+    }
+
+    public function getStoreConfig( $path )
+    {
+        return $this->scopeConfig->getValue( $path, \Magento\Store\Model\ScopeInterface::SCOPE_STORE );
     }
 
     public function s2p_mb_substr( $message, $start, $length )
@@ -157,6 +173,15 @@ class Smart2Pay extends AbstractHelper
     public function getParam( $key, $defaultValue = null )
     {
         return $this->_request->getParam( $key, $defaultValue );
+    }
+
+    /**
+     * Retrieve all request params
+     * @return array()
+     */
+    public function getParams()
+    {
+        return $this->_request->getParams();
     }
 
     static public function value_to_string( $val )

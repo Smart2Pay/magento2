@@ -4,7 +4,6 @@
  * @var $block \Smart2Pay\GlobalPay\Block\Form\Smart2Pay
  */
 ?>
-bubukl
 <?php if ($block->getMethod()->getMailingAddress() || $block->getMethod()->getPayableTo()): ?>
     <dl class="items check payable" id="payment_form_<?php echo $block->escapeHtml($block->getMethodCode()) ?>" style="display:none;">
         <?php if ($block->getMethod()->getPayableTo()): ?>

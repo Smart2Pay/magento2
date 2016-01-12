@@ -14,6 +14,7 @@ class Notification extends \Magento\Framework\App\Action\Action
         $this->resultPageFactory = $resultPageFactory;
         parent::__construct($context);
     }
+
     /**
      * Load the page defined in view/frontend/layout/samplenewpage_index_index.xml
      *

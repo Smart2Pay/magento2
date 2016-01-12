@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<page_types xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_types.xsd">
+    <type id="smart2pay_payment_send" label="Smart2Pay redirect page"/>
+    <type id="smart2pay_payment_finish" label="Smart2Pay return page"/>
+    <type id="smart2pay_payment_notification" label="Smart2Pay notification page"/>
+</page_types>

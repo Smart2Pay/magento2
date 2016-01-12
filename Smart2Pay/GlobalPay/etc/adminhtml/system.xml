@@ -13,26 +13,31 @@
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/smart2pay/active</config_path>
                     </field>
-                    <field id="environment" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <field id="title" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Method Title</label>
+                        <comment><![CDATA[Insert a custom title for this payment module]]></comment>
+                        <config_path>payment/smart2pay/title</config_path>
+                    </field>
+                    <field id="environment" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Environment</label>
                         <comment><![CDATA[To obtain your credentials for live and test environments, please contact us at <a href="mailto:support@smart2pay.com">support@smart2pay.com</a>.]]></comment>
                         <source_model>Smart2Pay\GlobalPay\Model\Config\Source\Environment</source_model>
                         <config_path>payment/smart2pay/environment</config_path>
                     </field>
-                    <field id="post_url_live" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="post_url_live" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Post URL Live</label>
                         <config_path>payment/smart2pay/post_url_live</config_path>
                     </field>
-                    <field id="post_url_test" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="post_url_test" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Post URL Test</label>
                         <config_path>payment/smart2pay/post_url_test</config_path>
                     </field>
-                    <field id="mid_live" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="mid_live" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>MID Live</label>
                         <frontend_class>validate-number</frontend_class>
                         <config_path>payment/smart2pay/mid_live</config_path>
                     </field>
-                    <field id="mid_test" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="mid_test" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>MID Test</label>
                         <frontend_class>validate-number</frontend_class>
                         <config_path>payment/smart2pay/mid_test</config_path>
@@ -54,11 +59,7 @@
                         <label>Return URL</label>
                         <can_be_empty>0</can_be_empty>
                         <config_path>payment/smart2pay/return_url</config_path>
-                    </field>
-                    <field id="title" translate="label comment" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Title</label>
-                        <comment><![CDATA[Insert a custom title for this payment module]]></comment>
-                        <config_path>payment/smart2pay/title</config_path>
+                        <comment><![CDATA[Eg: http://www.yoursite.com/smart2pay/payment/finish/]]></comment>
                     </field>
                     <field id="skin_id" translate="label" type="text" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Skin ID</label>
@@ -163,27 +164,27 @@
 
                     <field id="order_status" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>New Order Status</label>
-                        <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
+                        <source_model>Magento\Sales\Model\Config\Source\Order\Status\NewStatus</source_model>
                         <config_path>payment/smart2pay/order_status</config_path>
                     </field>
                     <field id="order_status_on_2" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Order status on SUCCESS</label>
-                        <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
+                        <source_model>Magento\Sales\Model\Config\Source\Order\Status\Processing</source_model>
                         <config_path>payment/smart2pay/order_status_on_2</config_path>
                     </field>
                     <field id="order_status_on_3" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Order status on CANCEL</label>
-                        <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
+                        <source_model>Smart2Pay\GlobalPay\Model\Config\Source\Order\Status\Canceled</source_model>
                         <config_path>payment/smart2pay/order_status_on_3</config_path>
                     </field>
                     <field id="order_status_on_4" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Order status on FAIL</label>
-                        <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
+                        <source_model>Smart2Pay\GlobalPay\Model\Config\Source\Order\Status\Canceled</source_model>
                         <config_path>payment/smart2pay/order_status_on_4</config_path>
                     </field>
                     <field id="order_status_on_5" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Order status on EXPIRED</label>
-                        <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
+                        <source_model>Smart2Pay\GlobalPay\Model\Config\Source\Order\Status\Canceled</source_model>
                         <config_path>payment/smart2pay/order_status_on_5</config_path>
                     </field>
                 </group>

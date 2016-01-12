@@ -18,6 +18,8 @@ class Smart2Pay extends AbstractMethod
 {
     const METHOD_CODE = 'smart2pay';
 
+    const STATUS_NEW = 'smart2pay_new', STATUS_SUCCESS = 'smart2pay_success', STATUS_CANCELED = 'smart2pay_canceled', STATUS_FAILED = 'smart2pay_failed', STATUS_EXPIRED = 'smart2pay_expired';
+
     const PAYMENT_METHOD_BT = 1, PAYMENT_METHOD_SIBS = 20;
 
     const DEFAULT_EMAIL_TEMPLATE_PAYMENT_CONFIRMATION = 'smart2pay_email_payment_confirmation',

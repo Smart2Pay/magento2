@@ -119,7 +119,6 @@ class Send extends \Magento\Framework\View\Element\Template
             $merchant_transaction_id = $this->_helper->convert_to_demo_merchant_transaction_id( $merchant_transaction_id );
 
         $form_data = $smart2pay_config;
-        $messageToHash = '';
 
         if( $order_is_ok )
         {
@@ -203,6 +202,10 @@ class Send extends \Magento\Framework\View\Element\Template
                 ->setEnvironment( $form_data['environment'] );
 
             $s2p_transaction->save();
+
+            $order->addStatusHistoryComment( 'Smart2Pay :: redirecting to payment page with MethodID: '.$form_data['method_id'] );
+
+            $order->save();
         }
 
         $this->addData(

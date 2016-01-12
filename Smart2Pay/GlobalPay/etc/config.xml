@@ -7,6 +7,7 @@
                 <model>Smart2Pay\GlobalPay\Model\Smart2Pay</model>
 
                 <active>1</active>
+                <title><![CDATA[Smart2Pay - Alternative payment methods]]></title>
                 <environment>demo</environment>
                 <post_url_live><![CDATA[https://api.smart2pay.com]]></post_url_live>
                 <post_url_test><![CDATA[https://apitest.smart2pay.com]]></post_url_test>
@@ -16,7 +17,6 @@
                 <signature_live><![CDATA[]]></signature_live>
                 <signature_test><![CDATA[]]></signature_test>
                 <return_url><![CDATA[]]></return_url>
-                <title><![CDATA[Smart2Pay - Alternative payment methods]]></title>
                 <skin_id>0</skin_id>
                 <debug_form>0</debug_form>
                 <sort_order>0</sort_order>
@@ -36,11 +36,11 @@
 
                 <auto_invoice>0</auto_invoice>
                 <auto_ship>0</auto_ship>
-                <order_status>pending</order_status>
-                <order_status_on_2>processing</order_status_on_2>
-                <order_status_on_3>canceled</order_status_on_3>
-                <order_status_on_4>canceled</order_status_on_4>
-                <order_status_on_5>canceled</order_status_on_5>
+                <order_status>smart2pay_new</order_status>
+                <order_status_on_2>smart2pay_success</order_status_on_2>
+                <order_status_on_3>smart2pay_canceled</order_status_on_3>
+                <order_status_on_4>smart2pay_failed</order_status_on_4>
+                <order_status_on_5>smart2pay_expired</order_status_on_5>
 
                 <skip_payment_page>1</skip_payment_page>
                 <redirect_in_iframe>0</redirect_in_iframe>

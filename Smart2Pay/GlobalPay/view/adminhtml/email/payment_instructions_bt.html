@@ -1,1 +1,84 @@
-Some text here...
+<!--@subject Smart2Pay Payment Instructions Bank Transfer@-->
+<!--@vars {
+"var site_name":"Website Name",
+"var site_url":"Website URL",
+"var order_increment_id":"Order Id",
+"var customer_name":"Customer name",
+"var reference_number":"Reference Number",
+"var bank_name":"Bank Name"
+"var account_holder":"Account Holder"
+"var account_number":"Account Number"
+"var swift_bic":"SWIFT/BIC"
+"var iban":"IBAN"
+"var amount_to_pay":"Amount To Pay"
+"var account_currency":"Account Currency"
+"var support_email":"Support email"
+} @-->
+<html>
+<head>
+    <title>{{var site_name}}: {{trans "Order #%order_increment_id - payment instructions" order_increment_id=$order_increment_id}}</title>
+    <style type='text/css'>
+    body,td { color:#2f2f2f; font:11px/1.35em Verdana, Arial, Helvetica, sans-serif; }
+
+    #BankTransferInfo { margin-left: auto; margin-right: auto; }
+    #BankTransferInfo tr { text-align: left; }
+    #BankTransferInfo td { width: 250px; text-align: left; }
+    #BankTransferMessage { text-align: left; }
+    #BankTransferTerms { text-align: left; font-weight: bold; }
+    #PaymentDetails { background-color: #eeeeee; padding: 5px; }
+    </style>
+</head>
+<body style='background:#F6F6F6; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px;'>
+<table style='width:600px; background: #fff; min-height: 300px; margin: 0px auto; padding: 10px; border:1px solid #E0E0E0;'>
+    <tr>
+        <td>
+            <a href='{{var site_url}}'>{{var site_name}}</a>
+            <h1 style='font-size:22px; font-weight:normal; line-height:22px;'>{{trans "Hello, %customer_name!" customer_name=$customer_name}}</h1>
+
+            <p id="BankTransferMessage">{{trans "You have chosen to pay using bank transfer. Please find below your personal reference number and our bank details. Always enter the reference number under 'Purpose of payment' when making a bank transfer.}}</p></br>
+            <p id="BankTransferTerms">{{trans "A bank transfer payment is reported by the bank in 1-3 bank days (Saturday, Sunday and national holidays not included)!}}</p></br></br>
+
+            <div id="PaymentDetails">
+            <table id="BankTransferInfo">
+
+                <tr>
+                    <td>{{trans "Reference Number"}}</td>
+                    <td>{{var reference_number}}</td>
+                </tr>
+                <tr>
+                    <td>{{trans "Bank Name"}}</td>
+                    <td>{{var bank_name}}</td>
+                </tr>
+                <tr>
+                    <td>{{trans "Account Holder"}}</td>
+                    <td>{{var account_holder}}</td>
+                </tr>
+                <tr>
+                    <td>{{trans "Account Number"}}</td>
+                    <td>{{var account_number}}</td>
+                </tr>
+                <tr>
+                    <td>{{trans "SWIFT/BIC"}}</td>
+                    <td>{{var swift_bic}}</td>
+                </tr>
+                <tr>
+                    <td>{{trans "IBAN"}}</td>
+                    <td>{{var iban}}</td>
+                </tr>
+                <tr>
+                    <td>{{trans "Amount To Pay"}}</td>
+                    <td>{{var amount_to_pay}}</td>
+                </tr>
+                <tr>
+                    <td>{{trans "Account Currency"}}</td>
+                    <td>{{var account_currency}}</td>
+                </tr>
+
+            </table>
+            </div>
+            <p>{{trans "If you have any questions about your order please contact us at <a href='mailto:%support_email'>%support_email</a>" support_email=$support_email}}</p>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

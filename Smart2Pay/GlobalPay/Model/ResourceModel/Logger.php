@@ -56,7 +56,7 @@ class Logger extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
             $insert_arr['log_type'] = $type;
             $insert_arr['log_source_file'] = $file;
             $insert_arr['log_source_file_line'] = $line;
-            $insert_arr['log_created'] = time();
+            $insert_arr['log_created'] = date( 'Y-m-d H:i:s' );
 
             $conn->insert( 's2p_gp_logs', $insert_arr );
 

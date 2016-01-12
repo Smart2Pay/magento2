@@ -50,10 +50,11 @@ class Transaction extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
             );
         }
 
-        if( $this->checkMerchantTransactionID( $object->getMerchantTransactionId() ) )
+        if( ($current_id = $this->checkMerchantTransactionID( $object->getMerchantTransactionId() ))
+        and $object->getID() != $current_id )
         {
             throw new \Magento\Framework\Exception\LocalizedException(
-                __('Merchant transaction id already exists in database.')
+                __( 'Merchant transaction id already exists in database.' )
             );
         }
 

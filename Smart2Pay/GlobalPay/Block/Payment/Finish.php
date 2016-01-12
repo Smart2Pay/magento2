@@ -121,13 +121,33 @@ class Finish extends \Magento\Framework\View\Element\Template
              or !$order->getEntityId() )
             $error_message = __( 'Order not found in database.' );
 
+        $status_code = intval( $status_code );
+
         if( empty( $status_code ) )
             $status_code = Smart2Pay::S2P_STATUS_FAILED;
 
-        $status_code = intval( $status_code );
+        $transaction_extra_data = [];
+        $transaction_details_titles = [];
+        if( in_array( $s2p_transaction->getMethodId(),
+                            [ \Smart2Pay\GlobalPay\Model\Smart2Pay::PAYMENT_METHOD_BT, \Smart2Pay\GlobalPay\Model\Smart2Pay::PAYMENT_METHOD_SIBS ] ) )
+        {
+            if( ($transaction_details_titles = \Smart2Pay\GlobalPay\Helper\Smart2Pay::transaction_logger_params_to_title())
+            and is_array( $transaction_details_titles ) )
+            {
+                if( !($all_params = $this->_helper->getParams()) )
+                    $all_params = [];
+
+                foreach( $transaction_details_titles as $key => $title )
+                {
+                    if( !array_key_exists( $key, $all_params ) )
+                        continue;
+
+                    $transaction_extra_data[$key] = $all_params[$key];
+                }
+            }
+        }
 
         $result_message = __( 'Transaction status is unknown.' );
-
         if( empty( $error_message ) )
         {
             //map all statuses to known Magento statuses (message_data_2, message_data_4, message_data_3 and message_data_7)
@@ -169,6 +189,8 @@ class Finish extends \Magento\Framework\View\Element\Template
                 'result_message' => $result_message,
 
                 'transaction_data' => $s2p_transaction->getData(),
+                'transaction_extra_data' => $transaction_extra_data,
+                'transaction_details_title' => $transaction_details_titles,
 
                 'is_order_visible' => $this->isVisible($order),
                 'view_order_url' => $this->getUrl(

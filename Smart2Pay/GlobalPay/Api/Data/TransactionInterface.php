@@ -6,7 +6,7 @@ interface TransactionInterface
 {
     const ID = 'id';
     const METHOD_ID = 'method_id';
-    const PAYMENT_ID = 'method_id';
+    const PAYMENT_ID = 'payment_id';
     const MERCHANT_TRANSACTION_ID = 'merchant_transaction_id';
     const SITE_ID = 'site_id';
     const ENVIRONMENT = 'environment';

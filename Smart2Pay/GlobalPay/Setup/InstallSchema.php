@@ -322,75 +322,76 @@ class InstallSchema implements InstallSchemaInterface
         );
         $installer->getConnection()->createTable( $table );
 
-        $installer->getConnection()->addColumn( $installer->getTable( 'quote_address' ),
-            's2p_surcharge_amount', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge amount' ]
-        );
-        $installer->getConnection()->addColumn( $installer->getTable( 'quote_address' ),
-            's2p_surcharge_base_amount', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge base amount' ]
-        );
-        $installer->getConnection()->addColumn( $installer->getTable( 'quote_address' ),
-            's2p_surcharge_percent', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge percent' ]
-        );
-        $installer->getConnection()->addColumn( $installer->getTable( 'quote_address' ),
-            's2p_surcharge_fixed_amount', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge fixed amount' ]
-        );
-        $installer->getConnection()->addColumn( $installer->getTable( 'quote_address' ),
-            's2p_surcharge_fixed_base_amount', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge base fixed amount' ]
-        );
 
-
-        $installer->getConnection()->addColumn( $installer->getTable( 'quote_payment' ),
-            's2p_surcharge_amount', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge amount' ]
-        );
-        $installer->getConnection()->addColumn( $installer->getTable( 'quote_payment' ),
-            's2p_surcharge_base_amount', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge base amount' ]
-        );
-        $installer->getConnection()->addColumn( $installer->getTable( 'quote_payment' ),
-            's2p_surcharge_percent', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge percent' ]
-        );
-        $installer->getConnection()->addColumn( $installer->getTable( 'quote_payment' ),
-            's2p_surcharge_fixed_amount', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge fixed amount' ]
-        );
-        $installer->getConnection()->addColumn( $installer->getTable( 'quote_payment' ),
-            's2p_surcharge_fixed_base_amount', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge base fixed amount' ]
-        );
-
-
-        $installer->getConnection()->addColumn( $installer->getTable( 'sales_order_payment' ),
-            's2p_surcharge_amount', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge amount' ]
-        );
-        $installer->getConnection()->addColumn( $installer->getTable( 'sales_order_payment' ),
-            's2p_surcharge_base_amount', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge base amount' ]
-        );
-        $installer->getConnection()->addColumn( $installer->getTable( 'sales_order_payment' ),
-            's2p_surcharge_percent', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge percent' ]
-        );
-        $installer->getConnection()->addColumn( $installer->getTable( 'sales_order_payment' ),
-            's2p_surcharge_fixed_amount', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge fixed amount' ]
-        );
-        $installer->getConnection()->addColumn( $installer->getTable( 'sales_order_payment' ),
-            's2p_surcharge_fixed_base_amount', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge base fixed amount' ]
-        );
-        $installer->getConnection()->addColumn( $installer->getTable( 'sales_order_payment' ),
-            's2p_surcharge_amount_invoiced', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge amount invoiced' ]
-        );
-        $installer->getConnection()->addColumn( $installer->getTable( 'sales_order_payment' ),
-            's2p_surcharge_base_amount_invoiced', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge base amount invoiced' ]
-        );
-
-
-        $installer->getConnection()->addColumn( $installer->getTable( 'sales_invoice' ),
-            's2p_surcharge_amount', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge amount' ]
-        );
-        $installer->getConnection()->addColumn( $installer->getTable( 'sales_invoice' ),
-            's2p_surcharge_base_amount', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge base amount' ]
-        );
-        $installer->getConnection()->addColumn( $installer->getTable( 'sales_invoice' ),
-            's2p_surcharge_fixed_amount', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge fixed amount' ]
-        );
-        $installer->getConnection()->addColumn( $installer->getTable( 'sales_invoice' ),
-            's2p_surcharge_fixed_base_amount', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge base fixed amount' ]
-        );
+        //$installer->getConnection()->addColumn( $installer->getTable( 'quote_address' ),
+        //    's2p_surcharge_amount', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge amount' ]
+        //);
+        //$installer->getConnection()->addColumn( $installer->getTable( 'quote_address' ),
+        //    's2p_surcharge_base_amount', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge base amount' ]
+        //);
+        //$installer->getConnection()->addColumn( $installer->getTable( 'quote_address' ),
+        //    's2p_surcharge_percent', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge percent' ]
+        //);
+        //$installer->getConnection()->addColumn( $installer->getTable( 'quote_address' ),
+        //    's2p_surcharge_fixed_amount', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge fixed amount' ]
+        //);
+        //$installer->getConnection()->addColumn( $installer->getTable( 'quote_address' ),
+        //    's2p_surcharge_fixed_base_amount', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge base fixed amount' ]
+        //);
+        //
+        //
+        //$installer->getConnection()->addColumn( $installer->getTable( 'quote_payment' ),
+        //    's2p_surcharge_amount', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge amount' ]
+        //);
+        //$installer->getConnection()->addColumn( $installer->getTable( 'quote_payment' ),
+        //    's2p_surcharge_base_amount', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge base amount' ]
+        //);
+        //$installer->getConnection()->addColumn( $installer->getTable( 'quote_payment' ),
+        //    's2p_surcharge_percent', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge percent' ]
+        //);
+        //$installer->getConnection()->addColumn( $installer->getTable( 'quote_payment' ),
+        //    's2p_surcharge_fixed_amount', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge fixed amount' ]
+        //);
+        //$installer->getConnection()->addColumn( $installer->getTable( 'quote_payment' ),
+        //    's2p_surcharge_fixed_base_amount', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge base fixed amount' ]
+        //);
+        //
+        //
+        //$installer->getConnection()->addColumn( $installer->getTable( 'sales_order_payment' ),
+        //    's2p_surcharge_amount', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge amount' ]
+        //);
+        //$installer->getConnection()->addColumn( $installer->getTable( 'sales_order_payment' ),
+        //    's2p_surcharge_base_amount', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge base amount' ]
+        //);
+        //$installer->getConnection()->addColumn( $installer->getTable( 'sales_order_payment' ),
+        //    's2p_surcharge_percent', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge percent' ]
+        //);
+        //$installer->getConnection()->addColumn( $installer->getTable( 'sales_order_payment' ),
+        //    's2p_surcharge_fixed_amount', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge fixed amount' ]
+        //);
+        //$installer->getConnection()->addColumn( $installer->getTable( 'sales_order_payment' ),
+        //    's2p_surcharge_fixed_base_amount', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge base fixed amount' ]
+        //);
+        //$installer->getConnection()->addColumn( $installer->getTable( 'sales_order_payment' ),
+        //    's2p_surcharge_amount_invoiced', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge amount invoiced' ]
+        //);
+        //$installer->getConnection()->addColumn( $installer->getTable( 'sales_order_payment' ),
+        //    's2p_surcharge_base_amount_invoiced', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge base amount invoiced' ]
+        //);
+        //
+        //
+        //$installer->getConnection()->addColumn( $installer->getTable( 'sales_invoice' ),
+        //    's2p_surcharge_amount', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge amount' ]
+        //);
+        //$installer->getConnection()->addColumn( $installer->getTable( 'sales_invoice' ),
+        //    's2p_surcharge_base_amount', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge base amount' ]
+        //);
+        //$installer->getConnection()->addColumn( $installer->getTable( 'sales_invoice' ),
+        //    's2p_surcharge_fixed_amount', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge fixed amount' ]
+        //);
+        //$installer->getConnection()->addColumn( $installer->getTable( 'sales_invoice' ),
+        //    's2p_surcharge_fixed_base_amount', [ 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'default' => 0, 'length' => '(10,2)', 'comment' => 'Surcharge base fixed amount' ]
+        //);
 
 
         $installer->endSetup();

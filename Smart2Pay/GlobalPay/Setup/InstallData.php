@@ -6,6 +6,7 @@ use Magento\Framework\Setup\InstallDataInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\TestFramework\Event\Magento;
+use Smart2Pay\GlobalPay\Model\Smart2Pay;
 
 /**
  * @codeCoverageIgnore
@@ -1061,6 +1062,63 @@ class InstallData implements InstallDataInterface
         $installer->getConnection()->insertArray( $installer->getTable( 's2p_gp_countries_methods' ),
                                                   ['country_id','method_id','priority'],
                                                   $insert_data );
+
+        /**
+         * Install order statuses from config
+         */
+        $data = [];
+        $statuses = [
+            Smart2Pay::STATUS_NEW => __('Smart2Pay New Order'),
+            Smart2Pay::STATUS_SUCCESS => __('Smart2Pay Success'),
+            Smart2Pay::STATUS_CANCELED => __('Smart2Pay Canceled'),
+            Smart2Pay::STATUS_FAILED => __('Smart2Pay Failed'),
+            Smart2Pay::STATUS_EXPIRED => __('Smart2Pay Expired'),
+        ];
+
+        foreach ($statuses as $code => $info) {
+            $data[] = ['status' => $code, 'label' => $info];
+        }
+
+        $installer->getConnection()->insertArray(
+            $installer->getTable('sales_order_status'),
+            ['status', 'label'],
+            $data
+        );
+
+
+        /**
+         * Install order states from config
+         */
+        $data = [];
+        $states = [
+            'new' => [
+                'statuses' => [ Smart2Pay::STATUS_NEW ],
+            ],
+            'processing' => [
+                'statuses' => [ Smart2Pay::STATUS_SUCCESS ],
+            ],
+            'canceled' => [
+                'statuses' => [ Smart2Pay::STATUS_CANCELED, Smart2Pay::STATUS_FAILED, Smart2Pay::STATUS_EXPIRED ],
+            ],
+        ];
+
+        foreach ($states as $code => $info) {
+            if (isset($info['statuses'])) {
+                foreach ($info['statuses'] as $status) {
+                    $data[] = [
+                        'status' => $status,
+                        'state' => $code,
+                        'is_default' => 0,
+                        'visible_on_front' => 1,
+                    ];
+                }
+            }
+        }
+        $installer->getConnection()->insertArray(
+            $installer->getTable('sales_order_status_state'),
+            ['status', 'state', 'is_default', 'visible_on_front'],
+            $data
+        );
 
         $installer->endSetup();
     }
