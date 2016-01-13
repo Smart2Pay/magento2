@@ -42,10 +42,12 @@
                         click: placeOrder,
                         attr: {'title': $t('Place Order')},
                         enable: isS2PPlaceOrderActionAllowed()
-                        "
-                        disabled>
+                        ">
                     <span data-bind="i18n: 'Place Order'"></span>
                 </button>
+
+
+                <span data-bind="text: (isS2PPlaceOrderActionAllowed()?'true':'false') + isS2PPlaceOrderActionAllowed()"></span>
             </div>
         </div>
     </div>

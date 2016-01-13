@@ -45,6 +45,7 @@ class Smart2Pay extends AbstractMethod
     protected $_canRefund                   = false;
     protected $_canRefundInvoicePartial     = false;
     protected $_canUseInternal              = false;
+    protected $_canUseCheckout              = true;
 
     /**
      * Payment additional info block
@@ -100,7 +101,18 @@ class Smart2Pay extends AbstractMethod
      */
     public function canUseForCountry( $country )
     {
-        //! TODO: Add country check here...
+        return true;
+    }
+
+    /**
+     * Check method for processing with base currency
+     *
+     * @param string $currencyCode
+     * @return bool
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function canUseForCurrency( $currencyCode )
+    {
         return true;
     }
 

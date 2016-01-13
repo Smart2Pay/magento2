@@ -30,7 +30,7 @@ class Method extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
     /**
      * Process post data before saving
      *
-     * @param \Magento\Framework\Model\AbstractModel $object
+     * @param \Smart2Pay\GlobalPay\Model\Method $object
      * @return $this
      * @throws \Magento\Framework\Exception\LocalizedException
      */
@@ -59,7 +59,7 @@ class Method extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         $select = parent::_getLoadSelect( $field, $value, $object );
 
         $select->where(
-            'is_active = ?',
+            'active = ?',
             1
         )->limit(
             1

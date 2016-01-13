@@ -93,17 +93,17 @@ class Smart2Pay extends AbstractHelper
             return $return_arr;
 
         $return_arr = [
-            'AccountHolder' => __( 'Account Holder' ),
-            'BankName' => __( 'Bank Name' ),
-            'AccountNumber' => __( 'Account Number' ),
-            'IBAN' => __( 'IBAN' ),
-            'SWIFT_BIC' => __( 'SWIFT / BIC' ),
-            'AccountCurrency' => __( 'Account Currency' ),
+            'AccountHolder' => __( 'Account Holder' )->render(),
+            'BankName' => __( 'Bank Name' )->render(),
+            'AccountNumber' => __( 'Account Number' )->render(),
+            'IBAN' => __( 'IBAN' )->render(),
+            'SWIFT_BIC' => __( 'SWIFT / BIC' )->render(),
+            'AccountCurrency' => __( 'Account Currency' )->render(),
 
-            'EntityNumber' => __( 'Entity Number' ),
+            'EntityNumber' => __( 'Entity Number' )->render(),
 
-            'ReferenceNumber' => __( 'Reference Number' ),
-            'AmountToPay' => __( 'Amount To Pay' ),
+            'ReferenceNumber' => __( 'Reference Number' )->render(),
+            'AmountToPay' => __( 'Amount To Pay' )->render(),
         ];
 
         return $return_arr;

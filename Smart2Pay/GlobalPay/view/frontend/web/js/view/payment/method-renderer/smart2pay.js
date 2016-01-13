@@ -65,17 +65,21 @@ define(
 
                 this.selectedS2PPaymentMethod( method );
 
+                var allow_order = false;
                 if( method == 0 )
                 {
                     console.log( 'NO allow' );
-                    this.isS2PPlaceOrderActionAllowed( false );
+                    //this.isS2PPlaceOrderActionAllowed( false );
                 } else
                 {
                     console.log( 'allow' );
-                    this.isS2PPlaceOrderActionAllowed( this.selectedS2PCountry != '' );
+                    //this.isS2PPlaceOrderActionAllowed( this.selectedS2PCountry != '' );
+                    allow_order = (this.selectedS2PCountry != '');
                 }
 
                 this.selectPaymentMethod();
+
+                this.isS2PPlaceOrderActionAllowed( allow_order );
             },
 
             getData: function() {
@@ -100,9 +104,9 @@ define(
 
                 console.log( 'Check country [' + this.selectedS2PCountry + '] != [' + new_country + ']' );
 
-                //if( (new_country == '' && this.isS2PPlaceOrderActionAllowed())
-                // || !this.selectedS2PPaymentMethod() )
-                //    this.isS2PPlaceOrderActionAllowed( false );
+                if( (new_country == '' && this.isS2PPlaceOrderActionAllowed())
+                 || !this.selectedS2PPaymentMethod() )
+                    this.isS2PPlaceOrderActionAllowed( false );
 
                 if( this.selectedS2PCountry != new_country )
                 {
@@ -118,7 +122,7 @@ define(
 
                 methodsList([]);
 
-                this.isS2PPlaceOrderActionAllowed( false );
+                // this.isS2PPlaceOrderActionAllowed( false );
 
                 if( country
                  && window.checkoutConfig.payment.smart2pay.methods
@@ -141,7 +145,14 @@ define(
                             description: window.checkoutConfig.payment.smart2pay.methods.methods[method_id].description,
                             logo_url: window.checkoutConfig.payment.smart2pay.methods.methods[method_id].logo_url,
                             fixed_amount: window.checkoutConfig.payment.smart2pay.methods.countries[country][method_id].fixed_amount,
-                            surcharge: window.checkoutConfig.payment.smart2pay.methods.countries[country][method_id].surcharge
+                            surcharge: window.checkoutConfig.payment.smart2pay.methods.countries[country][method_id].surcharge,
+                            myself: null,
+
+                            selectMe: function()
+                            {
+                                self.selectS2PPaymentMethod( this.id, this.myself );
+                                return true;
+                            }
                         };
 
                         item_obj.myself = item_obj;

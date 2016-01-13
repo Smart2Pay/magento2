@@ -2,7 +2,7 @@
     <input type="radio"
            name="smart2pay_method"
            class="radio"
-           data-bind="attr: {'id': 'smart2pay_'+id}, value: id, click: function(){main_renderer.selectS2PPaymentMethod( id, myself ); return true;}" />
+           data-bind="attr: {'id': 'smart2pay_'+id}, value: id, click: selectMe" /><!-- function(){main_renderer.selectS2PPaymentMethod( id, myself ); return true;} -->
     <label data-bind="attr: {'for': 'smart2pay_'+id}" class="label">
         <span data-bind="text: title"></span><br/>
         <span data-bind="text: description"></span>

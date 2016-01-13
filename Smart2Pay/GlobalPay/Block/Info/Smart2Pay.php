@@ -5,6 +5,9 @@
  */
 namespace Smart2Pay\GlobalPay\Block\Info;
 
+use Magento\Framework\App\Filesystem\DirectoryList;
+use Magento\Framework\Filesystem;
+
 class Smart2Pay extends \Magento\Payment\Block\Info
 {
     /**
@@ -12,46 +15,76 @@ class Smart2Pay extends \Magento\Payment\Block\Info
      */
     protected $_instructions;
 
-    /**
-     * @var string
-     */
-    protected $_template = 'Smart2Pay_GlobalPay::info/smart2pay.phtml';
+    /** @var \Smart2Pay\GlobalPay\Model\TransactionFactory */
+    protected $_s2pTransaction;
 
-    /**
-     * Enter description here...
-     *
-     * @return string
-     */
-    public function getInstructions()
+    /** @var \Smart2Pay\GlobalPay\Model\MethodFactory */
+    protected $_s2pMethod;
+
+    /** @var \Smart2Pay\GlobalPay\Helper\Smart2Pay */
+    protected $_helper;
+
+    function __construct(
+        \Magento\Framework\View\Element\Template\Context $context,
+        \Smart2Pay\GlobalPay\Model\TransactionFactory $s2pTransaction,
+        \Smart2Pay\GlobalPay\Model\MethodFactory $s2pMethod,
+        \Smart2Pay\GlobalPay\Helper\Smart2Pay $helperSmart2Pay,
+        array $data = []
+    )
     {
-        if ($this->_instructions === null) {
-            $this->_convertAdditionalData();
-        }
-        return $this->_instructions;
+        parent::__construct( $context, $data );
+
+        $this->_helper = $helperSmart2Pay;
+        $this->_s2pTransaction = $s2pTransaction;
+        $this->_s2pMethod = $s2pMethod;
     }
 
     /**
-     * Enter description here...
+     * Prepare information specific to current payment method
      *
-     * @return $this
+     * @param null|\Magento\Framework\DataObject|array $transport
+     * @return \Magento\Framework\DataObject
      */
-    protected function _convertAdditionalData()
+    protected function _prepareSpecificInformation( $transport = null )
     {
-        $details = @unserialize($this->getInfo()->getAdditionalData());
-        if (is_array($details)) {
-            $this->_instructions = isset($details['instructions']) ? (string)$details['instructions'] : '';
-        } else {
-            $this->_instructions = '';
-        }
-        return $this;
-    }
+        if( null !== $this->_paymentSpecificInformation )
+            return $this->_paymentSpecificInformation;
 
-    /**
-     * @return string
-     */
-    public function toPdf()
-    {
-        $this->setTemplate('Smart2Pay_GlobalPay::info/pdf/smart2pay.phtml');
-        return $this->toHtml();
+        $transport = parent::_prepareSpecificInformation( $transport );
+
+        $module_name = $this->getRequest()->getModuleName();
+        $action_name = $this->getRequest()->getActionName();
+
+        if( ($details_arr = $this->getInfo()->getAdditionalInformation())
+        and !empty( $details_arr['sp_method'] )
+        and ($method_obj = $this->_s2pMethod->create()->load( $details_arr['sp_method'] )) )
+        {
+            if( !empty( $details_arr['sp_transaction'] )
+            and ($transaction_obj = $this->_s2pTransaction->create()->load( $details_arr['sp_transaction'] )) )
+            {
+                if( !($payment_id = $transaction_obj->getPaymentId()) )
+                    $payment_id = __( 'N/A' )->render();
+
+                $this->_paymentSpecificInformation->setData( __( 'Method' )->render(), $method_obj->getDisplayName() );
+                $this->_paymentSpecificInformation->setData( __( 'Environment' )->render(), $transaction_obj->getEnvironment() );
+                $this->_paymentSpecificInformation->setData( __( 'Payment ID' )->render(), $payment_id );
+
+                if( ($transaction_extra_arr = $transaction_obj->getExtraDataArray())
+                and ($details_titles_arr = $this->_helper->transaction_logger_params_to_title()) )
+                {
+                    foreach( $transaction_extra_arr as $title_key => $val )
+                    {
+                        if( empty( $details_titles_arr[$title_key] ) )
+                            continue;
+
+                        $this->_paymentSpecificInformation->setData( $details_titles_arr[$title_key], $val );
+                    }
+                }
+            }
+        }
+
+        $this->_paymentSpecificInformation->setData( 'Test', 'Test value' );
+
+        return $this->_paymentSpecificInformation;
     }
 }

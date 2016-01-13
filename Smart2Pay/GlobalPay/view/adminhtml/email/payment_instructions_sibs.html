@@ -1,1 +1,58 @@
-Some text here...
+<!--@subject Smart2Pay Payment Instructions SIBS@-->
+<!--@vars
+{"var site_url":"Store url",
+"var site_name":"Customer email",
+"var customer_name":"Customer name",
+"var reference_number":"Payment reference number",
+"var entity_number":"Payment entity number",
+"var amount_to_pay":"Amount to be paid",
+"var support_email":"Store support email"}
+@-->
+<html>
+<head>
+    <title>{{var site_name}}: {{trans "Order #%order_increment_id - payment instructions" order_increment_id=$order_increment_id}}</title>
+    <style type='text/css'>
+        body,td { color:#2f2f2f; font:11px/1.35em Verdana, Arial, Helvetica, sans-serif; }
+
+        #SIBSTransferInfo { margin-left: auto; margin-right: auto; }
+        #SIBSTransferInfo tr { text-align: left; }
+        #SIBSTransferInfo td { max-width: 250px; text-align: left; }
+        #SIBSTransferMessage { text-align: left; }
+        #SIBSTransferTerms { text-align: left; font-weight: bold; }
+        #PaymentDetails { background-color: #eeeeee; padding: 5px; }
+    </style>
+</head>
+<body style='background:#f6f6f6;'>
+<table style='width:600px; background: #fff; min-height: 300px; margin: 0 auto; padding: 10px; border:1px solid #e0e0e0;'>
+    <tr>
+        <td>
+            <a href="{{var site_url}}">{{var site_name}}</a>
+            <h1 style='font-size:22px; font-weight:normal; line-height:22px;'>{{trans "Hello, %customer_name!" customer_name=$customer_name}}</h1>
+
+            <p id="SIBSTransferMessage">{{trans "You have chosen to pay using Multibanco. Please find below your personal reference number, entity number and amount to pay."}}</p></br>
+            <p id="SIBSTransferTerms">&nbsp;</p><br/><br/>
+
+            <div id="PaymentDetails">
+                <table id="SIBSTransferInfo">
+
+                    <tr>
+                        <td>{{trans "Reference Number"}}</td>
+                        <td>{{var reference_number}}</td>
+                    </tr>
+                    <tr>
+                        <td>{{trans "Entity Number"}}</td>
+                        <td>{{var entity_number}}</td>
+                    </tr>
+                    <tr>
+                        <td>{{trans "Amount To Pay"}}</td>
+                        <td>{{var amount_to_pay}}</td>
+                    </tr>
+
+                </table>
+            </div>
+            <p>{{trans "If you have any questions about your order please contact us at:"}} <a href="mailto:{{var support_email}}">{{var support_email}}</a>.</p>
+        </td>
+    </tr>
+</table>
+</body>
+</html>
