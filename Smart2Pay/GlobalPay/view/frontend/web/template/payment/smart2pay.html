@@ -36,7 +36,7 @@
         -->
         <div class="actions-toolbar">
             <div class="primary">
-                <button class="action primary checkout"
+                <button id="s2p_place_order_button" class="action primary checkout"
                         type="submit"
                         data-bind="
                         click: placeOrder,
@@ -45,9 +45,6 @@
                         ">
                     <span data-bind="i18n: 'Place Order'"></span>
                 </button>
-
-
-                <span data-bind="text: (isS2PPlaceOrderActionAllowed()?'true':'false') + isS2PPlaceOrderActionAllowed()"></span>
             </div>
         </div>
     </div>

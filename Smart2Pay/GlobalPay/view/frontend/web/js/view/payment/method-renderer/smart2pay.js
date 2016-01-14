@@ -1,13 +1,14 @@
 define(
     [
         'ko',
+        'jquery',
         'Magento_Checkout/js/view/payment/default',
         'Magento_Checkout/js/model/quote',
         'Magento_Checkout/js/model/url-builder',
         'mage/url',
         'Smart2Pay_GlobalPay/js/model/payment/method-list'
     ],
-    function (ko, Component, quote, urlBuilder, url, methodsList) {
+    function (ko, $, Component, quote, urlBuilder, url, methodsList) {
         'use strict';
 
         return Component.extend({
@@ -18,7 +19,6 @@ define(
                 selectedS2PCountry: '',
                 isS2PPlaceOrderActionAllowed: false,
                 addressSubscription: null,
-                bubuSubscription: null
             },
 
             initObservable: function () {
@@ -32,19 +32,12 @@ define(
                     this.updateCurrentCountry();
                 }, this);
 
-                this.bubuSubscription = this.isS2PPlaceOrderActionAllowed.subscribe(function () {
-                    console.log( 'Este [' + (this.isS2PPlaceOrderActionAllowed()?'true':'false') + ']' );
-                }, this);
-
                 return this;
             },
 
             disposeSubscriptions: function () {
                 if (this.addressSubscription) {
                     this.addressSubscription.dispose();
-                }
-                if (this.bubuSubscription) {
-                    this.bubuSubscription.dispose();
                 }
             },
 
@@ -61,31 +54,21 @@ define(
 
             selectS2PPaymentMethod: function( method, method_obj )
             {
-                console.log( 'Method [' + method + '] C [' + this.selectedS2PCountry + ']' );
-
                 this.selectedS2PPaymentMethod( method );
 
                 var allow_order = false;
-                if( method == 0 )
-                {
-                    console.log( 'NO allow' );
-                    //this.isS2PPlaceOrderActionAllowed( false );
-                } else
-                {
-                    console.log( 'allow' );
-                    //this.isS2PPlaceOrderActionAllowed( this.selectedS2PCountry != '' );
+                if( method != 0 )
                     allow_order = (this.selectedS2PCountry != '');
-                }
 
                 this.selectPaymentMethod();
 
                 this.isS2PPlaceOrderActionAllowed( allow_order );
+
+                if( allow_order )
+                    $('#s2p_place_order_button').prop('disabled', false );
             },
 
             getData: function() {
-
-                console.log( 'Sending [' + this.selectedS2PPaymentMethod() + '] [' + this.selectedS2PCountry + ']' );
-
                 return {
                     "method": this.item.method,
                     "po_number": null,
@@ -102,15 +85,12 @@ define(
                 if( quote.billingAddress() && quote.billingAddress().countryId )
                     new_country = quote.billingAddress().countryId;
 
-                console.log( 'Check country [' + this.selectedS2PCountry + '] != [' + new_country + ']' );
-
                 if( (new_country == '' && this.isS2PPlaceOrderActionAllowed())
                  || !this.selectedS2PPaymentMethod() )
                     this.isS2PPlaceOrderActionAllowed( false );
 
                 if( this.selectedS2PCountry != new_country )
                 {
-                    console.log( 'NEW country [' + new_country + ']' );
                     this.selectedS2PCountry = new_country;
                     this.refreshMethods( new_country );
                 }
@@ -129,8 +109,6 @@ define(
                  && window.checkoutConfig.payment.smart2pay.methods.countries[country]
                 )
                 {
-                    console.log( 'Get new methods for [' + country + ']' );
-
                     var items_arr = [];
 
                     for( var method_id in window.checkoutConfig.payment.smart2pay.methods.countries[country] )
@@ -170,6 +148,20 @@ define(
             getS2PMethods: function()
             {
                 return methodsList();
+            },
+
+            displayTitle: function() {
+                return ( window.checkoutConfig.payment.smart2pay.settings.display_mode == 'text'
+                || window.checkoutConfig.payment.smart2pay.settings.display_mode == 'both');
+            },
+
+            displayLogo: function() {
+                return ( window.checkoutConfig.payment.smart2pay.settings.display_mode == 'logo'
+                || window.checkoutConfig.payment.smart2pay.settings.display_mode == 'both');
+            },
+
+            displayDescription: function() {
+                return (window.checkoutConfig.payment.smart2pay.settings.display_description == 1);
             }
         });
     }

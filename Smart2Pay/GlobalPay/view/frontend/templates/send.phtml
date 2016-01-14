@@ -153,66 +153,88 @@
             <div style="position: relative; width: 100%; height: 100%;">
                 <div style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; background: #333; opacity: 0.5; filter:alpha(opacity=50)"></div>
                 <div style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;">
-                    <div style="display: table; margin: 0px auto; margin-top: 50px;">
-                        <?php
-                            if( $form_data['redirect_in_iframe']
-                                && $form_data['skip_payment_page']
-                                && ($form_data['method_id'] == 1001 || $form_data['method_id'] == 1002 || $form_data['method_id'] == 76)):?>
-                        <iframe style='border: none; margin: 0px auto; background-color: #ffffff;' id="merchantIframe" name="merchantIframe" src="" width="780" height="500">
-                            <?php else:?>
-                            <iframe style='border: none; margin: 0px auto; background-color: transparent;' id="merchantIframe" name="merchantIframe" src="" width="900" height="800">
-                                <?php endif;?>
-                            </iframe>
+                    <div style="margin: 100px auto 0 auto; padding: 50px 0 0 0; height: 150px; width: 80%; text-align: center; color: black; background-color: white; border: 1px solid black;">
+                        <img src="<?php echo $block->getViewFileUrl( 'Smart2Pay_GlobalPay::images/ajax-loader.gif' );?>" /><br/>
+                        <?php echo __( 'Redirecting...' );?>
                     </div>
+                    <div style="display: table; margin: 0 auto; margin-top: 50px;"><?php
+
+                    if( $form_data['redirect_in_iframe']
+                    and $form_data['skip_payment_page']
+                    and ($form_data['method_id'] == 1001 || $form_data['method_id'] == 1002 || $form_data['method_id'] == 76) )
+                    {
+                        ?><iframe style='border: none; margin: 0 auto; background-color: #ffffff;' id="merchantIframe" name="merchantIframe" src="" width="780" height="500"></iframe><?php
+                    } else
+                    {
+                        ?><iframe style='border: none; margin: 0 auto; background-color: transparent;' id="merchantIframe" name="merchantIframe" src="" width="900" height="800"></iframe><?php
+                    }
+
+                    ?></div>
                 </div>
             </div>
         </div>
 
         <script>
 
-            jQuery.noConflict();
+            require([
+                'jquery'
+            ], function(jQuery) {
 
-            function modalIframe(){
-                jQuery("#iframe-container").css({height: jQuery('body').height()});
-                jQuery("#iframe-container").appendTo('body');
-                jQuery("#iframe-container").show();
-            }
+                // jQuery.noConflict();
 
-            jQuery(document).ready(function() {
+                function modalIframe() {
+                    var iframe_obj = jQuery("#iframe-container");
 
-                jQuery('#s2pform').submit(function(){
-                    modalIframe();
+                    if( !iframe_obj )
+                        return;
+
+                    iframe_obj.css({height: jQuery('body').height()});
+                    iframe_obj.appendTo('body');
+                    iframe_obj.show();
+                }
+
+                jQuery(document).ready(function () {
+
+                    jQuery('#s2pform').submit(function () {
+                        modalIframe();
+                    });
+                    // autosend form if needed
+                    <?php
+
+                    if( !$form_data['debug_form'] )
+                    {
+                        ?>jQuery("#s2pform").submit();<?php
+                    }
+                    ?>
+                    // get/parse smart2pay message
+                    var onmessage = function (e) {
+                        if (e.data == 'close_HPP') {
+                            setTimeout(function () {
+                                jQuery('iframe#merchantIframe').remove()
+                            }, 300);
+                        }
+                        else if (e.data.substring(0, 7) == "height=") {
+                            var iframe_height = e.data.substring(7);
+                            jQuery('iframe#merchantIframe').attr('height', parseInt(iframe_height) + 300);
+                        }
+                        else if (e.data.substring(0, 6) == "width=") {
+                            var iframe_width = e.data.substring(6);
+                            jQuery('iframe#merchantIframe').attr('width', parseInt(iframe_width) + 100);
+                        }
+
+                        else if (e.data.substring(0, 12) == "redirectURL=") {
+                            window.location = e.data.substring(12);
+                        }
+                    };
+
+                    // set event listener for smart2pay
+                    if (typeof window.addEventListener != 'undefined') {
+                        window.addEventListener('message', onmessage, false);
+                    }
+                    else if (typeof window.attachEvent != 'undefined') {
+                        window.attachEvent('onmessage', onmessage);
+                    }
                 });
-                // autosend form if needed
-                <?php if(!$form_data['debug_form']):?>
-                    jQuery("#s2pform").submit();
-                <?php endif; ?>
-                // get/parse smart2pay message
-                var onmessage = function(e) {
-                    if(e.data == 'close_HPP') {
-                        setTimeout(function() {jQuery('iframe#merchantIframe').remove()}, 300);
-                    }
-                    else if (e.data.substring(0, 7) == "height=") {
-                        var iframe_height = e.data.substring(7);
-                        jQuery('iframe#merchantIframe').attr('height', parseInt(iframe_height)+300);
-                    }
-                    else if (e.data.substring(0, 6) == "width=") {
-                        var iframe_width = e.data.substring(6);
-                        jQuery('iframe#merchantIframe').attr('width', parseInt(iframe_width)+100);
-                    }
-
-                    else if  (e.data.substring(0, 12) == "redirectURL="){
-                        window.location = e.data.substring(12);
-                    }
-                };
-
-                // set event listener for smart2pay
-                if(typeof window.addEventListener != 'undefined') {
-                    window.addEventListener('message', onmessage, false);
-                }
-                else if(typeof window.attachEvent != 'undefined') {
-                    window.attachEvent('onmessage', onmessage);
-                }
             });
         </script>
         <?php

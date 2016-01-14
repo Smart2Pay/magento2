@@ -121,7 +121,7 @@ class Smart2Pay extends AbstractMethod
         if( !($full_config_arr = $this->getFullConfigArray()) )
             return array();
 
-        $export_fileds_arr = array( 'display_surcharge', 'display_mode', 'show_methods_in_grid', 'grid_column_number', );
+        $export_fileds_arr = array( 'display_surcharge', 'display_mode', 'display_description', 'show_methods_in_grid', 'grid_column_number', );
 
         $return_arr = array();
         foreach( $export_fileds_arr as $key )
@@ -155,6 +155,7 @@ class Smart2Pay extends AbstractMethod
 
             'display_surcharge' => 0,
             'display_mode' => Displaymode::MODE_BOTH,
+            'display_description' => 0,
             'show_methods_in_grid' => 0,
             'grid_column_number' => 3,
             'product_description_ref' => 1,

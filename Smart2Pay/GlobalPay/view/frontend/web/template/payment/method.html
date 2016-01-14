@@ -1,10 +1,18 @@
-<div class="payment-method-title field choice">
+<div class="payment-method-title field choice" style="margin-bottom: 5px;">
+    <div style="float: left; text-align: center; vertical-align: middle; padding: 5px;">
     <input type="radio"
            name="smart2pay_method"
            class="radio"
            data-bind="attr: {'id': 'smart2pay_'+id}, value: id, click: selectMe" /><!-- function(){main_renderer.selectS2PPaymentMethod( id, myself ); return true;} -->
+    </div>
+    <div style="float: left;">
     <label data-bind="attr: {'for': 'smart2pay_'+id}" class="label">
-        <span data-bind="text: title"></span><br/>
-        <span data-bind="text: description"></span>
+        <div data-bind="visible: main_renderer.displayLogo()" style="float: left; min-width: 160px; padding: 2px; text-align: center; vertical-align: middle;"><img data-bind="attr: { 'src': window.checkoutConfig.payment.smart2pay.images_url + '/methods/' + logo_url, 'alt': title, 'title': title}" style="max-width: 150px;" /></div>
+        <div style="float: left;">
+            <div data-bind="visible: main_renderer.displayTitle()"><span data-bind="text: title" style="font-weight: bold;"></span></div>
+            <div data-bind="visible: main_renderer.displayDescription()"><span data-bind="text: description"></span></div>
+        </div>
     </label>
+    </div>
 </div>
+<div style="clear:both;"></div>

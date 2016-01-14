@@ -91,7 +91,7 @@ function show_all_countries_for_method( method_id, action )
 <tr>
     <th style="width: 30px;">#</th>
     <th style="width: 60px;">Enabled?</th>
-    <th style="width: 90px;">Surcharge</th>
+    <!--<th style="width: 90px;">Surcharge</th>-->
     <th colspan="2">Method</th>
 </tr>
 </thead>
@@ -116,10 +116,10 @@ foreach( $all_methods as $method_arr )
     <tr class="s2p-method-tr">
         <td class="sp2-middle-all"><?php echo $knti?></td>
         <td class="sp2-middle-all"><input type="checkbox" id="s2p_enabled_method_<?php echo $method_arr['method_id']?>" name="s2p_enabled_methods[]" value="<?php echo $method_arr['method_id']?>" <?php echo (!empty( $all_configured_methods[$method_arr['method_id']][0] )?'checked="checked"':'')?> /></td>
-        <td class="sp2-middle-vertical" style="text-align: left;">
+        <!--<td class="sp2-middle-vertical" style="text-align: left;">
             <div style="padding:2px; clear:both;"><input type="text" class="input-text" style="width: 50px !important; text-align: right;" name="s2p_surcharge[<?php echo $method_arr['method_id']?>]" id="s2p_surcharge_<?php echo $method_arr['method_id']?>" value="<?php echo ((!empty( $all_configured_methods[$method_arr['method_id']][0] ) and !empty( $all_configured_methods[$method_arr['method_id']][0]['surcharge'] ))?$all_configured_methods[$method_arr['method_id']][0]['surcharge']:0)?>"/>%</div>
             <div style="padding:2px; clear:both;"><input type="text" class="input-text" style="width: 50px !important; text-align: right;" name="s2p_fixed_amount[<?php echo $method_arr['method_id']?>]" id="s2p_fixed_amount<?php echo $method_arr['method_id']?>" value="<?php echo ((!empty( $all_configured_methods[$method_arr['method_id']][0] ) and !empty( $all_configured_methods[$method_arr['method_id']][0]['fixed_amount'] ))?$all_configured_methods[$method_arr['method_id']][0]['fixed_amount']:0)?>"/> <?php echo $block->getBaseCurrency()?></div>
-        </td>
+        </td>-->
         <td class="sp2-middle-all s2p-method-img-td"><img class="s2p-method-img" alt="<?php echo __( $method_arr['display_name'] ); ?>" src="<?php echo $block->getViewFileUrl( 'Smart2Pay_GlobalPay::images/methods/'.$method_arr['logo_url'] ); ?>" /></td>
         <td>
             <label for="s2p_enabled_method<?php echo $method_arr['method_id']?>"><strong><?php echo __( $method_arr['display_name'] ); ?></strong></label>

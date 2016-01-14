@@ -82,16 +82,24 @@
                 <group id="smart2pay_methods_settings" translate="label" type="text" sortOrder="200" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Smart2Pay - Methods Display Settings</label>
 
+                    <!--
                     <field id="display_surcharge" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Display surcharge fee to client</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/smart2pay/display_surcharge</config_path>
                     </field>
+                    -->
                     <field id="display_mode" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Methods display mode</label>
                         <source_model>Smart2Pay\GlobalPay\Model\Config\Source\Displaymode</source_model>
                         <config_path>payment/smart2pay/display_mode</config_path>
                     </field>
+                    <field id="display_description" translate="label comment" type="select" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Display method description</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/smart2pay/display_description</config_path>
+                    </field>
+                    <!--
                     <field id="show_methods_in_grid" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Show methods in grid</label>
                         <comment><![CDATA[By default, methods will be displayed as a two columns table, having paymentm method's logo or name and description. When set to yes, description is omitted, and columns number can be specified bellow.]]></comment>
@@ -104,6 +112,7 @@
                         <frontend_class>validate-number</frontend_class>
                         <config_path>payment/smart2pay/grid_column_number</config_path>
                     </field>
+                    -->
                     <field id="product_description_ref" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Send order number as product description</label>
                         <comment><![CDATA[If "No" is selected, the below custom description will be send]]></comment>
@@ -197,12 +206,13 @@
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/smart2pay/skip_payment_page</config_path>
                     </field>
+                    <!--
                     <field id="redirect_in_iframe" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Redirect in iframe</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/smart2pay/redirect_in_iframe</config_path>
                     </field>
-
+                    -->
                     <field id="message_data_2" translate="label" type="textarea" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Message Success</label>
                         <config_path>payment/smart2pay/message_data_2</config_path>
