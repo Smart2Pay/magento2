@@ -165,12 +165,13 @@
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/smart2pay/auto_invoice</config_path>
                     </field>
+                    <!--
                     <field id="auto_ship" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Automate shipping</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/smart2pay/auto_ship</config_path>
                     </field>
-
+                    -->
                     <field id="order_status" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>New Order Status</label>
                         <source_model>Magento\Sales\Model\Config\Source\Order\Status\NewStatus</source_model>

@@ -88,17 +88,12 @@ class Notification extends \Magento\Framework\View\Element\Template
 
     protected function _loadCache()
     {
-        if( !$this->_helper->getParam( 'hardcoded' )
-        and !($raw_input = @file_get_contents( 'php://input' )) )
+        if( !($raw_input = @file_get_contents( 'php://input' )) )
         {
             $this->_s2pLogger->write( 'No input' );
             echo 'No input';
             exit;
         }
-
-        if( $this->_helper->getParam( 'hardcoded' ) )
-            //$raw_input = 'NotificationType=Payment&MethodID=9&PaymentID=2290510&MerchantTransactionID=000000028&StatusID=2&Amount=2000&Currency=EUR&SiteID=30562&IBAN=CH0600000000023456789&BIC=SFRTCH20XXX&Hash=a49ceaecd26e08b9f52751f9231c03a8c75f69e1da9adb97d917b6e247ba5348';
-            $raw_input = 'NotificationType=Payment&MethodID=1&PaymentID=2298811&MerchantTransactionID=000000031&StatusID=1&Amount=2000&Currency=EUR&SiteID=30562&ReferenceNumber=HPP2298811&AmountToPay=92.28RON&AccountHolder=SC SMART2PAY SRL&BankName=BRD Groupe Societe Generale&AccountNumber=SV67447622400&IBAN=RO16BRDE240SV67447622400&SWIFT_BIC=BRDEROBUXXX&AccountCurrency=RON&Hash=ef1fa95c1d1ab9b14bac78f07c933d729e20e1ec542de044858e25bb53bad65d';
 
         $this->_s2pLogger->write( ' ### Notification START' );
 
@@ -231,7 +226,7 @@ class Notification extends \Magento\Framework\View\Element\Template
                         }
 
                         // Check shipment
-                        if( $method_config['auto_ship'] )
+                        if( !empty( $method_config['auto_ship'] ) )
                         {
                             if( !$order->canShip() )
                                 $this->_s2pLogger->write( 'Order can not be shipped', 'warning' );
