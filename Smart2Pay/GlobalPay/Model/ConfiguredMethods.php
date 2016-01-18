@@ -153,6 +153,13 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
                 continue;
 
             $return_arr[$configured_method_arr['method_id']][$configured_method_arr['country_id']] = $configured_method_arr;
+
+            if( !empty( $return_arr[$configured_method_arr['method_id']][$configured_method_arr['country_id']]['display_name'] ) )
+                $return_arr[$configured_method_arr['method_id']][$configured_method_arr['country_id']]['display_name'] =
+                    __( $return_arr[$configured_method_arr['method_id']][$configured_method_arr['country_id']]['display_name'] )->render();
+            if( !empty( $return_arr[$configured_method_arr['method_id']][$configured_method_arr['country_id']]['description'] ) )
+                $return_arr[$configured_method_arr['method_id']][$configured_method_arr['country_id']]['description'] =
+                    __( $return_arr[$configured_method_arr['method_id']][$configured_method_arr['country_id']]['description'] )->render();
         }
 
         return $return_arr;
