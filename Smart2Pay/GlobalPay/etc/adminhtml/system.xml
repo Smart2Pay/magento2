@@ -234,10 +234,12 @@
 
                 <group id="smart2pay_methods" translate="label comment" type="text" sortOrder="600" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Smart2Pay - Select Methods</label>
+                    <!--
                     <comment><![CDATA[Please tick checkboxes for payment methods which you want to activate.<br/>
                             You can setup surcharges for each payment method by providing a percent, a fixed or a combination of percent and fixed price.<br/>
                             Fixed price is provided in base currency setup on <em>Currency Setup</em> page.]]></comment>
-
+                    -->
+                    <comment><![CDATA[Please tick checkboxes for payment methods which you want to activate.]]></comment>
                     <field id="configured_methods" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Configured Payment Methods</label>
                         <frontend_model>Smart2Pay\GlobalPay\Block\Adminhtml\System\Config\Field\ConfiguredMethods</frontend_model>
