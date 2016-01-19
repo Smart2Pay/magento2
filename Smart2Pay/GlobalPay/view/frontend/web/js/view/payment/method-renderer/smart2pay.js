@@ -6,19 +6,20 @@ define(
         'Magento_Checkout/js/model/quote',
         'Magento_Checkout/js/model/url-builder',
         'mage/url',
-        'Smart2Pay_GlobalPay/js/model/payment/method-list'
+        'Smart2Pay_GlobalPay/js/model/payment/method-list',
+        'Smart2Pay_GlobalPay/js/checkout-data'
     ],
-    function (ko, $, Component, quote, urlBuilder, url, methodsList) {
+    function (ko, $, Component, quote, urlBuilder, url, methodsList, s2pCheckoutData) {
         'use strict';
 
         return Component.extend({
 
             defaults: {
                 template: 'Smart2Pay_GlobalPay/payment/smart2pay',
-                selectedS2PPaymentMethod: 0,
+                selectedS2PPaymentMethod: s2pCheckoutData.getSelectedS2PMethod(),
                 selectedS2PCountry: '',
                 isS2PPlaceOrderActionAllowed: false,
-                addressSubscription: null,
+                addressSubscription: null
             },
 
             initObservable: function () {
@@ -52,9 +53,11 @@ define(
 
             // END Overwrite properties / functions
 
-            selectS2PPaymentMethod: function( method, method_obj )
+            selectS2PPaymentMethod: function( method )
             {
                 this.selectedS2PPaymentMethod( method );
+
+                s2pCheckoutData.setSelectedS2PMethod( method );
 
                 var allow_order = false;
                 if( method != 0 )
@@ -69,12 +72,15 @@ define(
             },
 
             getData: function() {
+
+                var self = this;
+
                 return {
                     "method": this.item.method,
                     "po_number": null,
                     "additional_data": {
-                        "sp_method": this.selectedS2PPaymentMethod(),
-                        "selected_country": this.selectedS2PCountry
+                        "sp_method": s2pCheckoutData.getSelectedS2PMethod(),
+                        "selected_country": self.selectedS2PCountry
                     }
                 };
             },
@@ -116,8 +122,10 @@ define(
                         if( !window.checkoutConfig.payment.smart2pay.methods.methods[method_id] )
                             continue;
 
-                        var item_obj = {
-                            main_renderer: this,
+                        var item_obj = {};
+
+                        item_obj = {
+                            main_renderer: self,
                             id: method_id,
                             title: window.checkoutConfig.payment.smart2pay.methods.methods[method_id].display_name,
                             description: window.checkoutConfig.payment.smart2pay.methods.methods[method_id].description,
@@ -128,9 +136,22 @@ define(
 
                             selectMe: function()
                             {
-                                self.selectS2PPaymentMethod( this.id, this.myself );
+                                self.selectS2PPaymentMethod( this.id );
                                 return true;
+                            },
+
+                            isMethodChecked: ko.computed(function () {
+                                //console.log( '[' + method_id + '] vs [' + s2pCheckoutData.getSelectedS2PMethod() + ']' );
+                                //console.log( '[' + (method_id == s2pCheckoutData.getSelectedS2PMethod()) + ']' );
+                                return ((method_id == s2pCheckoutData.getSelectedS2PMethod())?'checked':null);
+                            }, item_obj)
+
+                            /*
+                            isMethodChecked: function()
+                            {
+                                return (this.id == s2pCheckoutData.getSelectedS2PMethod());
                             }
+                            */
                         };
 
                         item_obj.myself = item_obj;
@@ -138,8 +159,8 @@ define(
                         items_arr.push( item_obj );
                     }
 
-                    if( items_arr.length == 1 )
-                        this.selectedS2PPaymentMethod( items_arr[0].id );
+                    //if( items_arr.length == 1 )
+                    //    this.selectS2PPaymentMethod( items_arr[0].id );
 
                     methodsList( items_arr );
                 }

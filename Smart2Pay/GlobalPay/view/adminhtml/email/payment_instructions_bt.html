@@ -35,7 +35,7 @@
             <a href="{{var site_url}}">{{var site_name}}</a>
             <h1 style='font-size:22px; font-weight:normal; line-height:22px;'>{{trans "Hello, %customer_name!" customer_name=$customer_name}}</h1>
 
-            <p id="BankTransferMessage">{{trans "You have chosen to pay using bank transfer. Please find below your personal <strong>Reference Number</strong> and our bank details. Always enter the reference number under 'Purpose of payment' when making a bank transfer."}}</p></br>
+            <p id="BankTransferMessage">{{trans "You have chosen to pay using bank transfer. Please find below your personal Reference Number and our bank details. Always enter the reference number under 'Purpose of payment' when making a bank transfer."}}</p></br>
             <p id="BankTransferTerms">{{trans "A bank transfer payment is reported by the bank in 1-3 bank days (Saturday, Sunday and national holidays not included)!"}}</p><br/><br/>
 
             <div id="PaymentDetails">
@@ -76,7 +76,7 @@
 
             </table>
             </div>
-            <p>{{trans "If you have any questions about your order please contact us at <a href='mailto:%support_email'>%support_email</a>" support_email=$support_email}}</p>
+            <p>{{trans "If you have any questions about your order please contact us at:"}} <a href='mailto:{{var support_email}}'>{{var support_email}}</a>.</p>
         </td>
     </tr>
 </table>

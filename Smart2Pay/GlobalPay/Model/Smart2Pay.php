@@ -250,7 +250,14 @@ class Smart2Pay extends AbstractMethod
          or empty( $country_code )
          or !($method_details = $configured_methods_instance->getConfiguredMethodDetails( $s2p_method, [ 'country_code' => $country_code, 'only_active' => true ] )) )
         {
-            throw new LocalizedException( __( 'Please select a valid Smart2Pay method first.' ) );
+            ob_start();
+            var_dump( $s2p_method );
+            var_dump( $country_code );
+            if( isset( $method_details ) )
+                var_dump( $method_details );
+            $buf = ob_get_clean();
+
+            throw new LocalizedException( __( 'Please select a valid Smart2Pay method first. ['.$buf.']' ) );
         }
 
         $details_arr = array();
