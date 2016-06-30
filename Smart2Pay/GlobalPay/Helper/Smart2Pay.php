@@ -15,7 +15,7 @@ class Smart2Pay extends AbstractHelper
     protected $_currencyFactory;
 
     /** @var \Magento\Framework\App\Config\ScopeConfigInterface */
-    protected $_scopeConfig;
+    //protected $_scopeConfig;
 
     /**
      * @param \Magento\Framework\App\Helper\Context $context
@@ -23,13 +23,13 @@ class Smart2Pay extends AbstractHelper
      */
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
-        \Magento\Directory\Model\CurrencyFactory $currencyFactory,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+        \Magento\Directory\Model\CurrencyFactory $currencyFactory
+        //, \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
     ) {
         $this->_currencyFactory = $currencyFactory;
         parent::__construct( $context );
 
-        $this->_scopeConfig = $scopeConfig;
+        //$this->_scopeConfig = $scopeConfig;
     }
 
     public function getBaseCurrencies()

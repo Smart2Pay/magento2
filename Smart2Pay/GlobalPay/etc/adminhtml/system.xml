@@ -42,20 +42,20 @@
                         <frontend_class>validate-number</frontend_class>
                         <config_path>payment/smart2pay/mid_test</config_path>
                     </field>
-                    <field id="site_id" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="site_id" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Site ID</label>
                         <frontend_class>validate-number</frontend_class>
                         <config_path>payment/smart2pay/site_id</config_path>
                     </field>
-                    <field id="signature_live" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="signature_live" translate="label" type="text" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Signature Live</label>
                         <config_path>payment/smart2pay/signature_live</config_path>
                     </field>
-                    <field id="signature_test" translate="label" type="text" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="signature_test" translate="label" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Signature Test</label>
                         <config_path>payment/smart2pay/signature_test</config_path>
                     </field>
-                    <field id="return_url" translate="label" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="return_url" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Return URL</label>
                         <can_be_empty>0</can_be_empty>
                         <config_path>payment/smart2pay/return_url</config_path>

@@ -240,8 +240,12 @@ class Smart2Pay extends AbstractMethod
 
         $infoInstance = $this->getInfoInstance();
 
-        $s2p_method = $data->getSpMethod();
-        if( ($country_code = $data->getSelectedCountry()) )
+        if( ($s2p_method = $data->getSpMethod()) === null )
+            $s2p_method = $data->getAdditionalData( 'sp_method' );
+        if( ($country_code = $data->getSelectedCountry()) === null )
+            $country_code = $data->getAdditionalData( 'selected_country' );
+
+        if( !empty( $country_code ) )
             $country_code = strtoupper( trim( $country_code ) );
 
         $configured_methods_instance = $this->_configuredMethods->create();
@@ -250,14 +254,16 @@ class Smart2Pay extends AbstractMethod
          or empty( $country_code )
          or !($method_details = $configured_methods_instance->getConfiguredMethodDetails( $s2p_method, [ 'country_code' => $country_code, 'only_active' => true ] )) )
         {
-            ob_start();
-            var_dump( $s2p_method );
-            var_dump( $country_code );
-            if( isset( $method_details ) )
-                var_dump( $method_details );
-            $buf = ob_get_clean();
+            // ob_start();
+            // var_dump( $data->getSpMethod() );
+            // var_dump( $data->getAdditionalData( 'sp_method' ) );
+            // var_dump( $s2p_method );
+            // var_dump( $country_code );
+            // if( isset( $method_details ) )
+            //     var_dump( $method_details );
+            // $buf = ob_get_clean();
 
-            throw new LocalizedException( __( 'Please select a valid Smart2Pay method first. ['.$buf.']' ) );
+            throw new LocalizedException( __( 'Please select a valid Smart2Pay method first.' ) );
         }
 
         $details_arr = array();

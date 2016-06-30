@@ -45,7 +45,7 @@ class ConfigProvider implements ConfigProviderInterface
     /**
      * @var Escaper
      */
-    protected $escaper;
+    //protected $escaper = null;
 
     /**
      * @param PaymentHelper $paymentHelper
@@ -53,12 +53,12 @@ class ConfigProvider implements ConfigProviderInterface
      */
     public function __construct(
         PaymentHelper $paymentHelper,
-        Escaper $escaper,
+        //Escaper $escaper,
         \Magento\Framework\View\Element\Context $context,
         \Smart2Pay\GlobalPay\Model\ConfiguredMethodsFactory $configuredMethodsFactory
     ) {
         $this->_configuredMethodFactory = $configuredMethodsFactory;
-        $this->escaper = $escaper;
+        //$this->escaper = $escaper;
 
         $this->_request = $context->getRequest();
         $this->_assetRepo = $context->getAssetRepository();
