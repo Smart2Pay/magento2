@@ -212,13 +212,13 @@ class Smart2Pay extends AbstractMethod
             break;
 
             case Environment::ENV_TEST:
-                $config_arr['post_url'] = 'https://apitest.smart2pay.com';
+                $config_arr['post_url'] = $config_arr['post_url_test'];
                 $config_arr['signature'] = $config_arr['signature_test'];
                 $config_arr['mid'] = $config_arr['mid_test'];
             break;
 
             case Environment::ENV_LIVE:
-                $config_arr['post_url'] = 'https://apitest.smart2pay.com';
+                $config_arr['post_url'] = $config_arr['post_url_live'];
                 $config_arr['signature'] = $config_arr['signature_live'];
                 $config_arr['mid'] = $config_arr['mid_live'];
             break;

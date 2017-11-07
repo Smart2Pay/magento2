@@ -340,6 +340,8 @@ class Notification extends \Magento\Framework\View\Element\Template
      *
      * @param Order $order Order
      * @param array $payment_details_arr Payment details
+     *
+     * @return bool True if success, false if failed
      */
     public function sendPaymentDetails( \Magento\Sales\Model\Order $order, $payment_details_arr )
     {

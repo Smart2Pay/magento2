@@ -83,8 +83,6 @@ class Smart2Pay extends \Magento\Payment\Block\Info
             }
         }
 
-        $this->_paymentSpecificInformation->setData( 'Test', 'Test value' );
-
         return $this->_paymentSpecificInformation;
     }
 }
