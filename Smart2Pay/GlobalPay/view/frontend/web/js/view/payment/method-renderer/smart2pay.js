@@ -111,7 +111,10 @@ define(
                 // this.isS2PPlaceOrderActionAllowed( false );
 
                 if( country
+                 && typeof window.checkoutConfig.payment.smart2pay.methods != "undefined"
                  && window.checkoutConfig.payment.smart2pay.methods
+                 && typeof window.checkoutConfig.payment.smart2pay.methods.countries != "undefined"
+                 && window.checkoutConfig.payment.smart2pay.methods.countries
                  && window.checkoutConfig.payment.smart2pay.methods.countries[country]
                 )
                 {
