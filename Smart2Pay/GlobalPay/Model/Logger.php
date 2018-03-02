@@ -42,9 +42,13 @@ class Logger extends \Magento\Framework\Model\AbstractModel implements LoggerInt
     {
         if( empty( $file ) or empty( $line ) )
         {
-            $backtrace = debug_backtrace();
-            $file = $backtrace[0]['file'];
-            $line = $backtrace[0]['line'];
+            if( ($backtrace = debug_backtrace())
+            and !empty( $backtrace[0] )
+            and is_array( $backtrace[0] ) )
+            {
+                $file = $backtrace[0]['file'];
+                $line = $backtrace[0]['line'];
+            }
         }
 
         return $this->_getResource()->write( $message, $type, $file, $line );

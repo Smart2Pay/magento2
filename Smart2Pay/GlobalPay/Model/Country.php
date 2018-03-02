@@ -44,10 +44,10 @@ class Country extends \Magento\Framework\Model\AbstractModel implements CountryI
     }
 
     /**
-     * Check if country code exists in database and returns country details
+     * Check if country code exists in database and returns country id
      *
      * @param string $code
-     * @return array
+     * @return int
      */
     public function checkCode( $code )
     {
@@ -77,6 +77,20 @@ class Country extends \Magento\Framework\Model\AbstractModel implements CountryI
         }
 
         return self::$db_countries;
+    }
+
+    /**
+     * Get countries as country codes for key and country id as value
+     * @return array
+     */
+    public function getCountriesCodeAsKey()
+    {
+        if( !($countries_arr = $this->getCountriesArray())
+         or empty( $countries_arr['codes'] )
+         or !is_array( $countries_arr['codes'] ) )
+            return array();
+
+        return $countries_arr['codes'];
     }
 
     public function getCountryIDToCountryCodeArray()

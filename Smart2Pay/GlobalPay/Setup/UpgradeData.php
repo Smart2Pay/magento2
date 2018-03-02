@@ -22,6 +22,38 @@ class UpgradeData implements UpgradeDataInterface
 
         $installer->startSetup();
 
+        $current_version = $context->getVersion();
+
+        //
+        // code to upgrade to 2.1.0
+        //
+        if( version_compare( $current_version, '2.1.0' ) < 0 )
+        {
+            //
+            //  Methods table
+            //
+            $methods_configured_table = $installer->getTable( 's2p_gp_methods' );
+
+            $installer->getConnection()->truncateTable( $methods_configured_table );
+
+            //
+            //  Configured methods table
+            //
+            $methods_configured_table = $installer->getTable( 's2p_gp_methods_configured' );
+
+            $installer->getConnection()->truncateTable( $methods_configured_table );
+
+            //
+            //  Methods countries table
+            //
+            $countries_methods_table = $installer->getTable( 's2p_gp_countries_methods' );
+
+            $installer->getConnection()->truncateTable( $countries_methods_table );
+        }
+        //
+        // END code to upgrade to 2.1.0
+        //
+
         $installer->endSetup();
     }
 }

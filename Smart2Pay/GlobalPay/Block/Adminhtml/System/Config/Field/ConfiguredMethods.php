@@ -39,6 +39,9 @@ class ConfiguredMethods extends \Magento\Config\Block\System\Config\Form\Field
      */
     protected $_template = 'configured_methods.phtml';
 
+    /** @var \Smart2Pay\GlobalPay\Model\Smart2Pay */
+    protected $_s2pModel;
+
     private $_base_currency = '';
 
     /**
@@ -51,9 +54,11 @@ class ConfiguredMethods extends \Magento\Config\Block\System\Config\Form\Field
         \Smart2Pay\GlobalPay\Model\CountryMethodFactory $countryMethodFactory,
         \Smart2Pay\GlobalPay\Model\ConfiguredMethodsFactory $configuredMethodsFactory,
         \Smart2Pay\GlobalPay\Helper\Smart2Pay $helperSmart2Pay,
+        \Smart2Pay\GlobalPay\Model\Smart2Pay $s2pModel,
         array $data = []
     )
     {
+        $this->_s2pModel = $s2pModel;
         $this->_methodFactory = $methodFactory;
         $this->_countryMethodFactory = $countryMethodFactory;
         $this->_configuredMethodsFactory = $configuredMethodsFactory;
@@ -88,7 +93,33 @@ class ConfiguredMethods extends \Magento\Config\Block\System\Config\Form\Field
         return $this->_toHtml();
     }
 
-    public function getAllActiveMethods( $params = false )
+    public function get_environment()
+    {
+        return $this->_s2pModel->getEnvironment();
+    }
+
+    public function get_sdk_version()
+    {
+        return $this->_s2pModel->getSDKVersion();
+    }
+
+    public function get_last_sync_date()
+    {
+        /** @var Smart2Pay_Globalpay_Model_Pay $paymentModel */
+        $paymentModel = Mage::getModel('globalpay/pay');
+
+        return $paymentModel->method_config['last_sync'];
+    }
+
+    public function seconds_to_launch_sync_str()
+    {
+        /** @var Smart2Pay_Globalpay_Helper_Sdk $sdk_obj */
+        $sdk_obj = Mage::helper( 'globalpay/sdk' );
+
+        return $sdk_obj->seconds_to_launch_sync_str();
+    }
+
+    public function getAllActiveMethods( $params = false, $environment = false )
     {
         if( empty( $params ) or !is_array( $params ) )
             $params = array();
@@ -96,19 +127,20 @@ class ConfiguredMethods extends \Magento\Config\Block\System\Config\Form\Field
         if( empty( $params['include_countries'] ) )
             $params['include_countries'] = false;
 
-        return $this->_methodFactory->create()->getAllActiveMethods( $params );
+        return $this->_methodFactory->create()->getAllActiveMethods( $environment, $params );
     }
 
     /**
      * @param bool|array $params
+     * @param bool|string $environment
      *
      * @return array
      */
-    public function getAllConfiguredMethods( $params = false )
+    public function getAllConfiguredMethods( $params = false, $environment = false )
     {
         if( empty( $params ) or !is_array( $params ) )
             $params = array();
 
-        return $this->_configuredMethodsFactory->create()->getAllConfiguredMethods( $params );
+        return $this->_configuredMethodsFactory->create()->getAllConfiguredMethods( $environment, $params );
     }
 }

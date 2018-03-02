@@ -4,13 +4,29 @@ namespace Smart2Pay\GlobalPay\Api\Data;
 
 interface MethodInterface
 {
+    const ID = 'id';
     const METHOD_ID = 'method_id';
+    const ENVIRONMENT = 'environment';
     const DISPLAY_NAME = 'display_name';
     const PROVIDER_VALUE = 'provider_value';
     const DESCRIPTION = 'description';
     const LOGO_URL = 'logo_url';
     const GUARANTEED = 'guaranteed';
     const ACTIVE = 'active';
+
+    /**
+     * Get ID
+     *
+     * @return int|null
+     */
+    public function getId();
+
+    /**
+     * Get Environment
+     *
+     * @return string|null
+     */
+    public function getEnvironment();
 
     /**
      * Get Method ID
@@ -25,13 +41,6 @@ interface MethodInterface
      * @return string|null
      */
     public function getDisplayName();
-
-    /**
-     * Get Provider Value
-     *
-     * @return string|null
-     */
-    public function getProviderValue();
 
     /**
      * Get Description
@@ -62,6 +71,14 @@ interface MethodInterface
     public function isActive();
 
     /**
+     * Set ID
+     *
+     * @param int $id
+     * @return \Smart2Pay\GlobalPay\Api\Data\MethodInterface
+     */
+    public function setID( $id );
+
+    /**
      * Set Method ID
      *
      * @param int $method_id
@@ -70,20 +87,20 @@ interface MethodInterface
     public function setMethodID( $method_id );
 
     /**
+     * Set Provider Value
+     *
+     * @param string $environment
+     * @return \Smart2Pay\GlobalPay\Api\Data\MethodInterface
+     */
+    public function setEnvironment( $environment );
+
+    /**
      * Set Display Name
      *
      * @param string $display_name
      * @return \Smart2Pay\GlobalPay\Api\Data\MethodInterface
      */
     public function setDisplayName( $display_name );
-
-    /**
-     * Set Provider Value
-     *
-     * @param string $display_name
-     * @return \Smart2Pay\GlobalPay\Api\Data\MethodInterface
-     */
-    public function setProviderValue( $provider_value );
 
     /**
      * Set Description

@@ -28,23 +28,29 @@ class InstallSchema implements InstallSchemaInterface
         $table = $installer->getConnection()->newTable(
             $installer->getTable('s2p_gp_methods')
         )->addColumn(
-            'method_id',
+            'id',
             \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
             null,
             ['identity' => true, 'nullable' => false, 'primary' => true],
+            'Primary key'
+        )->addColumn(
+            'method_id',
+            \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+            null,
+            ['nullable' => false],
             'Payment Method Id'
+        )->addColumn(
+            'environment',
+            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            50,
+            ['nullable' => true],
+            'Payment method environment'
         )->addColumn(
             'display_name',
             \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
             255,
             ['nullable' => true],
             'Payment method display name'
-        )->addColumn(
-            'provider_value',
-            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-            255,
-            ['nullable' => true],
-            'Internal name'
         )->addColumn(
             'description',
             \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
@@ -69,6 +75,12 @@ class InstallSchema implements InstallSchemaInterface
             2,
             ['default' => 0, 'nullable' => false],
             'Active'
+        )->addIndex(
+            $installer->getIdxName('s2p_gp_methods', ['method_id']),
+            ['method_id']
+        )->addIndex(
+            $installer->getIdxName('s2p_gp_methods', ['environment']),
+            ['environment']
         )->addIndex(
             $installer->getIdxName('s2p_gp_methods', ['active']),
             ['active']
@@ -120,6 +132,12 @@ class InstallSchema implements InstallSchemaInterface
             ['identity' => true, 'nullable' => false, 'primary' => true],
             'ID'
         )->addColumn(
+            'environment',
+            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            50,
+            ['nullable' => true],
+            'Payment method environment'
+        )->addColumn(
             'country_id',
             \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
             null,
@@ -137,6 +155,9 @@ class InstallSchema implements InstallSchemaInterface
             null,
             ['default' => 0],
             'Method priority (display order)'
+        )->addIndex(
+            $installer->getIdxName('s2p_gp_countries_methods', ['environment']),
+            ['environment']
         )->addIndex(
             $installer->getIdxName('s2p_gp_countries_methods', ['country_id']),
             ['country_id']
@@ -239,6 +260,12 @@ class InstallSchema implements InstallSchemaInterface
             ['identity' => true, 'nullable' => false, 'primary' => true],
             'ID'
         )->addColumn(
+            'environment',
+            \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            20,
+            [ 'nullable' => true, 'default'=> 'live' ],
+            'Method environment'
+        )->addColumn(
             'method_id',
             \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
             null,
@@ -262,6 +289,9 @@ class InstallSchema implements InstallSchemaInterface
             [6, 2],
             ['default' => 0],
             'Surcharge fixed amount to be used as payment fee'
+        )->addIndex(
+            $installer->getIdxName('s2p_gp_methods_configured', ['environment']),
+            ['environment']
         )->addIndex(
             $installer->getIdxName('s2p_gp_methods_configured', ['country_id']),
             ['country_id']
@@ -291,6 +321,12 @@ class InstallSchema implements InstallSchemaInterface
             ['nullable' => true],
             'Log type'
         )->addColumn(
+            'transaction_id',
+            \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+            null,
+            ['nullable' => false],
+            'Transaction ID'
+        )->addColumn(
             'log_message',
             \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
             '2M',
@@ -314,6 +350,9 @@ class InstallSchema implements InstallSchemaInterface
             null,
             ['nullable' => true],
             'Log creation timestamp'
+        )->addIndex(
+            $installer->getIdxName('s2p_gp_logs', ['transaction_id']),
+            ['transaction_id']
         )->addIndex(
             $installer->getIdxName('s2p_gp_logs', ['log_type']),
             ['log_type']

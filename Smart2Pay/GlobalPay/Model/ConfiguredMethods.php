@@ -83,23 +83,26 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
      * return details if method is configured
      *
      * @param int $method_id
+     * @param int $country_id
+     * @param bool|string $environment
      * @return int
      */
-    public function checkMethodCountryID( $method_id, $country_id )
+    public function checkMethodCountryID( $method_id, $country_id, $environment = false )
     {
-        return $this->_getResource()->checkMethodCountryID( $method_id, $country_id );
+        return $this->_getResource()->checkMethodCountryID( $method_id, $country_id, $environment );
     }
 
     /**
      * Check if method_id key exists
      * return method id if method exists
      *
-     * @param int $method_id
+     * @param int $country_id
+     * @param bool|string $environment
      * @return array
      */
-    public function getMethodsForCountry( $country_id )
+    public function getMethodsForCountry( $country_id, $environment = false )
     {
-        return $this->_getResource()->getMethodsForCountry( $country_id );
+        return $this->_getResource()->getMethodsForCountry( $country_id, $environment );
     }
 
     /**
@@ -107,19 +110,21 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
      * return method id if method exists
      *
      * @param int $method_id
-     * @return int
+     * @param bool|string $environment
+     * @return array
      */
-    public function getCountriesForMethod( $method_id )
+    public function getCountriesForMethod( $method_id, $environment = false )
     {
-        return $this->_getResource()->getCountriesForMethod( $method_id );
+        return $this->_getResource()->getCountriesForMethod( $method_id, $environment );
     }
 
     /**
+     * @param string $environment
      * @param bool|array $params
      *
      * @return array
      */
-    public function getAllConfiguredMethods( $params = false )
+    public function getAllConfiguredMethods( $environment, $params = false )
     {
         if( empty( $params ) or !is_array( $params ) )
             $params = array();
@@ -133,6 +138,7 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
         $collection = $this->getCollection();
 
         $collection->addFieldToSelect( '*' );
+        $collection->addFieldToFilter( 'main_table.environment', $environment );
 
         if( !empty( $params['only_active'] ) )
         {
@@ -144,6 +150,7 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
             );
 
             $collection->addFieldToFilter( $method_collection->getMainTable().'.active', 1 );
+            $collection->addFieldToFilter( $method_collection->getMainTable().'.environment', $environment );
         }
 
         while( ($configured_method_obj = $collection->fetchItem())
@@ -167,11 +174,12 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
 
     /**
      * @param int $method_id ID of method to get all configurations for
+     * @param string $environment
      * @param bool|array $params
      *
-     * @return array $return_arr[{country_code}]['surcharge'], $return_arr[{country_ids}]['fixed_amount'], ...
+     * @return bool|array $return_arr[{country_code}]['surcharge'], $return_arr[{country_ids}]['fixed_amount'], ...
      */
-    public function getConfiguredMethodDetails( $method_id, $params = false )
+    public function getConfiguredMethodDetails( $method_id, $environment, $params = false )
     {
         $method_id = intval( $method_id );
         if( empty( $method_id ) )
@@ -212,6 +220,7 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
         $collection->addFieldToSelect( '*' );
 
         $collection->addFieldToFilter( 'main_table.method_id', $method_id );
+        $collection->addFieldToFilter( 'main_table.environment', $environment );
 
         if( !empty( $our_country_id ) )
         {
@@ -234,6 +243,8 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
 
         if( !empty( $params['only_active'] ) )
             $collection->addFieldToFilter( $method_collection->getMainTable().'.active', 1 );
+
+        $collection->addFieldToFilter( $method_collection->getMainTable().'.environment', $environment );
 
         $data_arr = array();
         $countries_ids_arr = array();
@@ -269,16 +280,17 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
     }
 
     /**
+     * @param string $environment
      * @param bool|array $params
      *
      * @return array
      */
-    public function getAllConfiguredMethodsPerCountryCode( $params = false )
+    public function getAllConfiguredMethodsPerCountryCode( $environment, $params = false )
     {
         if( empty( $params ) or !is_array( $params ) )
             $params = array();
 
-        if( !($all_configured_methods = $this->getAllConfiguredMethods( [ 'only_active' => true ] )) )
+        if( !($all_configured_methods = $this->getAllConfiguredMethods( $environment, [ 'only_active' => true ] )) )
             return array();
 
         $method_ids = array_keys( $all_configured_methods );
@@ -342,7 +354,7 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
         return $return_arr;
     }
 
-    public function getConfiguredMethodsForCountryID( $country_id, $params = false )
+    public function getConfiguredMethodsForCountryID( $country_id, $environment, $params = false )
     {
         $country_id = intval( $country_id );
         if( empty( $country_id ) )
@@ -365,6 +377,7 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
         $cm_collection = $this->_countryMethodFactory->create()->getCollection();
         $cm_collection->addFieldToSelect( '*' );
         $cm_collection->addFieldToFilter( 'country_id', $country_id );
+        $cm_collection->addFieldToFilter( 'environment', $environment );
 
         $cm_collection->getSelect()->join(
             $cm_collection->getTable( 's2p_gp_methods' ),
@@ -456,10 +469,11 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
 
     /**
      * @param array $configured_methods_arr
+     * @param string $environment
      *
      * @return array|bool
      */
-    public function saveConfiguredMethods( $configured_methods_arr )
+    public function saveConfiguredMethods( $configured_methods_arr, $environment )
     {
         if( !is_array( $configured_methods_arr ) )
             return false;
@@ -488,7 +502,7 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
                 if( empty( $country_surcharge['fixed_amount'] ) )
                     $country_surcharge['fixed_amount'] = 0;
 
-                if( !$my_resource->insertOrUpdate( $method_id, $country_id, $country_surcharge ) )
+                if( !$my_resource->insertOrUpdate( $method_id, $country_id, $environment, $country_surcharge ) )
                     $errors_arr[] = __( 'Error saving method ID %1, for country %2.', $method_id, $country_id );
 
                 $provided_countries[] = $country_id;
@@ -498,6 +512,7 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
             /** @var \Smart2Pay\GlobalPay\Model\ResourceModel\ConfiguredMethods\Collection $my_collection */
             $my_collection = $this->getCollection();
             $my_collection->addFieldToFilter( 'method_id', $method_id );
+            $my_collection->addFieldToFilter( 'environment', $environment );
             if( !empty( $provided_countries ) )
                 $my_collection->addFieldToFilter( 'country_id', array( 'nin' => $provided_countries ) );
 
@@ -509,6 +524,7 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
         // delete rest of methods not in $saved_method_ids array...
         /** @var \Smart2Pay\GlobalPay\Model\ResourceModel\ConfiguredMethods\Collection $my_collection */
         $my_collection = $this->getCollection();
+        $my_collection->addFieldToFilter( 'environment', $environment );
         if( !empty( $saved_method_ids ) )
             $my_collection->addFieldToFilter( 'method_id', array( 'nin' => $saved_method_ids ) );
 
@@ -536,6 +552,14 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
     public function getID()
     {
         return $this->getData( self::ID );
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getEnvironment()
+    {
+        return $this->getData( self::ENVIRONMENT );
     }
 
     /**
@@ -576,6 +600,14 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
     public function setID( $id )
     {
         return $this->setData( self::ID, $id );
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setEnvironment( $environment )
+    {
+        return $this->setData( self::ENVIRONMENT, $environment );
     }
 
     /**
