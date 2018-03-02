@@ -9,20 +9,20 @@
                 <active>1</active>
                 <title><![CDATA[Smart2Pay - Alternative payment methods]]></title>
                 <environment>demo</environment>
-                <post_url_live><![CDATA[https://api.smart2pay.com]]></post_url_live>
-                <post_url_test><![CDATA[https://apitest.smart2pay.com]]></post_url_test>
-                <mid_live>0</mid_live>
-                <mid_test>0</mid_test>
-                <site_id>0</site_id>
-                <signature_live><![CDATA[]]></signature_live>
-                <signature_test><![CDATA[]]></signature_test>
+                <last_sync_demo><![CDATA[]]></last_sync_demo>
+                <last_sync_test><![CDATA[]]></last_sync_test>
+                <last_sync_live><![CDATA[]]></last_sync_live>
+                <site_id_test>0</site_id_test>
+                <apikey_test><![CDATA[]]></apikey_test>
+                <site_id_live>0</site_id_live>
+                <apikey_live><![CDATA[]]></apikey_live>
                 <return_url><![CDATA[]]></return_url>
                 <skin_id>0</skin_id>
-                <debug_form>0</debug_form>
                 <sort_order>0</sort_order>
 
                 <display_surcharge>0</display_surcharge>
                 <display_mode>both</display_mode>
+                <display_description><![CDATA[]]></display_description>
                 <show_methods_in_grid>0</show_methods_in_grid>
                 <grid_column_number>3</grid_column_number>
                 <product_description_ref>1</product_description_ref>

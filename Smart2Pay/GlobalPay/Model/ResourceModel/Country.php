@@ -7,7 +7,6 @@ class Country extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      * Construct
      *
      * @param \Magento\Framework\Model\ResourceModel\Db\Context $context
-     * @param \Magento\Framework\Stdlib\DateTime\DateTime $date
      * @param string|null $resourcePrefix
      */
     public function __construct(
@@ -74,10 +73,10 @@ class Country extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
     }
 
     /**
-     * Check if method_id key exists
-     * return method id if method exists
+     * Check if code key exists
+     * return country id if method exists
      *
-     * @param int $method_id
+     * @param string $code
      * @return int
      */
     public function checkCode( $code )

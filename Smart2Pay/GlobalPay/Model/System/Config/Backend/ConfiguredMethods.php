@@ -40,6 +40,11 @@ class ConfiguredMethods extends \Magento\Framework\App\Config\Value
      */
     protected $_helper;
 
+    /** @var \Smart2Pay\GlobalPay\Model\Smart2Pay */
+    protected $_s2pModel;
+
+    protected $for_environment = false;
+
     /**
      * @param \Magento\Framework\Model\Context $context
      * @param \Magento\Framework\Registry $registry
@@ -54,15 +59,17 @@ class ConfiguredMethods extends \Magento\Framework\App\Config\Value
         \Magento\Framework\Registry $registry,
         \Magento\Framework\App\Config\ScopeConfigInterface $config,
         \Magento\Framework\App\Cache\TypeListInterface $cacheTypeList,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Smart2Pay\GlobalPay\Model\MethodFactory $methodFactory,
         \Smart2Pay\GlobalPay\Model\ConfiguredMethodsFactory $configuredMethodsFactory,
         \Smart2Pay\GlobalPay\Helper\Smart2Pay $helperSmart2Pay,
+        \Smart2Pay\GlobalPay\Model\Smart2Pay $s2pModel,
+        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
+        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         $this->_methodFactory = $methodFactory;
         $this->_configuredMethodsFactory = $configuredMethodsFactory;
+        $this->_s2pModel = $s2pModel;
 
         $this->_helper = $helperSmart2Pay;
 
@@ -84,6 +91,9 @@ class ConfiguredMethods extends \Magento\Framework\App\Config\Value
     {
         $methods_obj = $this->_methodFactory->create();
 
+        if( empty( $this->for_environment ) )
+            $this->for_environment = $this->_s2pModel->getEnvironment();
+
         if( !($form_s2p_enabled_methods = $this->_helper->getParam( 's2p_enabled_methods', array() ))
             or !is_array( $form_s2p_enabled_methods ) )
             $form_s2p_enabled_methods = array();
@@ -98,7 +108,7 @@ class ConfiguredMethods extends \Magento\Framework\App\Config\Value
         $existing_methods_params_arr['method_ids'] = $form_s2p_enabled_methods;
         $existing_methods_params_arr['include_countries'] = false;
 
-        if( !($db_existing_methods = $methods_obj->getAllActiveMethods( $existing_methods_params_arr )) )
+        if( !($db_existing_methods = $methods_obj->getAllActiveMethods( $this->for_environment, $existing_methods_params_arr )) )
             $db_existing_methods = array();
 
         $this->_methods_to_save = array();
@@ -144,9 +154,12 @@ class ConfiguredMethods extends \Magento\Framework\App\Config\Value
         if( !is_array( $this->_methods_to_save ) )
             return $this;
 
+        if( empty( $this->for_environment ) )
+            $this->for_environment = $this->_s2pModel->getEnvironment();
+
         $configured_methods_obj = $this->_configuredMethodsFactory->create();
 
-        if( ($save_result = $configured_methods_obj->saveConfiguredMethods( $this->_methods_to_save )) !== true )
+        if( ($save_result = $configured_methods_obj->saveConfiguredMethods( $this->_methods_to_save, $this->for_environment )) !== true )
         {
             if( !is_array( $save_result ) )
                 $error_msg = __( 'Error saving methods to database. Please try again.' );

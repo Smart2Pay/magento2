@@ -2,12 +2,13 @@
   "name": "Smart2Pay Payment Module",
   "description": "Use Smart2Pay module to have access to 100+ payment methods.",
   "type": "magento2-module",
-  "version": "2.0.2",
+  "version": "2.1.0",
   "license": [
     "OSL-3.0",
     "AFL-3.0"
   ],
   "require": {
+    "smart2pay/sdk-php": "*"
   },
   "extra": {
     "map": [

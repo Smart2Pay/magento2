@@ -31,16 +31,9 @@ class ConfigProvider implements ConfigProviderInterface
     protected $_request;
 
     /**
-     * @var string[]
+     * @var \Smart2Pay\GlobalPay\Model\Smart2Pay
      */
-    protected $methodCodes = [
-        Smart2Pay::METHOD_CODE,
-    ];
-
-    /**
-     * @var \Smart2Pay\GlobalPay\Model\Smart2Pay[]
-     */
-    protected $methods = [];
+    protected $method_instance = false;
 
     /**
      * @var Escaper
@@ -63,9 +56,11 @@ class ConfigProvider implements ConfigProviderInterface
         $this->_request = $context->getRequest();
         $this->_assetRepo = $context->getAssetRepository();
 
-        foreach( $this->methodCodes as $code )
+        try {
+            $this->method_instance = $paymentHelper->getMethodInstance( Smart2Pay::METHOD_CODE );
+        } catch( \Magento\Framework\Exception\LocalizedException $e )
         {
-            $this->methods[$code] = $paymentHelper->getMethodInstance( $code );
+            $this->method_instance = false;
         }
     }
 
@@ -93,16 +88,14 @@ class ConfigProvider implements ConfigProviderInterface
     {
         $configured_methods = $this->_configuredMethodFactory->create();
 
-        $config = [];
-        foreach( $this->methodCodes as $code )
-        {
-            if( $this->methods[$code]->isAvailable() )
-                $config['payment'][$code]['settings'] = $this->methods[$code]->getFrontConfigArray();
-        }
+        if( empty( $this->method_instance )
+         or !$this->method_instance->isAvailable() )
+            return array();
 
+        $config = array();
+        $config['payment'][Smart2Pay::METHOD_CODE]['settings'] = $this->method_instance->getFrontConfigArray();
         $config['payment'][Smart2Pay::METHOD_CODE]['images_url'] = $this->getViewFileUrl( 'Smart2Pay_GlobalPay::images' );
-
-        $config['payment'][Smart2Pay::METHOD_CODE]['methods'] = $configured_methods->getAllConfiguredMethodsPerCountryCode();
+        $config['payment'][Smart2Pay::METHOD_CODE]['methods'] = $configured_methods->getAllConfiguredMethodsPerCountryCode( $this->method_instance->getEnvironment() );
 
         return $config;
     }

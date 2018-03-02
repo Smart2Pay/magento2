@@ -64,6 +64,9 @@ class Smart2Pay extends AbstractMethod
     /** @var \Smart2Pay\GlobalPay\Model\ConfiguredMethods */
     protected $_configuredMethods;
 
+    /** @var \Magento\Framework\App\Config\ConfigResource\ConfigInterface */
+    protected $_resourceConfig;
+
     /** @var \Smart2Pay\GlobalPay\Model\TransactionFactory */
     protected $_s2pTransaction;
 
@@ -77,6 +80,7 @@ class Smart2Pay extends AbstractMethod
         \Magento\Payment\Model\Method\Logger $logger,
         \Smart2Pay\GlobalPay\Model\ConfiguredMethodsFactory $configuredMethodsFactory,
         \Smart2Pay\GlobalPay\Model\TransactionFactory $transactionFactory,
+        \Magento\Framework\App\Config\ConfigResource\ConfigInterface $resourceConfig,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
@@ -84,6 +88,7 @@ class Smart2Pay extends AbstractMethod
     {
         parent::__construct( $context, $registry, $extensionFactory, $customAttributeFactory, $paymentData, $scopeConfig, $logger, $resource, $resourceCollection, $data );
 
+        $this->_resourceConfig = $resourceConfig;
         $this->_s2pTransaction = $transactionFactory;
         $this->_configuredMethods = $configuredMethodsFactory;
     }
@@ -135,22 +140,27 @@ class Smart2Pay extends AbstractMethod
         return $return_arr;
     }
 
-    public function getFullConfigArray()
+    public function getFullConfigArray( $force = false )
     {
+        static $config_arr = false;
+
+        if( empty( $force )
+        and !empty( $config_arr )
+        and is_array( $config_arr ) )
+            return $config_arr;
+
         $default_config_array = array(
             'active' => 0,
-            'environment' => Environment::ENV_DEMO,
-            'post_url_live' => 'https://api.smart2pay.com',
-            'post_url_test' => 'https://apitest.smart2pay.com',
-            'mid_live' => 0,
-            'mid_test' => 0,
-            'site_id' => 0,
-            'signature_live' => '',
-            'signature_test' => '',
+            'last_sync_demo' => false,
+            'last_sync_test' => false,
+            'last_sync_live' => false,
+            'site_id_test' => 0,
+            'apikey_test' => '',
+            'site_id_live' => 0,
+            'apikey_live' => '',
             'return_url' => '',
             'title' => 'Smart2Pay - Alternative payment methods',
             'skin_id' => 0,
-            'debug_form' => 0,
             'sort_order' => 0,
 
             'display_surcharge' => 0,
@@ -191,6 +201,9 @@ class Smart2Pay extends AbstractMethod
         );
 
         $config_arr = array();
+
+        $config_arr['environment'] = $this->getEnvironment();
+
         foreach( $default_config_array as $key => $def_value )
         {
             if( ($config_value = $this->getConfigData( $key )) === null )
@@ -201,30 +214,76 @@ class Smart2Pay extends AbstractMethod
 
         $config_arr = array_merge( $config_arr, $extra_config_array );
 
-        switch( $config_arr['environment'] )
+        if( ($api_settings = $this->getApiSettingsByEnvironment( $config_arr['environment'] )) )
         {
-            default:
-            case Environment::ENV_DEMO:
-                $config_arr['post_url'] = 'https://apitest.smart2pay.com';
-                $config_arr['signature'] = 'c439e420-d4d9';
-                $config_arr['mid'] = '1045';
-                $config_arr['site_id'] = '30561';
-            break;
-
-            case Environment::ENV_TEST:
-                $config_arr['post_url'] = $config_arr['post_url_test'];
-                $config_arr['signature'] = $config_arr['signature_test'];
-                $config_arr['mid'] = $config_arr['mid_test'];
-            break;
-
-            case Environment::ENV_LIVE:
-                $config_arr['post_url'] = $config_arr['post_url_live'];
-                $config_arr['signature'] = $config_arr['signature_live'];
-                $config_arr['mid'] = $config_arr['mid_live'];
-            break;
+            foreach( $api_settings as $api_arr_key => $api_arr_val )
+            {
+                $config_arr[$api_arr_key] = $api_arr_val;
+            }
         }
 
         return $config_arr;
+    }
+
+    public function getApiSettingsByEnvironment( $environment = false )
+    {
+        if( empty( $environment ) )
+            $environment = $this->getEnvironment();
+
+        $api_settings = array();
+        if( $environment == Environment::ENV_DEMO )
+        {
+            // demo environment
+            $api_settings['api_environment'] = Environment::ENV_TEST;
+            $api_settings['apikey'] = 'gb0LO1CS7iHihW+3yygoPJOmrlrQ2e0UQRGKPdznYgFW3mohdg';
+            $api_settings['site_id'] = '33844';
+            $api_settings['last_sync'] = $this->getConfigData( 'last_sync_demo' );
+        } elseif( in_array( $environment, array( Environment::ENV_TEST, Environment::ENV_LIVE ) ) )
+        {
+            $api_settings['api_environment'] = $environment;
+            $api_settings['apikey'] = $this->getConfigData( 'apikey_' . $environment );
+            $api_settings['site_id'] = $this->getConfigData( 'site_id_' . $environment );
+            $api_settings['last_sync'] = $this->getConfigData( 'last_sync_' . $environment );
+        } else
+        {
+            $api_settings['api_environment'] = '';
+            $api_settings['apikey'] = '';
+            $api_settings['site_id'] = 0;
+            $api_settings['last_sync'] = false;
+        }
+
+        return $api_settings;
+    }
+
+    public function getEnvironment()
+    {
+        static $_environment = false;
+
+        if( $_environment !== false )
+            return $_environment;
+
+        if( !($_environment = $this->getConfigData( 'environment' )) )
+            $_environment = Environment::ENV_DEMO;
+
+        $_environment = strtolower( trim( $_environment ) );
+        if( Environment::validEnvironment( $_environment ) )
+            $_environment = Environment::ENV_DEMO;
+
+        return $_environment;
+    }
+
+    public function upate_last_methods_sync_option( $value, $environment = false )
+    {
+        if( $environment === false )
+            $environment = $this->getEnvironment();
+
+        $this->_resourceConfig->saveConfig(
+            'payment/smart2pay/last_sync_'.$environment,
+            $value,
+            \Magento\Framework\App\Config\ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+            \Magento\Store\Model\Store::DEFAULT_STORE_ID
+
+        );
     }
 
     /**
@@ -233,6 +292,7 @@ class Smart2Pay extends AbstractMethod
      * @param \Magento\Framework\DataObject|mixed $data
      * @return $this
      * @throws LocalizedException
+     * @throws \Exception
      */
     public function assignData(\Magento\Framework\DataObject $data)
     {
@@ -248,11 +308,14 @@ class Smart2Pay extends AbstractMethod
         if( !empty( $country_code ) )
             $country_code = strtoupper( trim( $country_code ) );
 
+        $environment = $this->getEnvironment();
+
         $configured_methods_instance = $this->_configuredMethods->create();
 
         if( !$s2p_method
          or empty( $country_code )
-         or !($method_details = $configured_methods_instance->getConfiguredMethodDetails( $s2p_method, [ 'country_code' => $country_code, 'only_active' => true ] )) )
+         or !($method_details = $configured_methods_instance->getConfiguredMethodDetails( $s2p_method, $environment,
+                                                                                          [ 'country_code' => $country_code, 'only_active' => true ] )) )
         {
             // ob_start();
             // var_dump( $data->getSpMethod() );
@@ -281,9 +344,10 @@ class Smart2Pay extends AbstractMethod
 
         $s2p_transaction
             ->setMethodID( $s2p_method )
+            ->setEnvironment( $environment )
             ->setMerchantTransactionID( 'NOTSETYET_'.microtime( true ) );
 
-        $s2p_transaction->save();
+        $s2p_transaction->getResource()->save( $s2p_transaction );
 
         $infoInstance->setAdditionalInformation( 'sp_method', $s2p_method );
         $infoInstance->setAdditionalInformation( 'sp_surcharge', (isset( $details_arr['surcharge'] )?$details_arr['surcharge']:0) );

@@ -15,6 +15,9 @@ class ConfiguredMethods extends \Magento\Framework\Model\ResourceModel\Db\Abstra
      */
     private $_loggerFactory;
 
+    /** @var \Smart2Pay\GlobalPay\Model\Smart2Pay */
+    protected $_s2pModel;
+
     /**
      * Construct
      *
@@ -24,11 +27,13 @@ class ConfiguredMethods extends \Magento\Framework\Model\ResourceModel\Db\Abstra
     public function __construct(
         \Magento\Framework\Model\ResourceModel\Db\Context $context,
         \Smart2Pay\GlobalPay\Model\LoggerFactory $loggerFactory,
+        \Smart2Pay\GlobalPay\Model\Smart2Pay $s2pModel,
         $resourcePrefix = null
     ) {
-        $this->_loggerFactory = $loggerFactory;
-
         parent::__construct( $context, $resourcePrefix );
+
+        $this->_s2pModel = $s2pModel;
+        $this->_loggerFactory = $loggerFactory;
     }
 
     /**
@@ -50,7 +55,7 @@ class ConfiguredMethods extends \Magento\Framework\Model\ResourceModel\Db\Abstra
      */
     protected function _beforeSave( \Magento\Framework\Model\AbstractModel $object )
     {
-        if( ($existing_arr = $this->checkMethodCountryID( $object->getMethodID(), $object->getCountryID() )) )
+        if( ($existing_arr = $this->checkMethodCountryID( $object->getMethodID(), $object->getCountryID(), $object->getEn() )) )
         {
             $this->getConnection()->delete(
                 $this->getMainTable(),
@@ -81,7 +86,7 @@ class ConfiguredMethods extends \Magento\Framework\Model\ResourceModel\Db\Abstra
     /**
      * Retrieve load select with filter by country_id
      *
-     * @param string $url_key
+     * @param int $country_id
      * @param null|\Magento\Framework\DB\Select $select
      * @return \Magento\Framework\DB\Select
      */
@@ -96,9 +101,30 @@ class ConfiguredMethods extends \Magento\Framework\Model\ResourceModel\Db\Abstra
     }
 
     /**
+     * Retrieve load select with filter by environment
+     *
+     * @param string $environment
+     * @param null|\Magento\Framework\DB\Select $select
+     * @return \Magento\Framework\DB\Select
+     */
+    protected function _getLoadByEnvironmentSelect( $environment, $select = null )
+    {
+        if( empty( $environment ) )
+            $environment = $this->_s2pModel->getEnvironment();
+
+        if( empty( $select ) )
+            $select = parent::_getLoadSelect( 'environment', $environment, null );
+        else
+            $select->where( 'environment = ?', $environment );
+
+        return $select;
+    }
+
+    /**
      * Check if $method_id, $country_id pair is configured in database and return an array with details
      *
      * @param int $method_id
+     * @param int $country_id
      * @return int
      */
     public function checkMethodCountryID( $method_id, $country_id )
@@ -140,11 +166,12 @@ class ConfiguredMethods extends \Magento\Framework\Model\ResourceModel\Db\Abstra
     /**
      * @param int $method_id
      * @param int $country_id
+     * @param string $environment
      * @param array $params
      *
      * @return bool
      */
-    public function insertOrUpdate( $method_id, $country_id, $params )
+    public function insertOrUpdate( $method_id, $country_id, $environment, $params )
     {
         $method_id = intval( $method_id );
         $country_id = intval( $country_id );
@@ -164,19 +191,21 @@ class ConfiguredMethods extends \Magento\Framework\Model\ResourceModel\Db\Abstra
 
         try
         {
-            if( ( $existing_id = $conn->fetchOne( 'SELECT id FROM ' . $this->getMainTable() . ' WHERE method_id = \'' . $method_id . '\' AND country_id = \'' . $country_id . '\' LIMIT 0, 1' ) ) )
+            if( ( $existing_id = $conn->fetchOne( 'SELECT id FROM ' . $this->getMainTable() . ' WHERE method_id = \'' . $method_id .
+                                                  '\' AND country_id = \'' . $country_id . '\' AND environment = \'' . $environment . '\' LIMIT 0, 1' ) ) )
             {
                 // we should update record
                 $conn->update( $this->getMainTable(), $insert_arr, 'id = \'' . $existing_id . '\'' );
             } else
             {
+                $insert_arr['environment']  = $environment;
                 $insert_arr['method_id']  = $method_id;
                 $insert_arr['country_id'] = $country_id;
 
                 $conn->insert( $this->getMainTable(), $insert_arr );
 
             }
-        } catch( \Zend_Db_Adapter_Exception $e )
+        } catch( \Exception $e )
         {
             $s2pLogger = $this->_loggerFactory->create();
 
@@ -207,7 +236,7 @@ class ConfiguredMethods extends \Magento\Framework\Model\ResourceModel\Db\Abstra
 
         /** @var \Smart2Pay\GlobalPay\Model\ConfiguredMethods $item */
         foreach( $it as $item )
-            $item->delete();
+            $item->_getResource()->delete( $item );
 
         return true;
     }
