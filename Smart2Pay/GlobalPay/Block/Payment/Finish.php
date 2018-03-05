@@ -105,19 +105,20 @@ class Finish extends \Magento\Framework\View\Element\Template
         $transaction_obj = false;
         $error_message = '';
         $merchant_transaction_id = 0;
+        $merchant_order_id = 0;
 
         if( ($status_code = $this->_helper->getParam( 'data', null )) === null )
             $error_message = __( 'Transaction status not provided.' );
 
         elseif( !($merchant_transaction_id = $this->_helper->getParam( 'MerchantTransactionID', '' ))
-             or !($merchant_transaction_id = $this->_helper->convert_from_demo_merchant_transaction_id( $merchant_transaction_id )) )
+             or !($merchant_order_id = $this->_helper->convert_from_demo_merchant_transaction_id( $merchant_transaction_id )) )
             $error_message = __( 'Couldn\'t extract transaction information.' );
 
         elseif( !$s2p_transaction->loadByMerchantTransactionId( $merchant_transaction_id )
              or !$s2p_transaction->getID() )
             $error_message = __( 'Transaction not found in database.' );
 
-        elseif( !$order->loadByIncrementId( $merchant_transaction_id )
+        elseif( !$order->loadByIncrementId( $merchant_order_id )
              or !$order->getEntityId() )
             $error_message = __( 'Order not found in database.' );
 

@@ -141,6 +141,8 @@ class InstallData implements InstallDataInterface
 
         ];
 
+        $installer->getConnection()->truncateTable( $installer->getTable( 's2p_gp_methods' ) );
+
         $installer->getConnection()->insertArray( $installer->getTable( 's2p_gp_methods' ),
                                                   ['method_id','display_name','provider_value','description','logo_url','guaranteed','active'],
                                                   $insert_data );
@@ -392,6 +394,8 @@ class InstallData implements InstallDataInterface
         [244, 'ME', 'Montenegro'],
 
         ];
+
+        $installer->getConnection()->truncateTable( $installer->getTable( 's2p_gp_countries' ) );
 
         $installer->getConnection()->insertArray( $installer->getTable( 's2p_gp_countries' ),
                                                   ['country_id','code','name'],
@@ -1059,6 +1063,8 @@ class InstallData implements InstallDataInterface
 
         ];
 
+        $installer->getConnection()->truncateTable( $installer->getTable( 's2p_gp_countries_methods' ) );
+
         $installer->getConnection()->insertArray( $installer->getTable( 's2p_gp_countries_methods' ),
                                                   ['country_id','method_id','priority'],
                                                   $insert_data );
@@ -1075,15 +1081,23 @@ class InstallData implements InstallDataInterface
             Smart2Pay::STATUS_EXPIRED => __('Smart2Pay Expired'),
         ];
 
-        foreach ($statuses as $code => $info) {
-            $data[] = ['status' => $code, 'label' => $info];
+        $select = $installer->getConnection()->select()->from( $installer->getTable( 'sales_order_status' ) );
+        foreach( $statuses as $code => $info )
+        {
+            $select->reset( \Magento\Framework\DB\Select::WHERE );
+
+            $select->where( '`status` =?', $code );
+
+            if( !$installer->getConnection()->fetchRow( $select ) )
+                $data[] = ['status' => $code, 'label' => $info];
         }
 
-        $installer->getConnection()->insertArray(
-            $installer->getTable('sales_order_status'),
-            ['status', 'label'],
-            $data
-        );
+        if( !empty( $data ) )
+            $installer->getConnection()->insertArray(
+                $installer->getTable('sales_order_status'),
+                ['status', 'label'],
+                $data
+            );
 
 
         /**
@@ -1102,23 +1116,36 @@ class InstallData implements InstallDataInterface
             ],
         ];
 
-        foreach ($states as $code => $info) {
-            if (isset($info['statuses'])) {
-                foreach ($info['statuses'] as $status) {
-                    $data[] = [
-                        'status' => $status,
-                        'state' => $code,
-                        'is_default' => 0,
-                        'visible_on_front' => 1,
-                    ];
+        $select = $installer->getConnection()->select()->from( $installer->getTable( 'sales_order_status_state' ) );
+        foreach ($states as $code => $info)
+        {
+            if( isset( $info['statuses'] ) )
+            {
+                foreach( $info['statuses'] as $status )
+                {
+                    $select->reset( \Magento\Framework\DB\Select::WHERE );
+
+                    $select->where('status = :status')->where('state = :state');
+
+                    $bind = [ ':status' => $status, ':state' => $code ];
+
+                    if( !$installer->getConnection()->fetchRow( $select, $bind ) )
+                        $data[] = [
+                            'status' => $status,
+                            'state' => $code,
+                            'is_default' => 0,
+                            'visible_on_front' => 1,
+                        ];
                 }
             }
         }
-        $installer->getConnection()->insertArray(
-            $installer->getTable('sales_order_status_state'),
-            ['status', 'state', 'is_default', 'visible_on_front'],
-            $data
-        );
+
+        if( !empty( $data ) )
+            $installer->getConnection()->insertArray(
+                $installer->getTable('sales_order_status_state'),
+                ['status', 'state', 'is_default', 'visible_on_front'],
+                $data
+            );
 
         $installer->endSetup();
     }
