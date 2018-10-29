@@ -15,8 +15,8 @@ class ConfiguredMethods extends \Magento\Framework\Model\ResourceModel\Db\Abstra
      */
     private $_loggerFactory;
 
-    /** @var \Smart2Pay\GlobalPay\Model\Smart2Pay */
-    protected $_s2pModel;
+    /** @var \Smart2Pay\GlobalPay\Helper\S2pHelper $_s2pHelper */
+    protected $_s2pHelper;
 
     /**
      * Construct
@@ -27,12 +27,12 @@ class ConfiguredMethods extends \Magento\Framework\Model\ResourceModel\Db\Abstra
     public function __construct(
         \Magento\Framework\Model\ResourceModel\Db\Context $context,
         \Smart2Pay\GlobalPay\Model\LoggerFactory $loggerFactory,
-        \Smart2Pay\GlobalPay\Model\Smart2Pay $s2pModel,
+        \Smart2Pay\GlobalPay\Helper\S2pHelper $s2pHelper,
         $resourcePrefix = null
     ) {
         parent::__construct( $context, $resourcePrefix );
 
-        $this->_s2pModel = $s2pModel;
+        $this->_s2pHelper = $s2pHelper;
         $this->_loggerFactory = $loggerFactory;
     }
 
@@ -55,7 +55,7 @@ class ConfiguredMethods extends \Magento\Framework\Model\ResourceModel\Db\Abstra
      */
     protected function _beforeSave( \Magento\Framework\Model\AbstractModel $object )
     {
-        if( ($existing_arr = $this->checkMethodCountryID( $object->getMethodID(), $object->getCountryID(), $object->getEn() )) )
+        if( ($existing_arr = $this->checkMethodCountryID( $object->getMethodID(), $object->getCountryID() )) )
         {
             $this->getConnection()->delete(
                 $this->getMainTable(),
@@ -110,7 +110,7 @@ class ConfiguredMethods extends \Magento\Framework\Model\ResourceModel\Db\Abstra
     protected function _getLoadByEnvironmentSelect( $environment, $select = null )
     {
         if( empty( $environment ) )
-            $environment = $this->_s2pModel->getEnvironment();
+            $environment = $this->_s2pHelper->getEnvironment();
 
         if( empty( $select ) )
             $select = parent::_getLoadSelect( 'environment', $environment, null );

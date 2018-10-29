@@ -18,42 +18,43 @@ class UpgradeData implements UpgradeDataInterface
      */
     public function upgrade( ModuleDataSetupInterface $setup, ModuleContextInterface $context )
     {
-        $installer = $setup;
-
-        $installer->startSetup();
+        $setup->startSetup();
 
         $current_version = $context->getVersion();
 
-        //
-        // code to upgrade to 2.1.0
-        //
         if( version_compare( $current_version, '2.1.0' ) < 0 )
-        {
-            //
-            //  Methods table
-            //
-            $methods_configured_table = $installer->getTable( 's2p_gp_methods' );
+            $this->_upgrade_2_1_0( $setup, $context );
 
-            $installer->getConnection()->truncateTable( $methods_configured_table );
-
-            //
-            //  Configured methods table
-            //
-            $methods_configured_table = $installer->getTable( 's2p_gp_methods_configured' );
-
-            $installer->getConnection()->truncateTable( $methods_configured_table );
-
-            //
-            //  Methods countries table
-            //
-            $countries_methods_table = $installer->getTable( 's2p_gp_countries_methods' );
-
-            $installer->getConnection()->truncateTable( $countries_methods_table );
-        }
-        //
-        // END code to upgrade to 2.1.0
-        //
-
-        $installer->endSetup();
+        $setup->endSetup();
     }
+
+    //
+    //region code to upgrade to 2.1.0
+    //
+    private function _upgrade_2_1_0( ModuleDataSetupInterface $setup, ModuleContextInterface $context )
+    {
+        //
+        //  Methods table
+        //
+        $methods_configured_table = $setup->getTable( 's2p_gp_methods' );
+
+        $setup->getConnection()->truncateTable( $methods_configured_table );
+
+        //
+        //  Configured methods table
+        //
+        $methods_configured_table = $setup->getTable( 's2p_gp_methods_configured' );
+
+        $setup->getConnection()->truncateTable( $methods_configured_table );
+
+        //
+        //  Methods countries table
+        //
+        $countries_methods_table = $setup->getTable( 's2p_gp_countries_methods' );
+
+        $setup->getConnection()->truncateTable( $countries_methods_table );
+    }
+    //
+    //endregion code to upgrade to 2.1.0
+    //
 }

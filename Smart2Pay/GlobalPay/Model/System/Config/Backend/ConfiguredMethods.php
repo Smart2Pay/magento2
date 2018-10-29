@@ -33,15 +33,8 @@ class ConfiguredMethods extends \Magento\Framework\App\Config\Value
      */
     private $_methodFactory;
 
-    /**
-     * Helper
-     *
-     * @var \Smart2Pay\GlobalPay\Helper\Smart2Pay
-     */
-    protected $_helper;
-
-    /** @var \Smart2Pay\GlobalPay\Model\Smart2Pay */
-    protected $_s2pModel;
+    /** @var \Smart2Pay\GlobalPay\Helper\S2pHelper $_s2pHelper */
+    protected $_s2pHelper;
 
     protected $for_environment = false;
 
@@ -61,17 +54,14 @@ class ConfiguredMethods extends \Magento\Framework\App\Config\Value
         \Magento\Framework\App\Cache\TypeListInterface $cacheTypeList,
         \Smart2Pay\GlobalPay\Model\MethodFactory $methodFactory,
         \Smart2Pay\GlobalPay\Model\ConfiguredMethodsFactory $configuredMethodsFactory,
-        \Smart2Pay\GlobalPay\Helper\Smart2Pay $helperSmart2Pay,
-        \Smart2Pay\GlobalPay\Model\Smart2Pay $s2pModel,
+        \Smart2Pay\GlobalPay\Helper\S2pHelper $s2pHelper,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         $this->_methodFactory = $methodFactory;
         $this->_configuredMethodsFactory = $configuredMethodsFactory;
-        $this->_s2pModel = $s2pModel;
-
-        $this->_helper = $helperSmart2Pay;
+        $this->_s2pHelper = $s2pHelper;
 
         parent::__construct( $context, $registry, $config, $cacheTypeList, $resource, $resourceCollection, $data );
     }
@@ -83,25 +73,56 @@ class ConfiguredMethods extends \Magento\Framework\App\Config\Value
      */
     protected function _afterLoad()
     {
-        // echo 'ulicica';
         return parent::_afterLoad();
+    }
+
+    public function refresh_methods_from_server()
+    {
+
     }
 
     public function beforeSave()
     {
+        $sdk_helper = $this->_s2pHelper->getSDKHelper();
+
+        $this->_methods_to_save = false;
+
+        if( ($groups_arr = $this->_s2pHelper->getParam( 'groups', false ))
+        and is_array( $groups_arr )
+        and !empty( $groups_arr['smart2pay'] ) and is_array( $groups_arr['smart2pay'] )
+        and !empty( $groups_arr['smart2pay']['groups'] ) and is_array( $groups_arr['smart2pay']['groups'] )
+        and !empty( $groups_arr['smart2pay']['groups']['smart2pay_methods'] ) and is_array( $groups_arr['smart2pay']['groups']['smart2pay_methods'] )
+        and !empty( $groups_arr['smart2pay']['groups']['smart2pay_methods']['fields'] )
+        and is_array( $groups_arr['smart2pay']['groups']['smart2pay_methods']['fields'] )
+        and !empty( $groups_arr['smart2pay']['groups']['smart2pay_methods']['fields']['configured_methods'] )
+        and is_array( $groups_arr['smart2pay']['groups']['smart2pay_methods']['fields']['configured_methods'] )
+        and !empty( $groups_arr['smart2pay']['groups']['smart2pay_methods']['fields']['configured_methods']['action'] ) )
+        {
+            if( $groups_arr['smart2pay']['groups']['smart2pay_methods']['fields']['configured_methods']['action'] == 'do_sync' )
+            {
+                if( !$sdk_helper->refresh_available_methods() )
+                {
+                    $this->_dataSaveAllowed = false;
+                    throw new \Magento\Framework\Exception\LocalizedException( __( 'Error while importing payment methods from server: %1.', $sdk_helper->get_error() ) );
+                }
+            }
+
+            return $this;
+        }
+
         $methods_obj = $this->_methodFactory->create();
 
         if( empty( $this->for_environment ) )
-            $this->for_environment = $this->_s2pModel->getEnvironment();
+            $this->for_environment = $this->_s2pHelper->getEnvironment();
 
-        if( !($form_s2p_enabled_methods = $this->_helper->getParam( 's2p_enabled_methods', array() ))
-            or !is_array( $form_s2p_enabled_methods ) )
+        if( !($form_s2p_enabled_methods = $this->_s2pHelper->getParam( 's2p_enabled_methods', array() ))
+         or !is_array( $form_s2p_enabled_methods ) )
             $form_s2p_enabled_methods = array();
-        if( !($form_s2p_surcharge = $this->_helper->getParam( 's2p_surcharge', array() ))
-            or !is_array( $form_s2p_surcharge ) )
+        if( !($form_s2p_surcharge = $this->_s2pHelper->getParam( 's2p_surcharge', array() ))
+         or !is_array( $form_s2p_surcharge ) )
             $form_s2p_surcharge = array();
-        if( !($form_s2p_fixed_amount = $this->_helper->getParam( 's2p_fixed_amount', array() ))
-            or !is_array( $form_s2p_fixed_amount ) )
+        if( !($form_s2p_fixed_amount = $this->_s2pHelper->getParam( 's2p_fixed_amount', array() ))
+         or !is_array( $form_s2p_fixed_amount ) )
             $form_s2p_fixed_amount = array();
 
         $existing_methods_params_arr = array();
@@ -155,7 +176,7 @@ class ConfiguredMethods extends \Magento\Framework\App\Config\Value
             return $this;
 
         if( empty( $this->for_environment ) )
-            $this->for_environment = $this->_s2pModel->getEnvironment();
+            $this->for_environment = $this->_s2pHelper->getEnvironment();
 
         $configured_methods_obj = $this->_configuredMethodsFactory->create();
 

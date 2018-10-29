@@ -7,7 +7,7 @@
     </div>
     <div>
     <label data-bind="attr: {'for': 'smart2pay_'+id}" class="label">
-        <div data-bind="visible: main_renderer.displayLogo()" style="float: left; min-width: 160px; padding: 2px; text-align: center; vertical-align: middle;"><img data-bind="attr: { 'src': window.checkoutConfig.payment.smart2pay.images_url + '/methods/' + logo_url, 'alt': title, 'title': title}" style="max-width: 150px;" /></div>
+        <div data-bind="visible: main_renderer.displayLogo()" style="float: left; min-width: 160px; padding: 2px; text-align: center; vertical-align: middle;"><img data-bind="attr: { 'src': logo_url, 'alt': title, 'title': title}" style="max-width: 150px;" /></div>
         <div>
             <div data-bind="visible: main_renderer.displayTitle()"><span data-bind="html: title" style="font-weight: bold;"></span></div>
             <div data-bind="visible: main_renderer.displayDescription()"><span data-bind="html: description"></span></div>

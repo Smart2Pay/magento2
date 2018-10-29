@@ -7,7 +7,6 @@ class Logger extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      * Construct
      *
      * @param \Magento\Framework\Model\ResourceModel\Db\Context $context
-     * @param \Magento\Framework\Stdlib\DateTime\DateTime $date
      * @param string|null $resourcePrefix
      */
     public function __construct(
@@ -32,12 +31,13 @@ class Logger extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      *
      * @param string $message Message to be logged
      * @param string $type Type of log (info, debug, etc)
+     * @param string $transaction_id Transaction related to this log
      * @param string $file File which triggered logging
      * @param string $line What line triggered loggin in the file
      *
      * @return bool Returns true if succes, false if failed
      */
-    public function write( $message, $type = 'info', $file = '', $line = '' )
+    public function write( $message, $type = 'info', $transaction_id = '', $file = '', $line = '' )
     {
         try
         {
@@ -54,6 +54,7 @@ class Logger extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
             $insert_arr = array();
             $insert_arr['log_message'] = $message;
             $insert_arr['log_type'] = $type;
+            $insert_arr['transaction_id'] = $transaction_id;
             $insert_arr['log_source_file'] = $file;
             $insert_arr['log_source_file_line'] = $line;
             $insert_arr['log_created'] = date( 'Y-m-d H:i:s' );
@@ -63,7 +64,7 @@ class Logger extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         } catch( \Zend_Db_Adapter_Exception $e )
         {
             \Zend_Debug::dump( $e->getMessage() );
-            die;
+            return false;
         }
 
         return true;

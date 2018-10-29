@@ -5,7 +5,6 @@ namespace Smart2Pay\GlobalPay\Block\Payment;
 use Magento\Customer\Model\Context;
 use Magento\Sales\Model\Order;
 use Smart2Pay\GlobalPay\Model\Config\Source\Environment;
-use Smart2Pay\GlobalPay\Model\Smart2Pay;
 
 class Finish extends \Magento\Framework\View\Element\Template
 {
@@ -24,13 +23,8 @@ class Finish extends \Magento\Framework\View\Element\Template
      */
     protected $_orderConfig;
 
-    /**
-     * @var \Magento\Framework\App\Http\Context
-     */
+    /** @var \Magento\Framework\App\Http\Context */
     protected $httpContext;
-
-    /** @var \Smart2Pay\GlobalPay\Model\Smart2Pay */
-    protected $_s2pModel;
 
     /** @var \Smart2Pay\GlobalPay\Model\Logger */
     protected $_s2pLogger;
@@ -38,11 +32,7 @@ class Finish extends \Magento\Framework\View\Element\Template
     /** @var \Smart2Pay\GlobalPay\Model\TransactionFactory */
     protected $_s2pTransaction;
 
-    /**
-     * Helper
-     *
-     * @var \Smart2Pay\GlobalPay\Helper\Smart2Pay
-     */
+    /** @var \Smart2Pay\GlobalPay\Helper\S2pHelper */
     protected $_helper;
 
     /**
@@ -58,10 +48,9 @@ class Finish extends \Magento\Framework\View\Element\Template
         \Magento\Sales\Model\OrderFactory $orderFactory,
         \Magento\Sales\Model\Order\Config $orderConfig,
         \Magento\Framework\App\Http\Context $httpContext,
-        \Smart2Pay\GlobalPay\Model\Smart2Pay $s2pModel,
         \Smart2Pay\GlobalPay\Model\TransactionFactory $s2pTransaction,
         \Smart2Pay\GlobalPay\Model\Logger $s2pLogger,
-        \Smart2Pay\GlobalPay\Helper\Smart2Pay $helperSmart2Pay,
+        \Smart2Pay\GlobalPay\Helper\S2pHelper $helperSmart2Pay,
         array $data = []
     ) {
         parent::__construct($context, $data);
@@ -73,7 +62,6 @@ class Finish extends \Magento\Framework\View\Element\Template
 
         $this->_helper = $helperSmart2Pay;
 
-        $this->_s2pModel = $s2pModel;
         $this->_s2pTransaction = $s2pTransaction;
         $this->_s2pLogger = $s2pLogger;
     }
@@ -97,45 +85,44 @@ class Finish extends \Magento\Framework\View\Element\Template
     protected function prepareBlockData()
     {
         $s2p_transaction = $this->_s2pTransaction->create();
-
         $order = $this->_orderFactory->create();
 
-        $module_settings = $this->_s2pModel->getFullConfigArray();
+        $module_settings = $this->_helper->getFullConfigArray();
 
-        $transaction_obj = false;
+        $helper_obj = $this->_helper;
+
         $error_message = '';
         $merchant_transaction_id = 0;
-        $merchant_order_id = 0;
 
-        if( ($status_code = $this->_helper->getParam( 'data', null )) === null )
+        if( ($status_code = $helper_obj->getParam( 'data', null )) === null )
             $error_message = __( 'Transaction status not provided.' );
 
-        elseif( !($merchant_transaction_id = $this->_helper->getParam( 'MerchantTransactionID', '' ))
-             or !($merchant_order_id = $this->_helper->convert_from_demo_merchant_transaction_id( $merchant_transaction_id )) )
+        elseif( !($merchant_transaction_id = $helper_obj->getParam( 'MerchantTransactionID', '' ))
+             or !($order_id = $helper_obj->convert_from_demo_merchant_transaction_id( $merchant_transaction_id )) )
             $error_message = __( 'Couldn\'t extract transaction information.' );
 
         elseif( !$s2p_transaction->loadByMerchantTransactionId( $merchant_transaction_id )
              or !$s2p_transaction->getID() )
             $error_message = __( 'Transaction not found in database.' );
 
-        elseif( !$order->loadByIncrementId( $merchant_order_id )
+        elseif( !$order->loadByIncrementId( $order_id )
              or !$order->getEntityId() )
             $error_message = __( 'Order not found in database.' );
 
         $status_code = intval( $status_code );
 
         if( empty( $status_code ) )
-            $status_code = Smart2Pay::S2P_STATUS_FAILED;
+            $status_code = $helper_obj::S2P_STATUS_FAILED;
 
         $transaction_extra_data = [];
         $transaction_details_titles = [];
         if( in_array( $s2p_transaction->getMethodId(),
-                            [ \Smart2Pay\GlobalPay\Model\Smart2Pay::PAYMENT_METHOD_BT, \Smart2Pay\GlobalPay\Model\Smart2Pay::PAYMENT_METHOD_SIBS ] ) )
+                            [ $helper_obj::PAYMENT_METHOD_BT, $helper_obj::PAYMENT_METHOD_SIBS ] ) )
         {
-            if( ($transaction_details_titles = \Smart2Pay\GlobalPay\Helper\Smart2Pay::transaction_logger_params_to_title())
+            if( ($transaction_details_titles = $helper_obj::transaction_logger_params_to_title())
             and is_array( $transaction_details_titles ) )
             {
-                if( !($all_params = $this->_helper->getParams()) )
+                if( !($all_params = $s2p_transaction->getExtraDataArray()) )
                     $all_params = [];
 
                 foreach( $transaction_details_titles as $key => $title )
@@ -152,36 +139,15 @@ class Finish extends \Magento\Framework\View\Element\Template
         if( empty( $error_message ) )
         {
             //map all statuses to known Magento statuses (message_data_2, message_data_4, message_data_3 and message_data_7)
-            $status_id_to_string = array(
-                Smart2Pay::S2P_STATUS_OPEN => Smart2Pay::S2P_STATUS_PENDING_PROVIDER,
-                Smart2Pay::S2P_STATUS_SUCCESS => Smart2Pay::S2P_STATUS_SUCCESS,
-                Smart2Pay::S2P_STATUS_CANCELLED => Smart2Pay::S2P_STATUS_CANCELLED,
-                Smart2Pay::S2P_STATUS_FAILED => Smart2Pay::S2P_STATUS_FAILED,
-                Smart2Pay::S2P_STATUS_EXPIRED => Smart2Pay::S2P_STATUS_FAILED,
-                Smart2Pay::S2P_STATUS_PENDING_CUSTOMER => Smart2Pay::S2P_STATUS_PENDING_PROVIDER,
-                Smart2Pay::S2P_STATUS_PENDING_PROVIDER => Smart2Pay::S2P_STATUS_PENDING_PROVIDER,
-                Smart2Pay::S2P_STATUS_SUBMITTED => Smart2Pay::S2P_STATUS_PENDING_PROVIDER,
-                Smart2Pay::S2P_STATUS_PROCESSING => Smart2Pay::S2P_STATUS_PENDING_PROVIDER,
-                Smart2Pay::S2P_STATUS_AUTHORIZED => Smart2Pay::S2P_STATUS_PENDING_PROVIDER,
-                Smart2Pay::S2P_STATUS_APPROVED => Smart2Pay::S2P_STATUS_PENDING_PROVIDER,
-                Smart2Pay::S2P_STATUS_CAPTURED => Smart2Pay::S2P_STATUS_PENDING_PROVIDER,
-                Smart2Pay::S2P_STATUS_REJECTED => Smart2Pay::S2P_STATUS_FAILED,
-                Smart2Pay::S2P_STATUS_PENDING_CAPTURE => Smart2Pay::S2P_STATUS_PENDING_PROVIDER,
-                Smart2Pay::S2P_STATUS_EXCEPTION => Smart2Pay::S2P_STATUS_PENDING_PROVIDER,
-                Smart2Pay::S2P_STATUS_PENDING_CANCEL => Smart2Pay::S2P_STATUS_PENDING_PROVIDER,
-                Smart2Pay::S2P_STATUS_REVERSED => Smart2Pay::S2P_STATUS_PENDING_PROVIDER,
-                Smart2Pay::S2P_STATUS_COMPLETED => Smart2Pay::S2P_STATUS_SUCCESS,
-                Smart2Pay::S2P_STATUS_PROCESSING => Smart2Pay::S2P_STATUS_PENDING_PROVIDER,
-                Smart2Pay::S2P_STATUS_DISPUTED => Smart2Pay::S2P_STATUS_PENDING_PROVIDER,
-                Smart2Pay::S2P_STATUS_CHARGEBACK => Smart2Pay::S2P_STATUS_PENDING_PROVIDER,
-            );
+            if( !($magento_status_id = $helper_obj::convert_gp_status_to_magento_status( $status_code )) )
+                $magento_status_id = 0;
 
             if( isset( $module_settings['message_data_'.$status_code] ) )
                 $result_message = $module_settings['message_data_'.$status_code];
 
-            elseif( !empty( $status_id_to_string[$status_code] )
-            and isset( $module_settings['message_data_'.$status_id_to_string[$status_code]] ) )
-                $result_message = $module_settings['message_data_'.$status_id_to_string[$status_code]];
+            elseif( !empty( $magento_status_id )
+            and isset( $module_settings['message_data_'.$magento_status_id] ) )
+                $result_message = $module_settings['message_data_'.$magento_status_id];
         }
 
         $this->addData(

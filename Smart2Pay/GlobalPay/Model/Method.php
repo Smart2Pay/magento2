@@ -82,6 +82,11 @@ class Method extends \Magento\Framework\Model\AbstractModel implements MethodInt
         return $this->_getResource()->checkMethodID( $method_id, $environment );
     }
 
+    public function getByMethodID( $method_id, $environment = false )
+    {
+        return $this->_getResource()->getByMethodID( $method_id, $environment );
+    }
+
     public function getAllActiveMethods( $environment, $params = false )
     {
         if( empty( $params ) or !is_array( $params ) )
@@ -201,15 +206,23 @@ class Method extends \Magento\Framework\Model\AbstractModel implements MethodInt
     /**
      * @param array $methods_arr
      * @param string $environment
-     * @throws \Exception
      * @return string|bool
      */
     public function saveMethodsFromSDKResponse( $methods_arr, $environment )
     {
-        $s2pLogger = $this->_loggerFactory->create();
-        $country_method_obj = $this->_countryMethodFactory->create();
+        try
+        {
+            $s2pLogger = $this->_loggerFactory->create();
+            $country_method_obj = $this->_countryMethodFactory->create();
 
-        $my_resource = $this->_getResource();
+            $my_resource = $this->_getResource();
+        } catch( \Exception $e )
+        {
+            if( !empty( $s2pLogger ) )
+                $s2pLogger->write( 'Error initializing resources.', 'SDK_methods_update' );
+
+            return 'Please provide a valid environment.';
+        }
 
         if( empty( $environment ) or !is_string( $environment ) )
         {
@@ -227,9 +240,17 @@ class Method extends \Magento\Framework\Model\AbstractModel implements MethodInt
 
         $s2pLogger->write( 'Updating '.count( $methods_arr ).' methods for environment '.$environment.' from SDK response.', 'SDK_methods_update' );
 
-        if( !$this->deleteMethodsForEnvironment( $environment ) )
+        try
         {
-            $s2pLogger->write( 'Couldn\'t delete existing methods from database.', 'SDK_methods_update' );
+            if( !$this->deleteMethodsForEnvironment( $environment ) )
+            {
+                $s2pLogger->write( 'Couldn\'t delete existing methods from database.', 'SDK_methods_update' );
+
+                return 'Couldn\'t delete existing methods from database.';
+            }
+        } catch( \Exception $e )
+        {
+            $s2pLogger->write( 'Couldn\'t delete existing methods from database: '.$e->getMessage(), 'SDK_methods_update' );
 
             return 'Couldn\'t delete existing methods from database.';
         }

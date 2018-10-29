@@ -376,8 +376,8 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
 
         $cm_collection = $this->_countryMethodFactory->create()->getCollection();
         $cm_collection->addFieldToSelect( '*' );
-        $cm_collection->addFieldToFilter( 'country_id', $country_id );
-        $cm_collection->addFieldToFilter( 'environment', $environment );
+        $cm_collection->addFieldToFilter( 'main_table.country_id', $country_id );
+        $cm_collection->addFieldToFilter( 'main_table.environment', $environment );
 
         $cm_collection->getSelect()->join(
             $cm_collection->getTable( 's2p_gp_methods' ),
@@ -389,7 +389,6 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
         $methods_arr = array();
         $method_ids_arr = array();
         $enabled_method_ids_arr = array();
-
 
         while( ($method_obj = $cm_collection->fetchItem())
                and ($method_arr = $method_obj->getData()) )

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
-    <event name="sales_order_payment_save_before">
-        <observer name="payment_before_save" instance="Smart2Pay\GlobalPay\Observer\BeforeOrderPaymentSaveObserver" />
+    <event name="payment_method_assign_data_smart2pay">
+        <observer name="smart2pay_gateway_data_assign" instance="Smart2Pay\GlobalPay\Observer\DataAssignObserver" />
     </event>
 </config>

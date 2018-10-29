@@ -29,6 +29,13 @@
         <div class="no-payments-block"><!-- ko i18n: 'No payment methods for selected country.'--><!-- /ko --></div>
         <!-- /ko -->
 
+        <!-- ko foreach: $parent.getRegion('messages-smart2pay') -->
+        <!-- ko template: getTemplate() --><!-- /ko -->
+        <!--/ko-->
+
+        <!-- ko if: requestHasError() -->
+        <div class="no-payments-block"><span data-bind="text: requestErrorMessage()"></span></div>
+        <!-- /ko -->
 
         <!--
         ,
@@ -39,7 +46,7 @@
                 <button id="s2p_place_order_button" class="action primary checkout"
                         type="submit"
                         data-bind="
-                        click: placeOrder,
+                        click: placeS2POrder,
                         attr: {'title': $t('Place Order')},
                         enable: isS2PPlaceOrderActionAllowed()
                         ">

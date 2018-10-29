@@ -7,7 +7,6 @@ class Transaction extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      * Construct
      *
      * @param \Magento\Framework\Model\ResourceModel\Db\Context $context
-     * @param \Magento\Framework\Stdlib\DateTime\DateTime $date
      * @param string|null $resourcePrefix
      */
     public function __construct(
@@ -64,6 +63,10 @@ class Transaction extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
             $object->setPaymentID( 0 );
         if( !$object->getSiteId() )
             $object->setSiteId( 0 );
+        if( !$object->get3DSecure() )
+            $object->set3DSecure( 0 );
+        else
+            $object->set3DSecure( 1 );
         if( !$object->getPaymentStatus() )
             $object->setPaymentStatus( 0 );
         if( !$object->getCreated() )
@@ -91,8 +94,8 @@ class Transaction extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      * Check if merchant transaction id key exists
      * return transaction object if merchant transaction id exists
      *
-     * @param int $method_id
-     * @return int
+     * @param int $mt_id
+     * @return array
      */
     public function checkMerchantTransactionId( $mt_id )
     {

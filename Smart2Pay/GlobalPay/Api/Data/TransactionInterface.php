@@ -11,6 +11,7 @@ interface TransactionInterface
     const SITE_ID = 'site_id';
     const ENVIRONMENT = 'environment';
     const EXTRA_DATA = 'extra_data';
+    const TDSECURE = '3dsecure';
     const PAYMENT_STATUS = 'payment_status';
     const CREATED = 'created';
     const UPDATED = 'updated';
@@ -70,6 +71,13 @@ interface TransactionInterface
      * @return array Returns an array with key-values of extra data for current transaction
      */
     public function getExtraDataArray();
+
+    /**
+     * Get 3D Secure
+     *
+     * @return int 3DSecure field
+     */
+    public function get3DSecure();
 
     /**
      * Get payment status
@@ -155,6 +163,14 @@ interface TransactionInterface
      * @return \Smart2Pay\GlobalPay\Api\Data\TransactionInterface
      */
     public function setExtraDataArray( $data_arr );
+
+    /**
+     * Set 3D Secure
+     *
+     * @param int $tdsecure
+     * @return \Smart2Pay\GlobalPay\Api\Data\TransactionInterface
+     */
+    public function set3DSecure( $tdsecure );
 
     /**
      * Set payment status

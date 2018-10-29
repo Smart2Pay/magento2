@@ -9,18 +9,8 @@ class S2pSDK extends AbstractHelper
 {
     const ERR_GENERIC = 1;
 
-    // After how many hours from last sync action is merchant allowed to sync methods again?
-    const RESYNC_AFTER_HOURS = 2;
-
-    /**
-     * Helper
-     *
-     * @var \Smart2Pay\GlobalPay\Helper\Smart2Pay
-     */
-    protected $_helper;
-
-    /** @var \Smart2Pay\GlobalPay\Model\Smart2Pay */
-    protected $_s2pModel;
+    /** @var \Smart2Pay\GlobalPay\Helper\S2pHelper|bool */
+    protected $_s2pHelper = false;
 
     /**
      * Country Method Factory
@@ -38,26 +28,41 @@ class S2pSDK extends AbstractHelper
      */
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
-        \Smart2Pay\GlobalPay\Model\Smart2Pay $s2pModel,
-        \Smart2Pay\GlobalPay\Model\MethodFactory $methodFactory,
-        \Smart2Pay\GlobalPay\Helper\Smart2Pay $helperSmart2Pay
+        \Smart2Pay\GlobalPay\Model\MethodFactory $methodFactory
     ) {
         parent::__construct( $context );
 
         $this->_methodFactory = $methodFactory;
-        $this->_helper = $helperSmart2Pay;
-        $this->_s2pModel = $s2pModel;
 
         self::_init_sdk();
+    }
+
+    public function s2p_helper( &$helper = false )
+    {
+        if( $helper === false )
+            return $this->_s2pHelper;
+
+        $this->_s2pHelper = $helper;
+        return true;
     }
 
     private static function _init_sdk()
     {
         if( empty( self::$_sdk_inited )
+            /**
         and @is_dir( __DIR__.'/sdk' )
-        and @file_exists( __DIR__.'/sdk/bootstrap.php' ) )
+        and @file_exists( __DIR__.'/sdk/bootstrap.php' )
+             /**/
+        )
         {
-            include_once( __DIR__.'/sdk/bootstrap.php' );
+            //include_once( __DIR__.'/sdk/bootstrap.php' );
+
+            // pretend we are working with config.php file...
+            define( 'S2P_SDK_SITE_ID', '' );
+            define( 'S2P_SDK_API_KEY', '' );
+            define( 'S2P_SDK_ENVIRONMENT', '' );
+
+            \S2P_SDK\S2P_SDK_Module::sdk_init();
 
             \S2P_SDK\S2P_SDK_Module::st_debugging_mode( false );
             \S2P_SDK\S2P_SDK_Module::st_detailed_errors( false );
@@ -123,45 +128,14 @@ class S2pSDK extends AbstractHelper
         return S2P_SDK_VERSION;
     }
 
-    public function last_methods_sync_option( $value = null )
-    {
-        $helper_obj = $this->_helper;
-        $paymentModel = $this->_s2pModel;
-
-        if( $value === null )
-        {
-            if( !($full_config_arr = $paymentModel->getFullConfigArray())
-             or empty( $full_config_arr['last_sync'] ) )
-                return false;
-
-            return $full_config_arr['last_sync'];
-        }
-
-        if( empty( $value ) )
-            $value = date( $helper_obj::SQL_DATETIME );
-
-        $paymentModel->upate_last_methods_sync_option( $value );
-
-        return $value;
-    }
-
     public function get_api_credentials()
     {
-        $paymentModel = $this->_s2pModel;
+        if( !$this->s2p_helper() )
+            return false;
 
-        $api_settings = $paymentModel->getApiSettingsByEnvironment();
-        $method_settings = $paymentModel->getFullConfigArray();
+        $s2p_helper = $this->s2p_helper();
 
-        if( !in_array( $api_settings['api_environment'], array( 'live', 'test' ) ) )
-            $api_settings['api_environment'] = 'test';
-
-        $return_arr = array();
-        $return_arr['api_key'] = (empty( $api_settings['apikey'] )?'':$api_settings['apikey']);
-        $return_arr['site_id'] = (empty( $api_settings['site_id'] )?0:$api_settings['site_id']);
-        $return_arr['skin_id'] = (empty( $method_settings['skin_id'] )?0:$method_settings['skin_id']);
-        $return_arr['environment'] = $api_settings['api_environment'];
-
-        return $return_arr;
+        return $s2p_helper->get_api_credentials();
     }
 
     public function get_available_methods()
@@ -256,7 +230,7 @@ class S2pSDK extends AbstractHelper
 
     public function init_payment( $payment_details_arr )
     {
-        $paymentModel = $this->_s2pModel;
+        $s2p_helper = $this->_s2pHelper;
 
         $this->_reset_error();
 
@@ -266,9 +240,9 @@ class S2pSDK extends AbstractHelper
             return false;
         }
 
-        $api_credentials = $this->get_api_credentials();
+        $api_credentials = $s2p_helper->get_api_credentials();
 
-        if( !($method_settings = $paymentModel->getFullConfigArray())
+        if( !($method_settings = $s2p_helper->getFullConfigArray())
          or empty( $method_settings['return_url'] ) )
         {
             $this->_set_error( 'Return URL in plugin settings is invalid.' );
@@ -313,7 +287,7 @@ class S2pSDK extends AbstractHelper
 
     public function card_init_payment( $payment_details_arr )
     {
-        $paymentModel = $this->_s2pModel;
+        $s2p_helper = $this->_s2pHelper;
 
         $this->_reset_error();
 
@@ -323,9 +297,9 @@ class S2pSDK extends AbstractHelper
             return false;
         }
 
-        $api_credentials = $this->get_api_credentials();
+        $api_credentials = $s2p_helper->get_api_credentials();
 
-        if( !($method_settings = $paymentModel->getFullConfigArray())
+        if( !($method_settings = $s2p_helper->getFullConfigArray())
          or empty( $method_settings['return_url'] ) )
         {
             $this->_set_error( 'Return URL in plugin settings is invalid.' );
@@ -377,52 +351,23 @@ class S2pSDK extends AbstractHelper
         return $call_result['call_result']['payment'];
     }
 
-    /**
-     * @return bool|string
-     */
-    public function seconds_to_launch_sync_str()
-    {
-        if( !($seconds_to_sync = $this->seconds_to_launch_sync()) )
-            return false;
-
-        $hours_to_sync = floor( $seconds_to_sync / 1200 );
-        $minutes_to_sync = floor( ($seconds_to_sync - ($hours_to_sync * 1200)) / 60 );
-        $seconds_to_sync -= ($hours_to_sync * 1200) + ($minutes_to_sync * 60);
-
-        $sync_interval = '';
-        if( $hours_to_sync )
-            $sync_interval = $hours_to_sync.' hour(s)';
-
-        if( $hours_to_sync or $minutes_to_sync )
-            $sync_interval .= ($sync_interval!=''?', ':'').$minutes_to_sync.' minute(s)';
-
-        $sync_interval .= ($sync_interval!=''?', ':'').$seconds_to_sync.' seconds';
-
-        return $sync_interval;
-    }
-
-    public function seconds_to_launch_sync()
-    {
-        $helper_obj = $this->_helper;
-
-        $resync_seconds = self::RESYNC_AFTER_HOURS * 1200;
-        $time_diff = 0;
-        if( !($last_sync_date = $this->last_methods_sync_option())
-         or ($time_diff = abs( $helper_obj::seconds_passed( $last_sync_date ) )) > $resync_seconds )
-            return 0;
-
-        return $resync_seconds - $time_diff;
-    }
-
     public function refresh_available_methods()
     {
         $methodFactory = $this->_methodFactory;
 
         $this->_reset_error();
 
-        if( ($seconds_to_sync = $this->seconds_to_launch_sync_str()) )
+        if( !$this->s2p_helper() )
         {
-            $this->_set_error( 'You can syncronize methods once every '.self::RESYNC_AFTER_HOURS.' hours. Time left: '.$seconds_to_sync );
+            $this->_set_error( 'Couldn\'t initialize payment module.' );
+            return false;
+        }
+
+        $s2p_helper = $this->s2p_helper();
+
+        if( false and ($seconds_to_sync = $s2p_helper->seconds_to_launch_sync_str()) )
+        {
+            $this->_set_error( 'You can syncronize methods once every '.$s2p_helper::RESYNC_AFTER_HOURS.' hours. Time left: '.$seconds_to_sync );
             return false;
         }
 
@@ -434,13 +379,13 @@ class S2pSDK extends AbstractHelper
             return false;
         }
 
-        if( true !== ($error_msg = $methodFactory->create()->saveMethodsFromSDKResponse( $available_methods )) )
+        if( true !== ($error_msg = $methodFactory->create()->saveMethodsFromSDKResponse( $available_methods, $s2p_helper->getEnvironment() )) )
         {
             $this->_set_error( $error_msg );
             return false;
         }
 
-        $this->last_methods_sync_option( false );
+        $s2p_helper->last_methods_sync_option( false );
 
         return true;
     }

@@ -26,21 +26,14 @@ class ConfiguredMethods extends \Magento\Config\Block\System\Config\Form\Field
     private $_configuredMethodsFactory;
 
     /**
-     * Helper
-     *
-     * @var \Smart2Pay\GlobalPay\Helper\Smart2Pay
-     */
-    protected $_helper;
-
-    /**
      * Path to template file in theme.
      *
      * @var string
      */
     protected $_template = 'configured_methods.phtml';
 
-    /** @var \Smart2Pay\GlobalPay\Model\Smart2Pay */
-    protected $_s2pModel;
+    /** @var \Smart2Pay\GlobalPay\Helper\S2pHelper $_s2pHelper */
+    protected $_s2pHelper;
 
     private $_base_currency = '';
 
@@ -53,17 +46,14 @@ class ConfiguredMethods extends \Magento\Config\Block\System\Config\Form\Field
         \Smart2Pay\GlobalPay\Model\MethodFactory $methodFactory,
         \Smart2Pay\GlobalPay\Model\CountryMethodFactory $countryMethodFactory,
         \Smart2Pay\GlobalPay\Model\ConfiguredMethodsFactory $configuredMethodsFactory,
-        \Smart2Pay\GlobalPay\Helper\Smart2Pay $helperSmart2Pay,
-        \Smart2Pay\GlobalPay\Model\Smart2Pay $s2pModel,
+        \Smart2Pay\GlobalPay\Helper\S2pHelper $s2pHelper,
         array $data = []
     )
     {
-        $this->_s2pModel = $s2pModel;
+        $this->_s2pHelper = $s2pHelper;
         $this->_methodFactory = $methodFactory;
         $this->_countryMethodFactory = $countryMethodFactory;
         $this->_configuredMethodsFactory = $configuredMethodsFactory;
-
-        $this->_helper = $helperSmart2Pay;
 
         parent::__construct( $context, $data );
     }
@@ -73,7 +63,7 @@ class ConfiguredMethods extends \Magento\Config\Block\System\Config\Form\Field
         if( !empty( $this->_base_currency ) )
             return $this->_base_currency;
 
-        $base_currency = $this->_helper->getBaseCurrencies();
+        $base_currency = $this->_s2pHelper->getBaseCurrencies();
         if( !empty( $base_currency ) and is_array( $base_currency )
         and !empty( $base_currency[0] ) )
             $this->_base_currency = $base_currency[0];
@@ -95,31 +85,26 @@ class ConfiguredMethods extends \Magento\Config\Block\System\Config\Form\Field
 
     public function get_environment()
     {
-        return $this->_s2pModel->getEnvironment();
+        return $this->_s2pHelper->getEnvironment();
     }
 
     public function get_sdk_version()
     {
-        return $this->_s2pModel->getSDKVersion();
+        $sdk_helper = $this->_s2pHelper->getSDKHelper();
+        return $sdk_helper::get_sdk_version();
     }
 
     public function get_last_sync_date()
     {
-        /** @var Smart2Pay_Globalpay_Model_Pay $paymentModel */
-        $paymentModel = Mage::getModel('globalpay/pay');
-
-        return $paymentModel->method_config['last_sync'];
+        return $this->_s2pHelper->last_methods_sync_option();
     }
 
     public function seconds_to_launch_sync_str()
     {
-        /** @var Smart2Pay_Globalpay_Helper_Sdk $sdk_obj */
-        $sdk_obj = Mage::helper( 'globalpay/sdk' );
-
-        return $sdk_obj->seconds_to_launch_sync_str();
+        return $this->_s2pHelper->seconds_to_launch_sync_str();
     }
 
-    public function getAllActiveMethods( $params = false, $environment = false )
+    public function getAllActiveMethods( $environment = false, $params = false )
     {
         if( empty( $params ) or !is_array( $params ) )
             $params = array();
@@ -136,10 +121,13 @@ class ConfiguredMethods extends \Magento\Config\Block\System\Config\Form\Field
      *
      * @return array
      */
-    public function getAllConfiguredMethods( $params = false, $environment = false )
+    public function getAllConfiguredMethods( $environment = false, $params = false )
     {
         if( empty( $params ) or !is_array( $params ) )
             $params = array();
+
+        if( !isset( $params['only_active'] ) )
+            $params['only_active'] = true;
 
         return $this->_configuredMethodsFactory->create()->getAllConfiguredMethods( $environment, $params );
     }

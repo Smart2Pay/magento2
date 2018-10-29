@@ -43,21 +43,21 @@ class CountryMethod extends \Magento\Framework\Model\AbstractModel implements Co
      */
     private $_loggerFactory;
 
-    /** @var \Smart2Pay\GlobalPay\Model\Smart2Pay */
-    protected $_s2pModel;
+    /** @var \Smart2Pay\GlobalPay\Helper\S2pHelper $_s2pHelper */
+    protected $_s2pHelper;
 
     public function __construct(
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
         \Smart2Pay\GlobalPay\Model\CountryFactory $countryFactory,
         \Smart2Pay\GlobalPay\Model\LoggerFactory $loggerFactory,
-        \Smart2Pay\GlobalPay\Model\Smart2Pay $s2pModel,
+        \Smart2Pay\GlobalPay\Helper\S2pHelper $s2pHelper,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
     )
     {
-        $this->_s2pModel = $s2pModel;
+        $this->_s2pHelper = $s2pHelper;
         $this->_countryFactory = $countryFactory;
         $this->_loggerFactory = $loggerFactory;
 
@@ -116,7 +116,7 @@ class CountryMethod extends \Magento\Framework\Model\AbstractModel implements Co
     public function getCountriesForMethodsList( $methods_arr = false, $environment = false )
     {
         if( empty( $environment ) )
-            $environment = $this->_s2pModel->getEnvironment();
+            $environment = $this->_s2pHelper->getEnvironment();
 
         $method_ids_arr = false;
         if( !empty( $methods_arr ) and is_array( $methods_arr ) )

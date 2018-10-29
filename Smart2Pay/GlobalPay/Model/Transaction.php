@@ -32,14 +32,14 @@ class Transaction extends \Magento\Framework\Model\AbstractModel implements Tran
     /**
      * Helper
      *
-     * @var \Smart2Pay\GlobalPay\Helper\Smart2Pay
+     * @var \Smart2Pay\GlobalPay\Helper\S2pHelper
      */
     protected $_helper;
 
     public function __construct(
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
-        \Smart2Pay\GlobalPay\Helper\Smart2Pay $helperSmart2Pay,
+        \Smart2Pay\GlobalPay\Helper\S2pHelper $helperSmart2Pay,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
@@ -156,6 +156,14 @@ class Transaction extends \Magento\Framework\Model\AbstractModel implements Tran
     /**
      * @inheritDoc
      */
+    public function get3DSecure()
+    {
+        return $this->getData( self::TDSECURE );
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function getPaymentStatus()
     {
         return $this->getData( self::PAYMENT_STATUS );
@@ -257,6 +265,14 @@ class Transaction extends \Magento\Framework\Model\AbstractModel implements Tran
         $data = $this->_helper->to_string( $data_arr );
 
         return $this->setData( self::EXTRA_DATA, $data );
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function set3DSecure( $tdsecure )
+    {
+        return $this->setData( self::TDSECURE, $tdsecure );
     }
 
     /**

@@ -1,25 +1,40 @@
 {
-  "name": "Smart2Pay Payment Module",
-  "description": "Use Smart2Pay module to have access to 100+ payment methods.",
-  "type": "magento2-module",
-  "version": "2.1.0",
-  "license": [
-    "OSL-3.0",
-    "AFL-3.0"
-  ],
-  "require": {
-    "smart2pay/sdk-php": "*"
-  },
-  "extra": {
-    "map": [
-      [
-        "*",
-        "Smart2Pay/GlobalPay"
-      ]
-    ]
-  },
-  "autoload": {
-    "psr-4": { "Smart2Pay\\GlobalPay\\": "" },
-    "files": [ "registration.php" ]
-  }
+    "name": "smart2pay/globalpay",
+    "description": "Use Smart2Pay module to have access to 100+ payment methods.",
+    "type": "magento2-module",
+    "version": "3.0.0",
+    "license": [
+        "OSL-3.0",
+        "AFL-3.0"
+    ],
+    "require": {
+        "php": "~5.5.0|~5.6.0|~7.0.0",
+        "magento/module-sales": "100.0.*",
+        "magento/module-checkout": "100.0.*",
+        "magento/module-payment": "100.0.*",
+        "magento/framework": "100.0.*",
+        "magento/magento-composer-installer": "100.0.*",
+        "ext-json": "*",
+        "ext-curl": "*",
+        "smart2pay/sdk-php": "*"
+    },
+    "extra": {
+        "map": [
+            [
+                "*",
+                "Smart2Pay/GlobalPay"
+            ]
+        ]
+    },
+    "autoload": {
+        "files": [ "registration.php" ],
+        "psr-4": {
+            "Smart2Pay\\GlobalPay\\": ""
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Smart2Pay\\GlobalPay\\": ""
+        }
+    }
 }

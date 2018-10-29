@@ -1,9 +1,7 @@
-## Smart2Pay Magento 2.x module
+# Smart2Pay Magento 2.1.x/2.2.x
 
-Smart2Pay Magento 2.x plugin which sends requests using HPP API.
+Smart2Pay Plugin for Magento 2.1.x/2.2.x Shopping Cart
 
-**Note**: This version of plugin is not the latest version of our plugin. We recommend using Smart2Pay plugin which integrates with our SDK using REST API calls. 
+Tested on Magento 2.1.7, 2.1.15 and 2.2.6.
 
-## License
-
-[Open Source License](LICENSE.txt)
+If you have problems with any version please let us know your Magento, Smart2Pay module and Smart2Pay SDK versions at support@smart2pay.com.

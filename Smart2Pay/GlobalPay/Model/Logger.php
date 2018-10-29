@@ -33,12 +33,13 @@ class Logger extends \Magento\Framework\Model\AbstractModel implements LoggerInt
      *
      * @param string $message Message to be logged
      * @param string $type Type of log (info, debug, etc)
+     * @param string $transaction_id Transaction related to this log
      * @param string $file File which triggered logging
      * @param string $line What line triggered loggin in the file
      *
      * @return bool Returns true if succes, false if failed
      */
-    public function write( $message, $type = 'info', $file = '', $line = '' )
+    public function write( $message, $type = 'info', $transaction_id = '', $file = '', $line = '' )
     {
         if( empty( $file ) or empty( $line ) )
         {
@@ -51,7 +52,16 @@ class Logger extends \Magento\Framework\Model\AbstractModel implements LoggerInt
             }
         }
 
-        return $this->_getResource()->write( $message, $type, $file, $line );
+        try
+        {
+            $this->_getResource()->write( $message, $type, $transaction_id, $file, $line );
+        } catch( \Exception $e )
+        {
+            \Zend_Debug::dump( $e->getMessage() );
+            return false;
+        }
+
+        return true;
     }
 
     /**

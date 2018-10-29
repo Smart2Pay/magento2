@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../Config/etc/system_file.xsd">
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
         <section id="payment">
             <group id="smart2pay" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -24,40 +24,6 @@
                         <source_model>Smart2Pay\GlobalPay\Model\Config\Source\Environment</source_model>
                         <config_path>payment/smart2pay/environment</config_path>
                     </field>
-                    <!--
-                    <field id="post_url_live" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Post URL Live</label>
-                        <config_path>payment/smart2pay/post_url_live</config_path>
-                    </field>
-                    <field id="post_url_test" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Post URL Test</label>
-                        <config_path>payment/smart2pay/post_url_test</config_path>
-                    </field>
-                    <field id="mid_live" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>MID Live</label>
-                        <frontend_class>validate-number</frontend_class>
-                        <config_path>payment/smart2pay/mid_live</config_path>
-                    </field>
-                    <field id="mid_test" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>MID Test</label>
-                        <frontend_class>validate-number</frontend_class>
-                        <config_path>payment/smart2pay/mid_test</config_path>
-                    </field>
-                    <field id="site_id" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Site ID</label>
-                        <frontend_class>validate-number</frontend_class>
-                        <config_path>payment/smart2pay/site_id</config_path>
-                    </field>
-                    <field id="signature_live" translate="label" type="text" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Signature Live</label>
-                        <config_path>payment/smart2pay/signature_live</config_path>
-                    </field>
-                    <field id="signature_test" translate="label" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Signature Test</label>
-                        <config_path>payment/smart2pay/signature_test</config_path>
-                    </field>
-                    -->
-
                     <field id="site_id_test" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Site ID (TEST)</label>
                         <frontend_class>validate-number</frontend_class>
@@ -93,14 +59,6 @@
                         <frontend_class>validate-number</frontend_class>
                         <config_path>payment/smart2pay/skin_id</config_path>
                     </field>
-                    <!--
-                    <field id="debug_form" translate="label comment" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Debug Form</label>
-                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <comment><![CDATA[Show form data before submiting it to Smart2Pay]]></comment>
-                        <config_path>payment/smart2pay/debug_form</config_path>
-                    </field>
-                    -->
                     <field id="sort_order" translate="label" type="text" sortOrder="140" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Sort Order</label>
                         <frontend_class>validate-number</frontend_class>
@@ -201,6 +159,12 @@
                         <config_path>payment/smart2pay/auto_ship</config_path>
                     </field>
                     -->
+                    <field id="use_3dsecure" translate="label" type="select" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Use 3DSecure</label>
+                        <comment><![CDATA[Use 3DSecure for SmartCards payment method.]]></comment>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/smart2pay/use_3dsecure</config_path>
+                    </field>
                     <field id="order_status" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>New Order Status</label>
                         <source_model>Magento\Sales\Model\Config\Source\Order\Status\NewStatus</source_model>
@@ -231,20 +195,6 @@
                 <group id="smart2pay_flow_settings" translate="label" type="text" sortOrder="500" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Smart2Pay - Payment Flow Settings</label>
 
-                    <!--
-                    <field id="skip_payment_page" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Skip payment page</label>
-                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/smart2pay/skip_payment_page</config_path>
-                    </field>
-                    -->
-                    <!--
-                    <field id="redirect_in_iframe" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Redirect in iframe</label>
-                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/smart2pay/redirect_in_iframe</config_path>
-                    </field>
-                    -->
                     <field id="message_data_2" translate="label" type="textarea" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Message Success</label>
                         <config_path>payment/smart2pay/message_data_2</config_path>

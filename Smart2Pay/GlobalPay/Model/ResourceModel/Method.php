@@ -3,8 +3,8 @@ namespace Smart2Pay\GlobalPay\Model\ResourceModel;
 
 class Method extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
 {
-    /** @var \Smart2Pay\GlobalPay\Model\Smart2Pay */
-    protected $_s2pModel;
+    /** @var \Smart2Pay\GlobalPay\Helper\S2pHelper $_s2pHelper */
+    protected $_s2pHelper;
 
     /**
      * Logger Factory
@@ -21,13 +21,13 @@ class Method extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      */
     public function __construct(
         \Magento\Framework\Model\ResourceModel\Db\Context $context,
-        \Smart2Pay\GlobalPay\Model\Smart2Pay $s2pModel,
+        \Smart2Pay\GlobalPay\Helper\S2pHelper $s2pHelper,
         \Smart2Pay\GlobalPay\Model\LoggerFactory $loggerFactory,
         $resourcePrefix = null
     ) {
         parent::__construct( $context, $resourcePrefix );
 
-        $this->_s2pModel = $s2pModel;
+        $this->_s2pHelper = $s2pHelper;
         $this->_loggerFactory = $loggerFactory;
     }
 
@@ -89,7 +89,7 @@ class Method extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
     protected function _getLoadByMethodIDSelect( $method_id, $environment = false, $isActive = null )
     {
         if( $environment === false )
-            $environment = $this->_s2pModel->getEnvironment();
+            $environment = $this->_s2pHelper->getEnvironment();
 
         $select = parent::_getLoadSelect( 'method_id', $method_id, null );
 
@@ -112,13 +112,40 @@ class Method extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
     public function checkMethodID( $method_id, $environment = false )
     {
         if( $environment === false )
-            $environment = $this->_s2pModel->getEnvironment();
+            $environment = $this->_s2pHelper->getEnvironment();
 
         $select = $this->_getLoadByMethodIDSelect( $method_id, $environment );
 
         $select->limit( 1 );
 
         return $this->getConnection()->fetchOne( $select );
+    }
+
+    /**
+     * Check if method_id key exists
+     * return method array if method exists
+     *
+     * @param int $method_id
+     * @param bool|string $environment
+     * @return array|bool
+     */
+    public function getByMethodID( $method_id, $environment = false )
+    {
+        if( $environment === false )
+            $environment = $this->_s2pHelper->getEnvironment();
+
+        $select = $this->_getLoadByMethodIDSelect( $method_id, $environment );
+
+        $select->limit( 1 );
+
+        if( !($result_arr = $this->getConnection()->fetchAssoc( $select ))
+         or !is_array( $result_arr ) )
+            return false;
+
+        foreach( $result_arr as $key => $method_arr )
+            break;
+
+        return $method_arr;
     }
 
     /**
@@ -132,7 +159,7 @@ class Method extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
     public function checkObjectMethodID( \Smart2Pay\GlobalPay\Model\Method $object, $environment = false )
     {
         if( $environment === false )
-            $environment = $this->_s2pModel->getEnvironment();
+            $environment = $this->_s2pHelper->getEnvironment();
 
         return $this->checkMethodID( $object->getMethodID(), $environment );
     }
