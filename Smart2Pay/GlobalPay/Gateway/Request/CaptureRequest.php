@@ -66,12 +66,6 @@ class CaptureRequest implements BuilderInterface
     {
         $s2p_helper = $this->_s2pHelper;
 
-        ob_start();
-        echo 'CaptureRequest IN';
-        $buf = ob_get_clean();
-
-        $s2p_helper->foobar( $buf );
-
         /** @var \Magento\Payment\Gateway\Data\PaymentDataObject $paymentDataObject */
         $paymentDataObject = \Magento\Payment\Gateway\Helper\SubjectReader::readPayment( $buildSubject );
         $payment = $paymentDataObject->getPayment();
@@ -125,10 +119,10 @@ class CaptureRequest implements BuilderInterface
 
         $total_surcharge_amount = $surcharge_amount + $surcharge_fixed_amount;
 
-        $order_original_amount = $amount_to_pay = $quote->getGrandTotal();
+        $order_original_amount = $amount_to_pay = $quote->getBaseGrandTotal();
 
         $articles_params = array();
-        $articles_params['transport_amount'] = $quote->getShippingAddress()->getShippingAmount(); // $order->getShippingAmount();
+        $articles_params['transport_amount'] = $quote->getShippingAddress()->getBaseShippingAmount(); // $order->getShippingAmount();
         $articles_params['total_surcharge'] = $total_surcharge_amount;
         $articles_params['amount_to_pay'] = $amount_to_pay;
 
@@ -164,7 +158,7 @@ class CaptureRequest implements BuilderInterface
             }
         }
 
-        $currency = $quote->getCurrency()->getStoreCurrencyCode();
+        $currency = $quote->getCurrency()->getBaseCurrencyCode();
 
         //
         // SDK functionality
@@ -224,13 +218,6 @@ class CaptureRequest implements BuilderInterface
 
         if( !empty( $sdk_articles_arr ) )
             $payment_arr['articles'] = $sdk_articles_arr;
-
-        ob_start();
-        echo 'CaptureRequest';
-        echo $s2p_helper::var_dump( $payment_arr, array( 'max_level' => 5 ) );
-        $buf = ob_get_clean();
-
-        $s2p_helper->foobar( $buf );
 
         $flow_arr['payload'] = $payment_arr;
 

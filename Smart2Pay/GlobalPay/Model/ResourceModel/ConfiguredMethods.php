@@ -3,7 +3,6 @@ namespace Smart2Pay\GlobalPay\Model\ResourceModel;
 
 /**
  * Class ConfiguredMethods
- * @method \Smart2Pay\GlobalPay\Model\ResourceModel\ConfiguredMethods _getResource()
  * @package Smart2Pay\GlobalPay\Model\ResourceModel
  */
 class ConfiguredMethods extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
@@ -69,7 +68,7 @@ class ConfiguredMethods extends \Magento\Framework\Model\ResourceModel\Db\Abstra
     /**
      * Retrieve load select with filter by method_id
      *
-     * @param string $url_key
+     * @param string $method_id
      * @param null|\Magento\Framework\DB\Select $select
      * @return \Magento\Framework\DB\Select
      */
@@ -125,12 +124,14 @@ class ConfiguredMethods extends \Magento\Framework\Model\ResourceModel\Db\Abstra
      *
      * @param int $method_id
      * @param int $country_id
+     * @param bool|string $environment
      * @return int
      */
-    public function checkMethodCountryID( $method_id, $country_id )
+    public function checkMethodCountryID( $method_id, $country_id, $environment = false )
     {
         $select = $this->_getLoadByMethodIDSelect( $method_id );
         $select = $this->_getLoadByCountryIDSelect( $country_id, $select );
+        $select = $this->_getLoadByEnvironmentSelect( $environment, $select );
 
         $select->limit( 1 );
 
@@ -141,11 +142,13 @@ class ConfiguredMethods extends \Magento\Framework\Model\ResourceModel\Db\Abstra
      * Return an array with all methods configured for a specific country
      *
      * @param int $country_id
+     * @param string|bool $environment
      * @return array
      */
-    public function getMethodsForCountry( $country_id )
+    public function getMethodsForCountry( $country_id, $environment = false )
     {
         $select = $this->_getLoadByCountryIDSelect( $country_id );
+        $select = $this->_getLoadByEnvironmentSelect( $environment, $select );
 
         return $this->getConnection()->fetchAll( $select );
     }
@@ -156,9 +159,10 @@ class ConfiguredMethods extends \Magento\Framework\Model\ResourceModel\Db\Abstra
      * @param int $method_id
      * @return array
      */
-    public function getCountriesForMethod( $method_id )
+    public function getCountriesForMethod( $method_id, $environment = false )
     {
         $select = $this->_getLoadByMethodIDSelect( $method_id );
+        $select = $this->_getLoadByEnvironmentSelect( $environment, $select );
 
         return $this->getConnection()->fetchAll( $select );
     }
@@ -236,7 +240,7 @@ class ConfiguredMethods extends \Magento\Framework\Model\ResourceModel\Db\Abstra
 
         /** @var \Smart2Pay\GlobalPay\Model\ConfiguredMethods $item */
         foreach( $it as $item )
-            $item->_getResource()->delete( $item );
+            $this->delete( $item );
 
         return true;
     }

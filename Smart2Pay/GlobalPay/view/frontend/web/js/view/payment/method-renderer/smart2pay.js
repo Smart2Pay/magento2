@@ -164,12 +164,6 @@ define(
                 ).fail(
                     function ( jqXHR, textStatus, errorThrown ) {
 
-                        console.log( 'FAILED placing' );
-                        console.log( errorThrown );
-                        console.log( textStatus );
-                        console.log( jqXHR );
-                        console.log( 'OK' );
-
                         var error_msg = $.mage.__( "An error occured while placing the order. Please try again." );
                         if( typeof jqXHR.responseJSON !== "undefined"
                          && typeof jqXHR.responseJSON.message !== "undefined" )
@@ -178,26 +172,12 @@ define(
                         self.requestErrorMessage( error_msg );
                         self.requestHasError( true );
 
-                        console.log( 'ERRORMSG' );
-                        console.log( error_msg );
-                        console.log( 'OK' );
-
                         self.isPlaceOrderActionAllowed( true );
                     }
                 ).done(
                     function ( data, textStatus, jqXHR ) {
 
-                        console.log( 'Done placing' );
-                        console.log( data );
-                        console.log( textStatus );
-                        console.log( jqXHR );
-                        console.log( 'OK' );
-
                         self.afterPlaceOrder();
-
-                        //$.mage.redirect(
-                        //    window.checkoutConfig.payment[quote.paymentMethod().method].redirectUrl
-                        //);
                     }
                 );
             },
@@ -244,8 +224,6 @@ define(
                             },
 
                             isMethodChecked: ko.computed(function () {
-                                //console.log( '[' + method_id + '] vs [' + s2pCheckoutData.getSelectedS2PMethod() + ']' );
-                                //console.log( '[' + (method_id == s2pCheckoutData.getSelectedS2PMethod()) + ']' );
                                 return ((method_id == s2pCheckoutData.getSelectedS2PMethod())?'checked':null);
                             }, item_obj)
 

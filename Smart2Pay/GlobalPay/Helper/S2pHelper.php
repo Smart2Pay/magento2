@@ -2,7 +2,9 @@
 
 namespace Smart2Pay\GlobalPay\Helper;
 
-use \Magento\Framework\App\Helper\AbstractHelper;
+use Magento\Framework\App\Helper\AbstractHelper;
+use Magento\Framework\Locale\ResolverInterface;
+use Magento\Framework\App\ObjectManager;
 use \Smart2Pay\GlobalPay\Model\Config\Source\Environment;
 use \Smart2Pay\GlobalPay\Model\Config\Source\Displaymode;
 
@@ -43,6 +45,12 @@ class S2pHelper extends AbstractHelper
     /** @var \Magento\Framework\App\Config\ConfigResource\ConfigInterface */
     protected $_resourceConfig;
 
+    /** @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface */
+    protected $timezone;
+
+    /** @var ResolverInterface */
+    private $localeResolver;
+
     /**
      * @param \Smart2Pay\GlobalPay\Helper\S2pSDK $helperS2pSDK
      * @param \Smart2Pay\GlobalPay\Model\ConfiguredMethodsFactory $configuredMethodsFactory
@@ -54,7 +62,9 @@ class S2pHelper extends AbstractHelper
         \Smart2Pay\GlobalPay\Model\ConfiguredMethodsFactory $configuredMethodsFactory,
         \Magento\Framework\App\Helper\Context $context,
         \Magento\Framework\App\Config\ConfigResource\ConfigInterface $resourceConfig,
-        \Magento\Directory\Model\CurrencyFactory $currencyFactory
+        \Magento\Directory\Model\CurrencyFactory $currencyFactory,
+        \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone,
+        ResolverInterface $localeResolver = null
     ) {
         parent::__construct( $context );
 
@@ -62,6 +72,8 @@ class S2pHelper extends AbstractHelper
         $this->_configuredMethods = $configuredMethodsFactory;
         $this->_resourceConfig = $resourceConfig;
         $this->_currencyFactory = $currencyFactory;
+        $this->timezone = $timezone;
+        $this->localeResolver = $localeResolver ?: ObjectManager::getInstance()->get(ResolverInterface::class);
 
         $this->_sdk_helper->s2p_helper( $this );
     }
@@ -148,6 +160,25 @@ class S2pHelper extends AbstractHelper
         return $flow_arr;
     }
 
+    /**
+     * Get formatted date in store timezone
+     *
+     * @param string|null $date
+     * @param string $format date format type (short|medium|long|full)
+     * @param string|null $store Store
+     * @return string
+     */
+    public function format_date( $date, $format, $store = null )
+    {
+        return $this->timezone->formatDateTime(
+            new \DateTime( $date ),
+            $format,
+            $format,
+            $this->localeResolver->getDefaultLocale(),
+            $this->timezone->getConfigTimezone('store', $store )
+        );
+    }
+
     public function has_3d_secure( $method_id )
     {
         $method_id = intval( $method_id );
@@ -162,6 +193,8 @@ class S2pHelper extends AbstractHelper
 
     public function foobar( $str )
     {
+        return true;
+
         if( !($fil = @fopen( '/home/andy/magento2.log', 'a' )) )
             return false;
 
@@ -517,6 +550,7 @@ class S2pHelper extends AbstractHelper
 
             'auto_invoice' => 0,
             'auto_ship' => 0,
+            'use_3dsecure' => 0,
             'order_status' => 'pending',
             'order_status_on_2' => 'processing',
             'order_status_on_3' => 'canceled',
@@ -728,7 +762,7 @@ class S2pHelper extends AbstractHelper
         return $mt_id;
     }
 
-    public static function transaction_logger_params_to_title()
+    public static function default_transaction_reference_details()
     {
         static $return_arr = [];
 
@@ -736,74 +770,104 @@ class S2pHelper extends AbstractHelper
             return $return_arr;
 
         $return_arr = [
-            'accountholder' => __( 'Account Holder' )->render(),
-            'bankname' => __( 'Bank Name' )->render(),
-            'accountnumber' => __( 'Account Number' )->render(),
-            'iban' => __( 'IBAN' )->render(),
-            'swift_bic' => __( 'SWIFT / BIC' )->render(),
-            'accountcurrency' => __( 'Account Currency' )->render(),
+            'accountholder' => array(
+                'title' => __( 'Account Holder' )->render(),
+                'default' => '',
+            ),
+            'bankname' => array(
+                'title' => __( 'Bank Name' )->render(),
+                'default' => '',
+            ),
+            'accountnumber' => array(
+                'title' => __( 'Account Number' )->render(),
+                'default' => '',
+            ),
+            'iban' => array(
+                'title' => __( 'IBAN' )->render(),
+                'default' => '',
+            ),
+            'swift_bic' => array(
+                'title' => __( 'SWIFT / BIC' )->render(),
+                'default' => '',
+            ),
+            'accountcurrency' => array(
+                'title' => __( 'Account Currency' )->render(),
+                'default' => '',
+            ),
 
-            'entitynumber' => __( 'Entity Number' )->render(),
+            'entitynumber' => array(
+                'title' => __( 'Entity Number' )->render(),
+                'default' => '',
+            ),
 
-            'referencenumber' => __( 'Reference Number' )->render(),
-            'amounttopay' => __( 'Amount To Pay' )->render(),
+            'referencenumber' => array(
+                'title' => __( 'Reference Number' )->render(),
+                'default' => '',
+            ),
+            'amounttopay' => array(
+                'title' => __( 'Amount To Pay' )->render(),
+                'default' => '',
+            ),
+
+            'instructions' => array(
+                'title' => __( 'Payment Instructions' )->render(),
+                'default' => '',
+            ),
         ];
 
         return $return_arr;
     }
 
-    /**
-     * Keys in returning array should be variable names sent back by Smart2Pay and values should be default values if
-     * variables are not found in request
-     *
-     * @return array
-     */
-    public static function defaultTransactionLoggerExtraParams()
+    public static function get_transaction_reference_titles()
     {
-        return array(
-            // Method ID 1 (Bank transfer)
-            'AccountHolder' => '',
-            'BankName' => '',
-            'AccountNumber' => '',
-            'IBAN' => '',
-            'SWIFT_BIC' => '',
-            'AccountCurrency' => '',
+        static $return_arr = [];
 
-            // Method ID 20 (Multibanco SIBS)
-            'EntityNumber' => '',
+        if( !empty( $return_arr ) )
+            return $return_arr;
 
-            // Common to method id 20 and 1
-            'ReferenceNumber' => '',
-            'AmountToPay' => '',
-        );
+        $defaults = self::default_transaction_reference_details();
+
+        foreach( $defaults as $key => $details_arr )
+        {
+            if( !isset( $details_arr['title'] ) )
+                continue;
+
+            $return_arr[$key] = $details_arr['title'];
+        }
+
+        return $return_arr;
     }
 
-    public static function validateTransactionLoggerExtraParams( $params_arr )
+    public static function validate_transaction_reference_values( $params_arr )
     {
         if( empty( $params_arr ) or !is_array( $params_arr ) )
             return array();
 
-        $default_values = self::defaultTransactionLoggerExtraParams();
-        $new_params_arr = array();
-        foreach( $default_values as $key => $val )
+        $default_values = self::default_transaction_reference_details();
+        foreach( $default_values as $key => $details_arr )
         {
-            if( !array_key_exists( $key, $params_arr ) )
+            if( !isset( $details_arr['default'] )
+             or !array_key_exists( $key, $params_arr ) )
                 continue;
+
+            $val = $details_arr['default'];
 
             if( is_int( $val ) )
                 $new_val = (int)$params_arr[$key];
+            elseif( is_float( $val ) )
+                $new_val = (float)$params_arr[$key];
             elseif( is_string( $val ) )
                 $new_val = trim( $params_arr[$key] );
             else
                 $new_val = $params_arr[$key];
 
-            if( $new_val === $val )
+            if( (string)$new_val === (string)$val )
                 continue;
 
-            $new_params_arr[$key] = $new_val;
+            $params_arr[$key] = $new_val;
         }
 
-        return $new_params_arr;
+        return $params_arr;
     }
 
     /**

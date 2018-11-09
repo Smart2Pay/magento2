@@ -63,7 +63,7 @@
                 <auto_invoice>0</auto_invoice>
                 <auto_ship>0</auto_ship>
                 <use_3dsecure>0</use_3dsecure>
-                <order_status>new</order_status>
+                <order_status>pending</order_status>
                 <order_status_on_2>processing</order_status_on_2>
                 <order_status_on_3>canceled</order_status_on_3>
                 <order_status_on_4>canceled</order_status_on_4>

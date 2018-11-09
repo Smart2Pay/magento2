@@ -243,7 +243,7 @@ class Notification extends \Magento\Framework\View\Element\Template
                     exit;
                 }
 
-                $order->addCommentToStatusHistory( 'S2P Notification: payment notification received (Status: '.$payment_arr['status']['id'].').' );
+                $order->addStatusHistoryComment( 'S2P Notification: payment notification received (Status: '.$payment_arr['status']['id'].').' );
 
                 if( !($status_title = \S2P_SDK\S2P_SDK_Meth_Payments::valid_status( $payment_arr['status']['id'] )) )
                     $status_title = '(unknown)';
@@ -308,14 +308,15 @@ class Notification extends \Magento\Framework\View\Element\Template
                 switch( $payment_arr['status']['id'] )
                 {
                     default:
-                        $order->addCommentToStatusHistory( 'Smart2Pay status ID "'.$payment_arr['status']['id'].'" occurred.' );
+                        $order->addStatusHistoryComment( 'Smart2Pay status ID "'.$payment_arr['status']['id'].'" occurred.' );
                     break;
 
                     case \S2P_SDK\S2P_SDK_Meth_Payments::STATUS_OPEN:
 
-                        $order->addCommentToStatusHistory( 'Smart2Pay status ID "'.$payment_arr['status']['id'].'" occurred.', $module_config['order_status'] );
+                        $order->addStatusHistoryComment( 'Smart2Pay status ID "'.$payment_arr['status']['id'].'" occurred.', $module_config['order_status'] );
 
-                        if( !empty( $payment_arr['methodid'] )
+                        if( false
+                        and !empty( $payment_arr['methodid'] )
                         and $module_config['notify_payment_instructions']
                         and in_array( $payment_arr['methodid'], array( $helper_obj::PAYMENT_METHOD_BT, $helper_obj::PAYMENT_METHOD_SIBS ) ) )
                         {
@@ -331,14 +332,14 @@ class Notification extends \Magento\Framework\View\Element\Template
 
                         if( strcmp( $orderAmount, $payment_arr['amount'] ) != 0
                          or $orderCurrency != $payment_arr['currency'] )
-                            $order->addCommentToStatusHistory( 'S2P Notification: notification has different amount ['.$orderAmount.'/'.$payment_arr['amount'] . '] and/or currency ['.$orderCurrency.'/' . $payment_arr['currency'] . ']!. Please contact support@smart2pay.com', $module_config['order_status_on_4'] );
+                            $order->addStatusHistoryComment( 'S2P Notification: notification has different amount ['.$orderAmount.'/'.$payment_arr['amount'] . '] and/or currency ['.$orderCurrency.'/' . $payment_arr['currency'] . ']!. Please contact support@smart2pay.com', $module_config['order_status_on_4'] );
 
                         elseif( $order->getState() != \Magento\Sales\Model\Order::STATE_PAYMENT_REVIEW )
-                            $order->addCommentToStatusHistory( 'S2P Notification: Order not in payment review state. ['.$order->getState().']' );
+                            $order->addStatusHistoryComment( 'S2P Notification: Order not in payment review state. ['.$order->getState().']' );
 
                         else
                         {
-                            $order->addCommentToStatusHistory( 'S2P Notification: order has been paid. [MethodID: '. $payment_arr['methodid'] .']', $module_config['order_status_on_2'] );
+                            $order->addStatusHistoryComment( 'S2P Notification: order has been paid. [MethodID: '. $payment_arr['methodid'] .']', $module_config['order_status_on_2'] );
                             $order->setState( \Magento\Sales\Model\Order::STATE_PROCESSING );
 
                             /** @var \Magento\Sales\Model\Order\Payment $payment_obj */
@@ -379,7 +380,7 @@ class Notification extends \Magento\Framework\View\Element\Template
                                         $this->_invoiceSender->send( $invoice );
 
                                         //send notification code
-                                        $order->addCommentToStatusHistory(
+                                        $order->addStatusHistoryComment(
                                             __( 'S2P Notification: order has been automatically invoiced. #%1.', $invoice->getId() )
                                         );
 
@@ -400,7 +401,7 @@ class Notification extends \Magento\Framework\View\Element\Template
                                     //     ->addObject( $invoice->getOrder() );
                                     // $transactionSave->save();
                                     //
-                                    // $order->addCommentToStatusHistory( 'S2P Notification: order has been automatically invoiced.' );
+                                    // $order->addStatusHistoryComment( 'S2P Notification: order has been automatically invoiced.' );
                                 }
                             }
 
@@ -416,7 +417,7 @@ class Notification extends \Magento\Framework\View\Element\Template
                                     // $shipment = Mage::getModel( 'sales/service_order', $order )->prepareShipment( $itemQty );
                                     // $shipment = new Mage_Sales_Model_Order_Shipment_Api();
                                     // $shipmentId = $shipment->create( $order->getIncrementId() );
-                                    // $order->addCommentToStatusHistory( 'S2P Notification: order has been automatically shipped.' );
+                                    // $order->addStatusHistoryComment( 'S2P Notification: order has been automatically shipped.' );
                                 }
                             }
 
@@ -435,7 +436,7 @@ class Notification extends \Magento\Framework\View\Element\Template
                         else
                             $order->cancel();
 
-                        $order->addCommentToStatusHistory( 'S2P Notification: payment has been canceled.', $module_config['order_status_on_3'] );
+                        $order->addStatusHistoryComment( 'S2P Notification: payment has been canceled.', $module_config['order_status_on_3'] );
                         $order->setState( \Magento\Sales\Model\Order::STATE_CANCELED );
 
                         $order->save();
@@ -459,7 +460,7 @@ class Notification extends \Magento\Framework\View\Element\Template
                         else
                             $order->cancel();
 
-                        $order->addCommentToStatusHistory( 'S2P Notification: payment has failed.', $module_config['order_status_on_4'] );
+                        $order->addStatusHistoryComment( 'S2P Notification: payment has failed.', $module_config['order_status_on_4'] );
                         $order->setState( \Magento\Sales\Model\Order::STATE_CANCELED );
 
                         $order->save();
@@ -483,7 +484,7 @@ class Notification extends \Magento\Framework\View\Element\Template
                         else
                             $order->cancel();
 
-                        $order->addCommentToStatusHistory( 'S2P Notification: payment has expired.', $module_config['order_status_on_5'] );
+                        $order->addStatusHistoryComment( 'S2P Notification: payment has expired.', $module_config['order_status_on_5'] );
                         $order->setState( \Magento\Sales\Model\Order::STATE_CANCELED );
 
                         $order->save();
@@ -558,9 +559,9 @@ class Notification extends \Magento\Framework\View\Element\Template
      */
     public function sendPaymentDetails( \Magento\Sales\Model\Order $order, $payment_details_arr )
     {
-        $payment_details_arr = self::validatePaymentDetailsParams( $payment_details_arr );
-
         $helper_obj = $this->_helper;
+
+        $payment_details_arr = $helper_obj::validate_transaction_reference_values( $payment_details_arr );
 
         try
         {
@@ -596,7 +597,7 @@ class Notification extends \Magento\Framework\View\Element\Template
             $this->inlineTranslation->suspend();
 
             $transport = $this->_transportBuilder->setTemplateIdentifier($templateId)
-                                                 ->setTemplateOptions(['area' => \Magento\Framework\App\Area::AREA_ADMINHTML, 'store' => $order->getStore()->getId()])
+                                                 ->setTemplateOptions(['area' => \Magento\Framework\App\Area::AREA_ADMINHTML, 'store' => $order->getStoreId()])
                                                  ->setTemplateVars( $payment_details_arr )
                                                  ->setFrom( ['name' => $supportName, 'email' => $supportEmail ] )
                                                  ->addTo( $order->getCustomerEmail() )
@@ -680,6 +681,7 @@ class Notification extends \Magento\Framework\View\Element\Template
             'swift_bic' => '',
             'iban' => '',
             'entity_number' => '',
+            'instructions' => '',
         );
     }
 

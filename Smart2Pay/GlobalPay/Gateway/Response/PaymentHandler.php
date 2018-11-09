@@ -41,14 +41,6 @@ class PaymentHandler implements HandlerInterface
         $payment = $paymentDataObject->getPayment();
         $order = $payment->getOrder();
 
-        ob_start();
-        echo 'PaymentHandler';
-        var_dump( $response );
-        var_dump( $payment->getAdditionalInformation() );
-        $buf = ob_get_clean();
-
-        $s2p_helper->foobar( $buf );
-
         if( !($smart2pay_config = $s2p_helper->getFullConfigArray()) )
             $smart2pay_config = array();
 

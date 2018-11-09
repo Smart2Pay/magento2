@@ -115,14 +115,6 @@ class Send extends \Magento\Framework\View\Element\Template
 
         $smart2pay_config = $helper_obj->getFullConfigArray();
 
-        ob_start();
-        echo 'IN Send';
-        var_dump( $order_is_ok );
-        var_dump( $order_error_message );
-        $buf = ob_get_clean();
-
-        $helper_obj->foobar( $buf );
-
         $result_message = '';
         $transaction_extra_data = [];
         $transaction_details_titles = [];
@@ -131,29 +123,23 @@ class Send extends \Magento\Framework\View\Element\Template
             if( !empty( $additional_info['sp_do_redirect'] )
             and !empty( $additional_info['sp_redirect_url'] ) )
             {
-                ob_start();
-                echo 'Send';
-                echo 'Redirecting to: '.$additional_info['sp_redirect_url'];
-                $buf = ob_get_clean();
-
-                $helper_obj->foobar( $buf );
-
-                $order->addCommentToStatusHistory( 'Smart2Pay :: redirecting to payment page for payment ID: '.(!empty( $additional_info['sp_payment_id'] )?$additional_info['sp_payment_id']:'N/A') );
+                $order->addStatusHistoryComment( 'Smart2Pay :: redirecting to payment page for payment ID: '.(!empty( $additional_info['sp_payment_id'] )?$additional_info['sp_payment_id']:'N/A') );
 
                 $this->http_response->setRedirect( $additional_info['sp_redirect_url'] );
             } else
             {
                 $status_code = $s2p_transaction->getPaymentStatus();
 
-                if( in_array( $s2p_transaction->getMethodId(),
-                              [ $helper_obj::PAYMENT_METHOD_BT, $helper_obj::PAYMENT_METHOD_SIBS ] ) )
+                if( !($all_params = $s2p_transaction->getExtraDataArray()) )
+                    $all_params = [];
+
+                // if( in_array( $s2p_transaction->getMethodId(),
+                //               [ $helper_obj::PAYMENT_METHOD_BT, $helper_obj::PAYMENT_METHOD_SIBS ] ) )
+                if( !empty( $all_params ) )
                 {
-                    if( ($transaction_details_titles = $helper_obj::transaction_logger_params_to_title())
+                    if( ($transaction_details_titles = $helper_obj::get_transaction_reference_titles())
                     and is_array( $transaction_details_titles ) )
                     {
-                        if( !($all_params = $s2p_transaction->getExtraDataArray()) )
-                            $all_params = [];
-
                         foreach( $transaction_details_titles as $key => $title )
                         {
                             if( !array_key_exists( $key, $all_params ) )
@@ -179,13 +165,6 @@ class Send extends \Magento\Framework\View\Element\Template
                         $result_message = $smart2pay_config['message_data_'.$magento_status_id];
                 }
 
-                ob_start();
-                echo 'Send';
-                var_dump( $transaction_extra_data );
-                echo 'Result message: ['.$result_message.']';
-                $buf = ob_get_clean();
-
-                $helper_obj->foobar( $buf );
             }
         }
 

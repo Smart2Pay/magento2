@@ -107,7 +107,7 @@ class Info extends ConfigurableInfo
         if( ($extra_trans_data = $s2p_transaction->getExtraDataArray())
         and is_array( $extra_trans_data ) )
         {
-            if( !($titles_arr = $helper_obj::transaction_logger_params_to_title()) )
+            if( !($titles_arr = $helper_obj::get_transaction_reference_titles()) )
                 $titles_arr = array();
 
             foreach( $extra_trans_data as $key => $val )

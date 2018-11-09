@@ -35,13 +35,6 @@ class RequestValidator extends AbstractValidator
         //$response = \Magento\Payment\Gateway\Helper\SubjectReader::readResponse( $validationSubject );
         $s2p_helper = $this->_s2pHelper;
 
-        ob_start();
-        echo 'RequestValidator';
-        echo $s2p_helper::var_dump( $validationSubject, array( 'max_level' => 5 ) );
-        $buf = ob_get_clean();
-
-        $this->_s2pHelper->foobar( $buf );
-
         return $this->createResult(
             true,
             []

@@ -21,13 +21,7 @@ define([
 
     var saveData = function ( checkoutData )
     {
-
-        console.log( 'Saving method' );
-        console.log( checkoutData );
         $.extend( true, checkoutData, defaultCheckData );
-
-        console.log( 'Saving method (extended)' );
-        console.log( checkoutData );
 
         storage.set( cacheKey, checkoutData );
     };
@@ -38,14 +32,8 @@ define([
 
     return {
         setSelectedS2PMethod: function ( methodId ) {
-            console.log( 'Setting selected' );
-            console.log( methodId );
-
             var obj = getData();
             obj.selectedS2PMethod = methodId;
-
-            console.log( obj );
-            console.log( 'saving...' );
 
             saveData( obj );
         },

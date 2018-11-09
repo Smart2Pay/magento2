@@ -32,32 +32,30 @@ class ResponsePaymentValidator extends AbstractValidator
      */
     public function validate(array $validationSubject)
     {
-        //$response = \Magento\Payment\Gateway\Helper\SubjectReader::readResponse( $validationSubject );
-
         $s2p_helper = $this->_s2pHelper;
 
-        ob_start();
-        echo 'ResponsePaymentValidator';
-        echo $s2p_helper::var_dump( $validationSubject, array( 'max_level' => 5 ) );
-        $buf = ob_get_clean();
+        if( !($response = \Magento\Payment\Gateway\Helper\SubjectReader::readResponse( $validationSubject ))
+         or !is_array( $response ) )
+        {
+            return $this->createResult(
+                false,
+                [
+                    __( 'Error parsing response from server.' )
+                ]
+            );
+        }
 
-        $s2p_helper->foobar( $buf );
+        if( !empty( $response['errors'] ) and is_array( $response['errors'] ) )
+        {
+            return $this->createResult(
+                false,
+                $response['errors']
+            );
+        }
 
         return $this->createResult(
             true,
             []
         );
-
-        if ($this->isSuccessfulTransaction($response)) {
-            return $this->createResult(
-                true,
-                []
-            );
-        } else {
-            return $this->createResult(
-                false,
-                [__('RequestValidator failed.')]
-            );
-        }
     }
 }

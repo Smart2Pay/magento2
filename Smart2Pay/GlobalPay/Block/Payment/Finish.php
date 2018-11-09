@@ -114,17 +114,18 @@ class Finish extends \Magento\Framework\View\Element\Template
         if( empty( $status_code ) )
             $status_code = $helper_obj::S2P_STATUS_FAILED;
 
+        if( !($all_params = $s2p_transaction->getExtraDataArray()) )
+            $all_params = [];
+
         $transaction_extra_data = [];
         $transaction_details_titles = [];
-        if( in_array( $s2p_transaction->getMethodId(),
-                            [ $helper_obj::PAYMENT_METHOD_BT, $helper_obj::PAYMENT_METHOD_SIBS ] ) )
+        // if( in_array( $s2p_transaction->getMethodId(),
+        //                     [ $helper_obj::PAYMENT_METHOD_BT, $helper_obj::PAYMENT_METHOD_SIBS ] ) )
+        if( !empty( $all_params ) )
         {
-            if( ($transaction_details_titles = $helper_obj::transaction_logger_params_to_title())
+            if( ($transaction_details_titles = $helper_obj::get_transaction_reference_titles())
             and is_array( $transaction_details_titles ) )
             {
-                if( !($all_params = $s2p_transaction->getExtraDataArray()) )
-                    $all_params = [];
-
                 foreach( $transaction_details_titles as $key => $title )
                 {
                     if( !array_key_exists( $key, $all_params ) )

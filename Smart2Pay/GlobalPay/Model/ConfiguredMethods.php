@@ -7,7 +7,6 @@ use Magento\Framework\DataObject\IdentityInterface;
 
 /**
  * Class ConfiguredMethods
- * @method \Smart2Pay\GlobalPay\Model\ResourceModel\ConfiguredMethods _getResource()
  * @package Smart2Pay\GlobalPay\Model
  */
 class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implements ConfiguredMethodsInterface, IdentityInterface
@@ -50,12 +49,16 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
      */
     private $_countryFactory;
 
+    /** @var \Smart2Pay\GlobalPay\Model\ResourceModel\ConfiguredMethodsFactory */
+    private $_configuredMethodsFactory;
+
     public function __construct(
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
         \Smart2Pay\GlobalPay\Model\CountryMethodFactory $countryMethodFactory,
         \Smart2Pay\GlobalPay\Model\CountryFactory $countryFactory,
         \Smart2Pay\GlobalPay\Model\MethodFactory $methodFactory,
+        \Smart2Pay\GlobalPay\Model\ResourceModel\ConfiguredMethodsFactory $cm_resource,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
@@ -64,6 +67,7 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
         $this->_countryMethodFactory = $countryMethodFactory;
         $this->_countryFactory = $countryFactory;
         $this->_methodFactory = $methodFactory;
+        $this->_configuredMethodsFactory = $cm_resource;
 
         parent::__construct( $context, $registry, $resource, $resourceCollection, $data );
     }
@@ -89,7 +93,12 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
      */
     public function checkMethodCountryID( $method_id, $country_id, $environment = false )
     {
-        return $this->_getResource()->checkMethodCountryID( $method_id, $country_id, $environment );
+        $cm_obj = $this->_configuredMethodsFactory->create();
+
+        // if( $this->_resource )
+        //     return $this->_resource->checkMethodCountryID( $method_id, $country_id, $environment );
+
+        return $cm_obj->checkMethodCountryID( $method_id, $country_id, $environment );
     }
 
     /**
@@ -102,7 +111,12 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
      */
     public function getMethodsForCountry( $country_id, $environment = false )
     {
-        return $this->_getResource()->getMethodsForCountry( $country_id, $environment );
+        $cm_obj = $this->_configuredMethodsFactory->create();
+
+        // if( $this->_resource )
+        //     return $this->_resource->getMethodsForCountry( $country_id, $environment );
+
+        return $cm_obj->getMethodsForCountry( $country_id, $environment );
     }
 
     /**
@@ -115,7 +129,12 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
      */
     public function getCountriesForMethod( $method_id, $environment = false )
     {
-        return $this->_getResource()->getCountriesForMethod( $method_id, $environment );
+        $cm_obj = $this->_configuredMethodsFactory->create();
+
+        // if( $this->_resource )
+        //     return $this->_resource->getCountriesForMethod( $method_id, $environment );
+
+        return $cm_obj->getCountriesForMethod( $method_id, $environment );
     }
 
     /**
@@ -477,7 +496,12 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
         if( !is_array( $configured_methods_arr ) )
             return false;
 
-        $my_resource = $this->_getResource();
+        // if( $this->_resource )
+        //     $my_resource = $this->_resource;
+        // else
+        //     $my_resource = $this->getResource();
+
+        $my_resource = $this->_configuredMethodsFactory->create();
 
         $saved_method_ids = array();
         $errors_arr = array();

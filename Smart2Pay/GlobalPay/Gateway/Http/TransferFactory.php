@@ -42,13 +42,6 @@ class TransferFactory implements TransferFactoryInterface
     {
         $s2p_helper = $this->_s2pHelper;
 
-        ob_start();
-        echo 'TransferFactory';
-        echo $s2p_helper::var_dump( $request, array( 'max_level' => 5 ) );
-        $buf = ob_get_clean();
-
-        $s2p_helper->foobar( $buf );
-
         return $this->transferBuilder
             ->setBody($request)
             ->build();

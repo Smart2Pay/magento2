@@ -31,7 +31,31 @@ class Country extends \Magento\Framework\Model\AbstractModel implements CountryI
      */
     protected $_eventPrefix = 'smart2pay_globalpay_country';
 
+    /** @var \Smart2Pay\GlobalPay\Model\ResourceModel\CountryFactory $_countryFactory */
+    protected $_countryFactory;
+
     private static $db_countries = false;
+
+    /**
+     * @param \Magento\Framework\Model\Context $context
+     * @param \Magento\Framework\Registry $registry
+     * @param \Smart2Pay\GlobalPay\Model\ResourceModel\CountryFactory $c_resource
+     * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
+     * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection
+     * @param array $data
+     */
+    public function __construct(
+        \Magento\Framework\Model\Context $context,
+        \Magento\Framework\Registry $registry,
+        \Smart2Pay\GlobalPay\Model\ResourceModel\CountryFactory $c_resource,
+        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
+        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        array $data = []
+    ) {
+        parent::__construct( $context, $registry, $resource, $resourceCollection, $data );
+
+        $this->_countryFactory = $c_resource;
+    }
 
     /**
      * Initialize resource model
@@ -51,7 +75,9 @@ class Country extends \Magento\Framework\Model\AbstractModel implements CountryI
      */
     public function checkCode( $code )
     {
-        return $this->_getResource()->checkCode( $code );
+        $c_obj = $this->_countryFactory->create();
+
+        return $c_obj->checkCode( $code );
     }
 
     public function getCountriesArray()
