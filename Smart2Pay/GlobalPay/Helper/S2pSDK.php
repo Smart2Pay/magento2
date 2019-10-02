@@ -365,7 +365,7 @@ class S2pSDK extends AbstractHelper
 
         $s2p_helper = $this->s2p_helper();
 
-        if( false and ($seconds_to_sync = $s2p_helper->seconds_to_launch_sync_str()) )
+        if( ($seconds_to_sync = $s2p_helper->seconds_to_launch_sync_str()) )
         {
             $this->_set_error( 'You can syncronize methods once every '.$s2p_helper::RESYNC_AFTER_HOURS.' hours. Time left: '.$seconds_to_sync );
             return false;

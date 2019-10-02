@@ -332,12 +332,14 @@ class Notification extends \Magento\Framework\View\Element\Template
 
                         if( strcmp( $orderAmount, $payment_arr['amount'] ) != 0
                          or $orderCurrency != $payment_arr['currency'] )
-                            $order->addStatusHistoryComment( 'S2P Notification: notification has different amount ['.$orderAmount.'/'.$payment_arr['amount'] . '] and/or currency ['.$orderCurrency.'/' . $payment_arr['currency'] . ']!. Please contact support@smart2pay.com', $module_config['order_status_on_4'] );
-
-                        elseif( $order->getState() != \Magento\Sales\Model\Order::STATE_PAYMENT_REVIEW )
+                        {
+                            $order->addStatusHistoryComment( 'S2P Notification: notification has different amount ['.$orderAmount.'/'.$payment_arr['amount'].'] and/or currency ['.$orderCurrency.'/'.$payment_arr['currency'].']!. Please contact support@smart2pay.com', $module_config['order_status_on_4'] );
+                            $order->save();
+                        } elseif( $order->getState() != \Magento\Sales\Model\Order::STATE_PAYMENT_REVIEW )
+                        {
                             $order->addStatusHistoryComment( 'S2P Notification: Order not in payment review state. ['.$order->getState().']' );
-
-                        else
+                            $order->save();
+                        } else
                         {
                             $order->addStatusHistoryComment( 'S2P Notification: order has been paid. [MethodID: '. $payment_arr['methodid'] .']', $module_config['order_status_on_2'] );
                             $order->setState( \Magento\Sales\Model\Order::STATE_PROCESSING );

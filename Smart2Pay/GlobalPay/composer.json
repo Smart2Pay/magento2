@@ -2,7 +2,7 @@
     "name": "smart2pay/globalpay",
     "description": "Use Smart2Pay module to have access to 100+ payment methods.",
     "type": "magento2-module",
-    "version": "3.0.2",
+    "version": "3.0.3",
     "license": [
         "OSL-3.0",
         "AFL-3.0"
