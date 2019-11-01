@@ -99,6 +99,9 @@ class CaptureRequest implements BuilderInterface
         $include_metod_ids = array_keys( $enabled_methods );
         $environment = $config_arr['environment'];
 
+        if( !$quote->getReservedOrderId() )
+            $quote->reserveOrderId();
+
         $merchant_transaction_id = $quote->getReservedOrderId();
         if( $environment == Environment::ENV_DEMO )
             $merchant_transaction_id = $s2p_helper->convert_to_demo_merchant_transaction_id( $merchant_transaction_id );
