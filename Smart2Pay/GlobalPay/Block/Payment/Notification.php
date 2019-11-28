@@ -327,8 +327,8 @@ class Notification extends \Magento\Framework\View\Element\Template
 
                     case \S2P_SDK\S2P_SDK_Meth_Payments::STATUS_SUCCESS:
                     case \S2P_SDK\S2P_SDK_Meth_Payments::STATUS_CAPTURED:
-                        $orderAmount =  number_format( $order->getGrandTotal(), 2, '.', '' ) * 100;
-                        $orderCurrency = $order->getOrderCurrency()->getCurrencyCode();
+                        $orderAmount =  number_format( $order->getBaseGrandTotal(), 2, '.', '' ) * 100;
+                        $orderCurrency = $order->getBaseCurrency()->getCurrencyCode();
 
                         if( strcmp( $orderAmount, $payment_arr['amount'] ) != 0
                          or $orderCurrency != $payment_arr['currency'] )
