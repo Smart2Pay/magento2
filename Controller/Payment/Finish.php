@@ -2,7 +2,7 @@
 
 namespace Smart2Pay\GlobalPay\Controller\Payment;
 
-class Send extends \Magento\Framework\App\Action\Action
+class Finish extends \Magento\Framework\App\Action\Action
 {
     /** @var \Magento\Framework\View\Result\PageFactory  */
     protected $resultPageFactory;
@@ -15,7 +15,7 @@ class Send extends \Magento\Framework\App\Action\Action
         parent::__construct($context);
     }
     /**
-     * Load the page defined in view/frontend/layout/samplenewpage_index_index.xml
+     * Load the page defined in view/frontend/layout/smart2pay_payment_finish.xml
      *
      * @return \Magento\Framework\View\Result\Page
      */

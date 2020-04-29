@@ -2,6 +2,8 @@
 
 namespace Smart2Pay\GlobalPay\Controller\Payment;
 
+use Magento\Framework\App\Request\Http;
+
 class Notification extends \Magento\Framework\App\Action\Action
 {
     /** @var \Magento\Framework\View\Result\PageFactory  */
@@ -13,10 +15,22 @@ class Notification extends \Magento\Framework\App\Action\Action
     ) {
         $this->resultPageFactory = $resultPageFactory;
         parent::__construct($context);
+
+        // Ugly bug when sending POST data to a script...
+        if( interface_exists( '\Magento\Framework\App\CsrfAwareActionInterface' ) )
+        {
+            $request = $this->getRequest();
+            if( $request instanceof Http
+            and $request->isPost() )
+            {
+                $request->setParam( 'isAjax', true );
+                $request->getHeaders()->addHeaderLine( 'X_REQUESTED_WITH', 'XMLHttpRequest' );
+            }
+        }
     }
 
     /**
-     * Load the page defined in view/frontend/layout/samplenewpage_index_index.xml
+     * Load the page defined in view/frontend/layout/smart2pay_payment_notification.xml
      *
      * @return \Magento\Framework\View\Result\Page
      */
