@@ -26,7 +26,7 @@ composer require smart2pay/magento2
     
     1.2 git clone
     
-    Execute ```git clone https://github.com/Smart2Pay/magento20``` in a temporary directory on your Magento 2 server.
+    Execute ```git clone https://github.com/Smart2Pay/magento2``` in a temporary directory on your Magento 2 server.
 
 2. In _{Magento_root}/app/code_ directory create _Smart2Pay/GlobalPay_ directories. If you don't have a _code_ directory in _{Magento_root}/app/_, create it first.
 
@@ -43,6 +43,10 @@ composer require smart2pay/magento2
 If you have problems with any version please let us know your Magento, Smart2Pay module and Smart2Pay SDK versions at support@smart2pay.com.
 
 #### Magento setup 
+
+1. Make sure plugin is enabled: ```bin/magento module:enable Smart2Pay_GlobalPay```.
+
+2. Run following commands:
 
 ```shell script
 bin/magento setup:upgrade
