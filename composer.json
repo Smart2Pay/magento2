@@ -2,20 +2,14 @@
     "name": "smart2pay/magento2",
     "description": "Use Smart2Pay module to have access to 100+ payment methods.",
     "type": "magento2-module",
-    "version": "4.0.1",
+    "version": "4.0.2",
     "license": [
         "OSL-3.0",
         "AFL-3.0"
     ],
     "require": {
-        "magento/module-sales": "100.0.*",
-        "magento/module-checkout": "100.0.*",
-        "magento/module-payment": "100.0.*",
-        "magento/framework": "100.0.*",
-        "magento/magento-composer-installer": "100.0.*",
-        "ext-json": "*",
-        "ext-curl": "*",
-        "smart2pay/sdk-php": "*"
+        "smart2pay/sdk-php": "*",
+        "ext-json": "*"
     },
     "extra": {
         "map": [

@@ -7,7 +7,7 @@ Tested on Magento 2.1.15, 2.2.5, 2.2.6 and 2.3.4.
 1. Install Smart2Pay Magento plugin using composer:
 
 ```shell script
-composer require smart2pay/magento2
+composer require smart2pay/magento2:*
 ```
 
 2. Follow steps from __Magento setup__ section.
@@ -42,9 +42,11 @@ If you have problems with any version please let us know your Magento, Smart2Pay
 
 #### Magento setup 
 
-1. Make sure plugin is enabled: ```bin/magento module:enable Smart2Pay_GlobalPay```.
+1. Open a shell in Magento 2 root directory.
 
-2. Run following commands:
+2. To make sure the plugin is enabled run ```bin/magento module:enable Smart2Pay_GlobalPay```.
+
+3. Run following commands:
 
 ```shell script
 bin/magento setup:upgrade
