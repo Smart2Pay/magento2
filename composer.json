@@ -1,8 +1,8 @@
 {
     "name": "smart2pay/magento2",
-    "description": "Use Smart2Pay module to have access to 100+ payment methods.",
+    "description": "Use Smart2Pay module to have access to 200+ payment methods.",
     "type": "magento2-module",
-    "version": "4.0.2",
+    "version": "4.0.3",
     "license": [
         "OSL-3.0",
         "AFL-3.0"
@@ -10,14 +10,6 @@
     "require": {
         "smart2pay/sdk-php": "*",
         "ext-json": "*"
-    },
-    "extra": {
-        "map": [
-            [
-                "*",
-                "Smart2Pay/GlobalPay"
-            ]
-        ]
     },
     "autoload": {
         "files": [
