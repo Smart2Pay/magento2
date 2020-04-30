@@ -1,6 +1,4 @@
-## Smart2Pay Magento 2.1.x/2.2.x/2.3.x
-
-Smart2Pay Plugin for Magento 2.1.x/2.2.x/2.3.x Shopping Cart
+## Smart2Pay Plugin for Magento 2.1+ E-Commerce Platform
 
 Tested on Magento 2.1.15, 2.2.5, 2.2.6 and 2.3.4.
 
