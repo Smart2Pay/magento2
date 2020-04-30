@@ -20,7 +20,7 @@ composer require smart2pay/magento2
 
     1.1 Zip file
     
-    Download zip file [from Smart2Pay Magento 2 releases](https://github.com/Smart2Pay/magento20/releases) and unzip it in a temporary location on your Magento 2 server.
+    Download zip file [from Smart2Pay Magento 2 releases](https://github.com/Smart2Pay/magento2/releases) and unzip it in a temporary location on your Magento 2 server.
     
     1.2 git clone
     
