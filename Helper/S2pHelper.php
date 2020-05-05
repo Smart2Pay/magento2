@@ -1177,7 +1177,11 @@ class S2pHelper extends AbstractHelper
                 $new_var[$key] = self::var_dump( $arr_val, $new_params );
         } elseif( is_object( $var ) )
         {
+            if( !($var_type = @get_class( $var )) )
+                $var_type = 'object';
+
             $new_var = new \stdClass();
+            $new_var->__var_dump_object_type = $var_type;
             if( ($var_vars = get_object_vars( $var )) )
             {
                 foreach( $var_vars as $key => $arr_val )

@@ -37,6 +37,12 @@ class Send extends \Magento\Framework\View\Element\Template
     /** @var \Smart2Pay\GlobalPay\Helper\S2pHelper */
     protected $_helper;
 
+    /** @var \Magento\Framework\App\Cache\TypeList|\Magento\Framework\App\Cache\TypeList */
+    protected $_cacheTypeList;
+
+    /** @var \Magento\Framework\App\Cache\Frontend\Pool  */
+    protected $_cacheFrontendPool;
+
     /**
      * @param \Magento\Framework\View\Element\Template\Context $context
      * @param \Magento\Checkout\Model\Session $checkoutSession
@@ -46,6 +52,8 @@ class Send extends \Magento\Framework\View\Element\Template
      * @param \Smart2Pay\GlobalPay\Model\TransactionFactory $s2pTransaction
      * @param \Smart2Pay\GlobalPay\Model\Logger $s2pLogger
      * @param \Smart2Pay\GlobalPay\Helper\S2pHelper $helperSmart2Pay
+     * @param \Magento\Framework\App\Cache\TypeList $cacheTypeList
+     * @param \Magento\Framework\App\Cache\Frontend\Pool $cacheFrontendPool
      * @param array $data
      */
     public function __construct(
@@ -57,6 +65,8 @@ class Send extends \Magento\Framework\View\Element\Template
         \Smart2Pay\GlobalPay\Model\TransactionFactory $s2pTransaction,
         \Smart2Pay\GlobalPay\Model\Logger $s2pLogger,
         \Smart2Pay\GlobalPay\Helper\S2pHelper $helperSmart2Pay,
+        \Magento\Framework\App\Cache\TypeListInterface $cacheTypeList,
+        \Magento\Framework\App\Cache\Frontend\Pool $cacheFrontendPool,
         array $data = []
     ) {
         parent::__construct($context, $data);
@@ -70,6 +80,9 @@ class Send extends \Magento\Framework\View\Element\Template
 
         $this->_s2pTransaction = $s2pTransaction;
         $this->_s2pLogger = $s2pLogger;
+
+        $this->_cacheTypeList = $cacheTypeList;
+        $this->_cacheFrontendPool = $cacheFrontendPool;
     }
 
     /**
@@ -93,6 +106,18 @@ class Send extends \Magento\Framework\View\Element\Template
         $helper_obj = $this->_helper;
         $s2p_transaction = $this->_s2pTransaction->create();
 
+        // Sorry for any inconvenience!!! No other way to obtain order after gateway payment processing...
+        // If you have a cleaner solution, please contact us!
+        $types = array( 'config', 'layout', 'block_html', 'collections', 'reflection', 'db_ddl', 'eav',
+                        'config_integration', 'config_integration_api', 'full_page', 'translate',
+                        'config_webservice' );
+
+        foreach( $types as $type )
+            $this->_cacheTypeList->cleanType( $type );
+
+        foreach( $this->_cacheFrontendPool as $cacheFrontend )
+            $cacheFrontend->getBackend()->clean();
+
         $order_is_ok = true;
         $order_error_message = '';
         $additional_info = array();
@@ -100,7 +125,7 @@ class Send extends \Magento\Framework\View\Element\Template
             $order_error_message = __( 'Couldn\'t extract order information.' );
 
         elseif( !in_array( $order->getState(), array( Order::STATE_NEW, Order::STATE_PENDING_PAYMENT, Order::STATE_PAYMENT_REVIEW ) ) )
-            $order_error_message = __( 'Order was already processed or session information expired.' ).print_r( $order->getState(), true );
+            $order_error_message = __( 'Order was already processed or session information expired.' );
 
         elseif( !($additional_info = $order->getPayment()->getAdditionalInformation())
              or !is_array( $additional_info )
@@ -151,7 +176,7 @@ class Send extends \Magento\Framework\View\Element\Template
                 }
 
                 $result_message = __( 'Transaction status is unknown.' );
-                if( empty( $error_message ) )
+                if( empty( $order_error_message ) )
                 {
                     // map all statuses to known Magento statuses (message_data_2, message_data_4, message_data_3 and message_data_7)
                     if( !($magento_status_id = $helper_obj::convert_gp_status_to_magento_status( $status_code )) )
@@ -164,7 +189,6 @@ class Send extends \Magento\Framework\View\Element\Template
                         and isset( $smart2pay_config['message_data_'.$magento_status_id] ) )
                         $result_message = $smart2pay_config['message_data_'.$magento_status_id];
                 }
-
             }
         }
 
@@ -201,7 +225,8 @@ class Send extends \Magento\Framework\View\Element\Template
     {
         return !in_array(
             $order->getStatus(),
-            $this->_orderConfig->getInvisibleOnFrontStatuses()
+            $this->_orderConfig->getInvisibleOnFrontStatuses(),
+            true
         );
     }
 
