@@ -23,7 +23,7 @@ class Logger extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      */
     protected function _construct()
     {
-        $this->_init( 's2p_gp_logs', 'log_id' );
+        $this->_init('s2p_gp_logs', 'log_id');
     }
 
     /**
@@ -37,33 +37,31 @@ class Logger extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      *
      * @return bool Returns true if succes, false if failed
      */
-    public function write( $message, $type = 'info', $transaction_id = '', $file = '', $line = '' )
+    public function write($message, $type = 'info', $transaction_id = '', $file = '', $line = '')
     {
-        try
-        {
-            if( !($conn = $this->getConnection()) )
+        try {
+            if (!($conn = $this->getConnection())) {
                 return false;
+            }
 
-            if( empty( $file ) or empty( $line ) )
-            {
+            if (empty($file) || empty($line)) {
                 $backtrace = debug_backtrace();
                 $file = $backtrace[0]['file'];
                 $line = $backtrace[0]['line'];
             }
 
-            $insert_arr = array();
+            $insert_arr = [];
             $insert_arr['log_message'] = $message;
             $insert_arr['log_type'] = $type;
             $insert_arr['transaction_id'] = $transaction_id;
             $insert_arr['log_source_file'] = $file;
             $insert_arr['log_source_file_line'] = $line;
-            $insert_arr['log_created'] = date( 'Y-m-d H:i:s' );
+            $insert_arr['log_created'] = date('Y-m-d H:i:s');
 
-            $conn->insert( 's2p_gp_logs', $insert_arr );
+            $conn->insert('s2p_gp_logs', $insert_arr);
 
-        } catch( \Zend_Db_Adapter_Exception $e )
-        {
-            \Zend_Debug::dump( $e->getMessage() );
+        } catch (\Zend_Db_Adapter_Exception $e) {
+            \Zend_Debug::dump($e->getMessage());
             return false;
         }
 

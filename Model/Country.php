@@ -6,9 +6,7 @@ use Smart2Pay\GlobalPay\Api\Data\CountryInterface;
 use Magento\Framework\DataObject\IdentityInterface;
 
 /**
- * Class Country
  * @method \Smart2Pay\GlobalPay\Model\ResourceModel\Country _getResource()
- * @package Smart2Pay\GlobalPay\Model
  */
 class Country extends \Magento\Framework\Model\AbstractModel implements CountryInterface, IdentityInterface
 {
@@ -52,7 +50,7 @@ class Country extends \Magento\Framework\Model\AbstractModel implements CountryI
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
     ) {
-        parent::__construct( $context, $registry, $resource, $resourceCollection, $data );
+        parent::__construct($context, $registry, $resource, $resourceCollection, $data);
 
         $this->_countryFactory = $c_resource;
     }
@@ -64,7 +62,7 @@ class Country extends \Magento\Framework\Model\AbstractModel implements CountryI
      */
     protected function _construct()
     {
-        $this->_init( 'Smart2Pay\GlobalPay\Model\ResourceModel\Country' );
+        $this->_init('Smart2Pay\GlobalPay\Model\ResourceModel\Country');
     }
 
     /**
@@ -73,29 +71,30 @@ class Country extends \Magento\Framework\Model\AbstractModel implements CountryI
      * @param string $code
      * @return int
      */
-    public function checkCode( $code )
+    public function checkCode($code)
     {
         $c_obj = $this->_countryFactory->create();
 
-        return $c_obj->checkCode( $code );
+        return $c_obj->checkCode($code);
     }
 
     public function getCountriesArray()
     {
-        if( !empty( self::$db_countries ) )
+        if (!empty(self::$db_countries)) {
             return self::$db_countries;
+        }
 
         $collection = $this->getCollection();
 
-        $collection->addFieldToSelect( '*' );
+        $collection->addFieldToSelect('*');
 
-        self::$db_countries = array();
+        self::$db_countries = [];
 
-        while( ($country_obj = $collection->fetchItem())
-           and ($country_arr = $country_obj->getData()) )
-        {
-            if( empty( $country_arr['country_id'] ) )
+        while (($country_obj = $collection->fetchItem())
+           && ($country_arr = $country_obj->getData())) {
+            if (empty($country_arr['country_id'])) {
                 continue;
+            }
 
             self::$db_countries['items'][$country_arr['country_id']] = $country_arr;
             self::$db_countries['ids'][$country_arr['country_id']] = $country_arr['code'];
@@ -111,19 +110,21 @@ class Country extends \Magento\Framework\Model\AbstractModel implements CountryI
      */
     public function getCountriesCodeAsKey()
     {
-        if( !($countries_arr = $this->getCountriesArray())
-         or empty( $countries_arr['codes'] )
-         or !is_array( $countries_arr['codes'] ) )
-            return array();
+        if (!($countries_arr = $this->getCountriesArray())
+         || empty($countries_arr['codes'])
+         || !is_array($countries_arr['codes'])) {
+            return [];
+        }
 
         return $countries_arr['codes'];
     }
 
     public function getCountryIDToCountryCodeArray()
     {
-        if( !$this->getCountriesArray()
-         or empty( self::$db_countries['ids'] ) )
-            return array();
+        if (!$this->getCountriesArray()
+         || empty(self::$db_countries['ids'])) {
+            return [];
+        }
 
         return self::$db_countries['ids'];
     }
@@ -143,7 +144,7 @@ class Country extends \Magento\Framework\Model\AbstractModel implements CountryI
      */
     public function getCountryId()
     {
-        return $this->getData( self::COUNTRY_ID );
+        return $this->getData(self::COUNTRY_ID);
     }
 
     /**
@@ -151,7 +152,7 @@ class Country extends \Magento\Framework\Model\AbstractModel implements CountryI
      */
     public function getCode()
     {
-        return $this->getData( self::CODE );
+        return $this->getData(self::CODE);
     }
 
     /**
@@ -159,30 +160,30 @@ class Country extends \Magento\Framework\Model\AbstractModel implements CountryI
      */
     public function getName()
     {
-        return $this->getData( self::NAME );
+        return $this->getData(self::NAME);
     }
 
     /**
      * @inheritDoc
      */
-    public function setCountryID( $country_id )
+    public function setCountryID($country_id)
     {
-        return $this->setData( self::COUNTRY_ID, $country_id );
+        return $this->setData(self::COUNTRY_ID, $country_id);
     }
 
     /**
      * @inheritDoc
      */
-    public function setCode( $code )
+    public function setCode($code)
     {
-        return $this->setData( self::CODE, $code );
+        return $this->setData(self::CODE, $code);
     }
 
     /**
      * @inheritDoc
      */
-    public function setName( $name )
+    public function setName($name)
     {
-        return $this->setData( self::NAME, $name );
+        return $this->setData(self::NAME, $name);
     }
 }

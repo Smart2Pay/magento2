@@ -31,46 +31,47 @@ class PaymentHandler implements HandlerInterface
      * @param array $response
      * @return void
      */
-    public function handle( array $handlingSubject, array $response )
+    public function handle(array $handlingSubject, array $response)
     {
         $s2p_helper = $this->_s2pHelper;
 
         /** @var \Magento\Payment\Gateway\Data\PaymentDataObject $paymentDataObject */
-        $paymentDataObject = \Magento\Payment\Gateway\Helper\SubjectReader::readPayment( $handlingSubject );
+        $paymentDataObject = \Magento\Payment\Gateway\Helper\SubjectReader::readPayment($handlingSubject);
         /** @var $payment \Magento\Sales\Model\Order\Payment */
         $payment = $paymentDataObject->getPayment();
         $order = $payment->getOrder();
 
-        if( !($smart2pay_config = $s2p_helper->getFullConfigArray()) )
-            $smart2pay_config = array();
+        if (!($smart2pay_config = $s2p_helper->getFullConfigArray())) {
+            $smart2pay_config = [];
+        }
 
-        if( !empty( $response['response']['id'] ) )
-            $payment->setTransactionId( $response['response']['id'] );
+        if (!empty($response['response']['id'])) {
+            $payment->setTransactionId($response['response']['id']);
+        }
 
-        $payment->setIsTransactionClosed( false );
-        $payment->setIsTransactionPending( true );
+        $payment->setIsTransactionClosed(false);
+        $payment->setIsTransactionPending(true);
 
-        if( !empty( $response ) and is_array( $response )
-        and !empty( $response['response'] ) and is_array( $response['response'] ) )
-        {
-            if( !empty( $response['response']['status'] )
-            and !empty( $response['response']['status']['id'] ) )
-            {
-                $order->setState( \Magento\Sales\Model\Order::STATE_NEW );
+        if (!empty($response) && is_array($response)
+        && !empty($response['response']) && is_array($response['response'])) {
+            if (!empty($response['response']['status'])
+            && !empty($response['response']['status']['id'])) {
+                $order->setState(\Magento\Sales\Model\Order::STATE_NEW);
 
-                if( ($magento_status_id = $s2p_helper::convert_gp_status_to_magento_status( $response['response']['status']['id'] ))
-                and !empty( $smart2pay_config['order_status_on_'.$magento_status_id] ) )
-                {
-                    $order->setStatus( $smart2pay_config['order_status_on_'.$magento_status_id] );
+                if (($magento_status_id = $s2p_helper::convertGPStatusToMagentoStatus(
+                    $response['response']['status']['id']
+                ))
+                && !empty($smart2pay_config['order_status_on_'.$magento_status_id])) {
+                    $order->setStatus($smart2pay_config['order_status_on_'.$magento_status_id]);
                 }
 
                 $order->save();
             }
-        } else
-        {
-            $order->setState( \Magento\Sales\Model\Order::STATE_CANCELED );
-            if( !empty( $smart2pay_config['order_status_on_'.$s2p_helper::S2P_STATUS_FAILED] ) )
-                $order->setStatus( $smart2pay_config['order_status_on_'.$s2p_helper::S2P_STATUS_FAILED] );
+        } else {
+            $order->setState(\Magento\Sales\Model\Order::STATE_CANCELED);
+            if (!empty($smart2pay_config['order_status_on_'.$s2p_helper::S2P_STATUS_FAILED])) {
+                $order->setStatus($smart2pay_config['order_status_on_'.$s2p_helper::S2P_STATUS_FAILED]);
+            }
 
             $order->save();
         }

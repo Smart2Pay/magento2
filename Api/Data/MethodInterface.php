@@ -1,7 +1,6 @@
 <?php
 namespace Smart2Pay\GlobalPay\Api\Data;
 
-
 interface MethodInterface
 {
     const ID = 'id';
@@ -76,7 +75,7 @@ interface MethodInterface
      * @param int $id
      * @return \Smart2Pay\GlobalPay\Api\Data\MethodInterface
      */
-    public function setID( $id );
+    public function setID($id);
 
     /**
      * Set Method ID
@@ -84,7 +83,7 @@ interface MethodInterface
      * @param int $method_id
      * @return \Smart2Pay\GlobalPay\Api\Data\MethodInterface
      */
-    public function setMethodID( $method_id );
+    public function setMethodID($method_id);
 
     /**
      * Set Provider Value
@@ -92,7 +91,7 @@ interface MethodInterface
      * @param string $environment
      * @return \Smart2Pay\GlobalPay\Api\Data\MethodInterface
      */
-    public function setEnvironment( $environment );
+    public function setEnvironment($environment);
 
     /**
      * Set Display Name
@@ -100,7 +99,7 @@ interface MethodInterface
      * @param string $display_name
      * @return \Smart2Pay\GlobalPay\Api\Data\MethodInterface
      */
-    public function setDisplayName( $display_name );
+    public function setDisplayName($display_name);
 
     /**
      * Set Description
@@ -108,7 +107,7 @@ interface MethodInterface
      * @param string $description
      * @return \Smart2Pay\GlobalPay\Api\Data\MethodInterface
      */
-    public function setDescription( $description );
+    public function setDescription($description);
 
     /**
      * Set Logo URL
@@ -116,7 +115,7 @@ interface MethodInterface
      * @param string $logo_url
      * @return \Smart2Pay\GlobalPay\Api\Data\MethodInterface
      */
-    public function setLogoURL( $logo_url );
+    public function setLogoURL($logo_url);
 
     /**
      * Set is guaranteed
@@ -124,7 +123,7 @@ interface MethodInterface
      * @param int|bool $is_guaranteed
      * @return \Smart2Pay\GlobalPay\Api\Data\MethodInterface
      */
-    public function setIsGuaranteed( $is_guaranteed );
+    public function setIsGuaranteed($is_guaranteed);
 
     /**
      * Set is active
@@ -132,7 +131,5 @@ interface MethodInterface
      * @param int|bool $is_active
      * @return \Smart2Pay\GlobalPay\Api\Data\MethodInterface
      */
-    public function setIsActive( $is_active );
-
-
+    public function setIsActive($is_active);
 }

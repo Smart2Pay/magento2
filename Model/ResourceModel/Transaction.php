@@ -23,7 +23,7 @@ class Transaction extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      */
     protected function _construct()
     {
-        $this->_init( 's2p_gp_transactions', 'id' );
+        $this->_init('s2p_gp_transactions', 'id');
     }
 
     /**
@@ -33,48 +33,50 @@ class Transaction extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      * @return $this
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    protected function _beforeSave( \Magento\Framework\Model\AbstractModel $object )
+    protected function _beforeSave(\Magento\Framework\Model\AbstractModel $object)
     {
-        if( !$object->getMethodId() )
-        {
+        if (!$object->getMethodId()) {
             throw new \Magento\Framework\Exception\LocalizedException(
                 __('Please provide a method id.')
             );
         }
 
-        if( !$object->getMerchantTransactionId() )
-        {
+        if (!$object->getMerchantTransactionId()) {
             throw new \Magento\Framework\Exception\LocalizedException(
                 __('Please provide merchant transaction id.')
             );
         }
 
-        if( ($current_id = $this->checkMerchantTransactionID( $object->getMerchantTransactionId() ))
-        and $object->getID() != $current_id )
-        {
+        if (($current_id = $this->checkMerchantTransactionID($object->getMerchantTransactionId()))
+        && $object->getID() != $current_id ) {
             throw new \Magento\Framework\Exception\LocalizedException(
-                __( 'Merchant transaction id already exists in database.' )
+                __('Merchant transaction id already exists in database.')
             );
         }
 
         $time = time();
 
-        if( !$object->getPaymentID() )
-            $object->setPaymentID( 0 );
-        if( !$object->getSiteId() )
-            $object->setSiteId( 0 );
-        if( !$object->get3DSecure() )
-            $object->set3DSecure( 0 );
-        else
-            $object->set3DSecure( 1 );
-        if( !$object->getPaymentStatus() )
-            $object->setPaymentStatus( 0 );
-        if( !$object->getCreated() )
-            $object->setCreated( $time );
+        if (!$object->getPaymentID()) {
+            $object->setPaymentID(0);
+        }
+        if (!$object->getSiteId()) {
+            $object->setSiteId(0);
+        }
+        if (!$object->get3DSecure()) {
+            $object->set3DSecure(0);
+        } else {
+            $object->set3DSecure(1);
+        }
+        if (!$object->getPaymentStatus()) {
+            $object->setPaymentStatus(0);
+        }
+        if (!$object->getCreated()) {
+            $object->setCreated($time);
+        }
 
-        $object->setUpdated( $time );
+        $object->setUpdated($time);
 
-        return parent::_beforeSave( $object );
+        return parent::_beforeSave($object);
     }
 
     /**
@@ -83,9 +85,9 @@ class Transaction extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      * @param string $code
      * @return \Magento\Framework\DB\Select
      */
-    protected function _getLoadByMerchantTransactionId( $mt_id )
+    protected function _getLoadByMerchantTransactionId($mt_id)
     {
-        $select = parent::_getLoadSelect( 'merchant_transaction_id', $mt_id, null );
+        $select = parent::_getLoadSelect('merchant_transaction_id', $mt_id, null);
 
         return $select;
     }
@@ -97,12 +99,12 @@ class Transaction extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      * @param int $mt_id
      * @return array
      */
-    public function checkMerchantTransactionId( $mt_id )
+    public function checkMerchantTransactionId($mt_id)
     {
-        $select = $this->_getLoadByMerchantTransactionId( $mt_id );
+        $select = $this->_getLoadByMerchantTransactionId($mt_id);
 
-        $select->limit( 1 );
+        $select->limit(1);
 
-        return $this->getConnection()->fetchOne( $select );
+        return $this->getConnection()->fetchOne($select);
     }
 }

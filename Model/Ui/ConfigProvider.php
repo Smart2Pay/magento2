@@ -7,10 +7,7 @@ namespace Smart2Pay\GlobalPay\Model\Ui;
 
 use Magento\Checkout\Model\ConfigProviderInterface;
 
-/**
- * Class ConfigProvider
- */
-final class ConfigProvider implements ConfigProviderInterface
+class ConfigProvider implements ConfigProviderInterface
 {
     const CODE = 'smart2pay';
 
@@ -70,7 +67,9 @@ final class ConfigProvider implements ConfigProviderInterface
                 $s2p_helper::METHOD_CODE => [
                     'environment' => $s2p_helper->getEnvironment(),
                     'settings' => $s2p_helper->getFrontConfigArray(),
-                    'methods' => $configured_methods->getAllConfiguredMethodsPerCountryCode( $s2p_helper->getEnvironment() ),
+                    'methods' => $configured_methods->getAllConfiguredMethodsPerCountryCode(
+                        $s2p_helper->getEnvironment()
+                    ),
                 ]
             ]
         ];

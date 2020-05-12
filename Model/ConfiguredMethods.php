@@ -5,11 +5,8 @@ namespace Smart2Pay\GlobalPay\Model;
 use Smart2Pay\GlobalPay\Api\Data\ConfiguredMethodsInterface;
 use Magento\Framework\DataObject\IdentityInterface;
 
-/**
- * Class ConfiguredMethods
- * @package Smart2Pay\GlobalPay\Model
- */
-class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implements ConfiguredMethodsInterface, IdentityInterface
+class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel
+    implements ConfiguredMethodsInterface, IdentityInterface
 {
     /**
      * CMS page cache tag
@@ -62,14 +59,13 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
-    )
-    {
+    ) {
         $this->_countryMethodFactory = $countryMethodFactory;
         $this->_countryFactory = $countryFactory;
         $this->_methodFactory = $methodFactory;
         $this->_configuredMethodsFactory = $cm_resource;
 
-        parent::__construct( $context, $registry, $resource, $resourceCollection, $data );
+        parent::__construct($context, $registry, $resource, $resourceCollection, $data);
     }
 
     /**
@@ -79,7 +75,7 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
      */
     protected function _construct()
     {
-        $this->_init( 'Smart2Pay\GlobalPay\Model\ResourceModel\ConfiguredMethods' );
+        $this->_init('Smart2Pay\GlobalPay\Model\ResourceModel\ConfiguredMethods');
     }
 
     /**
@@ -91,14 +87,14 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
      * @param bool|string $environment
      * @return int
      */
-    public function checkMethodCountryID( $method_id, $country_id, $environment = false )
+    public function checkMethodCountryID($method_id, $country_id, $environment = false)
     {
         $cm_obj = $this->_configuredMethodsFactory->create();
 
         // if( $this->_resource )
         //     return $this->_resource->checkMethodCountryID( $method_id, $country_id, $environment );
 
-        return $cm_obj->checkMethodCountryID( $method_id, $country_id, $environment );
+        return $cm_obj->checkMethodCountryID($method_id, $country_id, $environment);
     }
 
     /**
@@ -109,14 +105,14 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
      * @param bool|string $environment
      * @return array
      */
-    public function getMethodsForCountry( $country_id, $environment = false )
+    public function getMethodsForCountry($country_id, $environment = false)
     {
         $cm_obj = $this->_configuredMethodsFactory->create();
 
         // if( $this->_resource )
         //     return $this->_resource->getMethodsForCountry( $country_id, $environment );
 
-        return $cm_obj->getMethodsForCountry( $country_id, $environment );
+        return $cm_obj->getMethodsForCountry($country_id, $environment);
     }
 
     /**
@@ -127,14 +123,14 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
      * @param bool|string $environment
      * @return array
      */
-    public function getCountriesForMethod( $method_id, $environment = false )
+    public function getCountriesForMethod($method_id, $environment = false)
     {
         $cm_obj = $this->_configuredMethodsFactory->create();
 
         // if( $this->_resource )
         //     return $this->_resource->getCountriesForMethod( $method_id, $environment );
 
-        return $cm_obj->getCountriesForMethod( $method_id, $environment );
+        return $cm_obj->getCountriesForMethod($method_id, $environment);
     }
 
     /**
@@ -143,24 +139,26 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
      *
      * @return array
      */
-    public function getAllConfiguredMethods( $environment, $params = false )
+    public function getAllConfiguredMethods($environment, $params = false)
     {
-        if( empty( $params ) or !is_array( $params ) )
-            $params = array();
+        if (empty($params) || !is_array($params)) {
+            $params = [];
+        }
 
-        if( !isset( $params['only_active'] ) )
+        if (!isset($params['only_active'])) {
             $params['only_active'] = true;
+        }
 
-        // $return_arr[{method_ids}][{country_ids}]['surcharge'], $return_arr[{method_ids}][{country_ids}]['fixed_amount'], ...
-        $return_arr = array();
+        // $return_arr[{method_ids}][{country_ids}]['surcharge'],
+        // $return_arr[{method_ids}][{country_ids}]['fixed_amount'], ...
+        $return_arr = [];
 
         $collection = $this->getCollection();
 
-        $collection->addFieldToSelect( '*' );
-        $collection->addFieldToFilter( 'main_table.environment', $environment );
+        $collection->addFieldToSelect('*');
+        $collection->addFieldToFilter('main_table.environment', $environment);
 
-        if( !empty( $params['only_active'] ) )
-        {
+        if (!empty($params['only_active'])) {
             $method_collection = $this->_methodFactory->create()->getCollection();
 
             $collection->getSelect()->join(
@@ -168,24 +166,35 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
                 'main_table.method_id = '.$method_collection->getMainTable().'.method_id'
             );
 
-            $collection->addFieldToFilter( $method_collection->getMainTable().'.active', 1 );
-            $collection->addFieldToFilter( $method_collection->getMainTable().'.environment', $environment );
+            $collection->addFieldToFilter($method_collection->getMainTable().'.active', 1);
+            $collection->addFieldToFilter($method_collection->getMainTable().'.environment', $environment);
         }
 
-        while( ($configured_method_obj = $collection->fetchItem())
-               and ($configured_method_arr = $configured_method_obj->getData()) )
-        {
-            if( empty( $configured_method_arr['method_id'] ) )
+        while (($configured_method_obj = $collection->fetchItem())
+               && ($configured_method_arr = $configured_method_obj->getData())) {
+            if (empty($configured_method_arr['method_id'])) {
                 continue;
+            }
 
-            $return_arr[$configured_method_arr['method_id']][$configured_method_arr['country_id']] = $configured_method_arr;
+            $return_arr[$configured_method_arr['method_id']][$configured_method_arr['country_id']]
+                = $configured_method_arr;
 
-            if( !empty( $return_arr[$configured_method_arr['method_id']][$configured_method_arr['country_id']]['display_name'] ) )
+            if (!empty($return_arr[$configured_method_arr['method_id']]
+                       [$configured_method_arr['country_id']]['display_name'])) {
                 $return_arr[$configured_method_arr['method_id']][$configured_method_arr['country_id']]['display_name'] =
-                    __( $return_arr[$configured_method_arr['method_id']][$configured_method_arr['country_id']]['display_name'] )->render();
-            if( !empty( $return_arr[$configured_method_arr['method_id']][$configured_method_arr['country_id']]['description'] ) )
+                    __(
+                        $return_arr[$configured_method_arr['method_id']]
+                        [$configured_method_arr['country_id']]['display_name']
+                    )->render();
+            }
+            if (!empty($return_arr[$configured_method_arr['method_id']]
+                       [$configured_method_arr['country_id']]['description'])) {
                 $return_arr[$configured_method_arr['method_id']][$configured_method_arr['country_id']]['description'] =
-                    __( $return_arr[$configured_method_arr['method_id']][$configured_method_arr['country_id']]['description'] )->render();
+                    __(
+                        $return_arr[$configured_method_arr['method_id']]
+                        [$configured_method_arr['country_id']]['description']
+                    )->render();
+            }
         }
 
         return $return_arr;
@@ -198,59 +207,64 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
      *
      * @return bool|array $return_arr[{country_code}]['surcharge'], $return_arr[{country_ids}]['fixed_amount'], ...
      */
-    public function getConfiguredMethodDetails( $method_id, $environment, $params = false )
+    public function getConfiguredMethodDetails($method_id, $environment, $params = false)
     {
-        $method_id = intval( $method_id );
-        if( empty( $method_id ) )
+        $method_id = (int)$method_id;
+        if (empty($method_id)) {
             return false;
-
-        if( empty( $params ) or !is_array( $params ) )
-            $params = array();
-
-        if( !isset( $params['only_active'] ) )
-            $params['only_active'] = true;
-        if( !isset( $params['country_code'] ) )
-            $params['country_code'] = '';
-
-        $our_country_id = 0;
-        if( !empty( $params['country_code'] ) )
-        {
-            $params['country_code'] = strtoupper( trim( $params['country_code'] ) );
-
-            if( strlen( $params['country_code'] ) != 2 )
-                return false;
-
-            $c_collection = $this->_countryFactory->create()->getCollection();
-            $c_collection->addFieldToSelect( '*' );
-            $c_collection->addFieldToFilter( 'main_table.code', $params['country_code'] );
-            $c_collection->getSelect()->limit( 1 );
-
-            if( ($country_obj = $c_collection->fetchItem())
-            and ($country_arr = $country_obj->getData()) )
-                $our_country_id = $country_arr['country_id'];
-
-            if( empty( $our_country_id ) )
-                return false;
         }
 
+        if (empty($params) || !is_array($params)) {
+            $params = [];
+        }
+
+        if (!isset($params['only_active'])) {
+            $params['only_active'] = true;
+        }
+        if (!isset($params['country_code'])) {
+            $params['country_code'] = '';
+        }
+
+        $our_country_id = 0;
+        if (!empty($params['country_code'])) {
+            $params['country_code'] = strtoupper(trim($params['country_code']));
+
+            if (strlen($params['country_code']) !== 2) {
+                return false;
+            }
+
+            $c_collection = $this->_countryFactory->create()->getCollection();
+            $c_collection->addFieldToSelect('*');
+            $c_collection->addFieldToFilter('main_table.code', $params['country_code']);
+            $c_collection->getSelect()->limit(1);
+
+            if (($country_obj = $c_collection->fetchItem())
+            && ($country_arr = $country_obj->getData())) {
+                $our_country_id = $country_arr['country_id'];
+            }
+
+            if (empty($our_country_id)) {
+                return false;
+            }
+        }
 
         $collection = $this->getCollection();
 
-        $collection->addFieldToSelect( '*' );
+        $collection->addFieldToSelect('*');
 
-        $collection->addFieldToFilter( 'main_table.method_id', $method_id );
-        $collection->addFieldToFilter( 'main_table.environment', $environment );
+        $collection->addFieldToFilter('main_table.method_id', $method_id);
+        $collection->addFieldToFilter('main_table.environment', $environment);
 
-        if( !empty( $our_country_id ) )
-        {
+        if (!empty($our_country_id)) {
             $collection->addFieldToFilter(
                 [
                    'main_table.country_id',
                    'main_table.country_id'
                 ],
-                [ 0, $our_country_id ] );
+                [ 0, $our_country_id ]
+            );
 
-            $collection->setOrder( 'main_table.country_id', 'DESC' );
+            $collection->setOrder('main_table.country_id', 'DESC');
         }
 
         $method_collection = $this->_methodFactory->create()->getCollection();
@@ -260,42 +274,43 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
             'main_table.method_id = '.$method_collection->getMainTable().'.method_id'
         );
 
-        if( !empty( $params['only_active'] ) )
-            $collection->addFieldToFilter( $method_collection->getMainTable().'.active', 1 );
+        if (!empty($params['only_active'])) {
+            $collection->addFieldToFilter($method_collection->getMainTable().'.active', 1);
+        }
 
-        $collection->addFieldToFilter( $method_collection->getMainTable().'.environment', $environment );
+        $collection->addFieldToFilter($method_collection->getMainTable().'.environment', $environment);
 
-        $data_arr = array();
-        $countries_ids_arr = array();
-        while( ($configured_method_obj = $collection->fetchItem())
-               and ($configured_method_arr = $configured_method_obj->getData()) )
-        {
-            if( !empty( $configured_method_arr['country_id'] ) )
+        $data_arr = [];
+        $countries_ids_arr = [];
+        while (($configured_method_obj = $collection->fetchItem())
+               && ($configured_method_arr = $configured_method_obj->getData())) {
+            if (!empty($configured_method_arr['country_id'])) {
                 $countries_ids_arr[] = $configured_method_arr['country_id'];
+            }
 
             $data_arr[$configured_method_arr['country_id']] = $configured_method_arr;
         }
 
-        if( empty( $data_arr ) )
+        if (empty($data_arr)) {
             return false;
-
-        $ids_to_codes_arr = [ 0 => Country::INTERNATIONAL_CODE ];
-        if( !empty( $countries_ids_arr ) )
-        {
-            //! TODO: query countries table to obtain country codes from ids
-            // ATM all method settings are same for all countries...
         }
 
-        $return_arr = array();
-        foreach( $data_arr as $country_id => $details_arr )
-        {
-            if( !isset( $ids_to_codes_arr[$country_id] ) )
+        $ids_to_codes_arr = [ 0 => Country::INTERNATIONAL_CODE ];
+        // if (!empty($countries_ids_arr)) {
+        //     //! TODO: query countries table to obtain country codes from ids
+        //     // ATM all method settings are same for all countries...
+        // }
+
+        $return_arr = [];
+        foreach ($data_arr as $country_id => $details_arr) {
+            if (!isset($ids_to_codes_arr[$country_id])) {
                 continue;
+            }
 
             $return_arr[$ids_to_codes_arr[$country_id]] = $details_arr;
         }
 
-        return (!empty( $return_arr )?$return_arr:false);
+        return (!empty($return_arr)?$return_arr:false);
     }
 
     /**
@@ -304,45 +319,48 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
      *
      * @return array
      */
-    public function getAllConfiguredMethodsPerCountryCode( $environment, $params = false )
+    public function getAllConfiguredMethodsPerCountryCode($environment, $params = false)
     {
-        if( empty( $params ) or !is_array( $params ) )
-            $params = array();
+        if (empty($params) || !is_array($params)) {
+            $params = [];
+        }
 
-        if( !($all_configured_methods = $this->getAllConfiguredMethods( $environment, [ 'only_active' => true ] )) )
-            return array();
+        if (!($all_configured_methods = $this->getAllConfiguredMethods($environment, [ 'only_active' => true ]))) {
+            return [];
+        }
 
-        $method_ids = array_keys( $all_configured_methods );
+        $method_ids = array_keys($all_configured_methods);
         $countryMethodModel = $this->_countryMethodFactory->create();
 
-        if( !($country_methods = $countryMethodModel->getCountriesForMethodsList( $method_ids )) )
-            return array();
+        if (!($country_methods = $countryMethodModel->getCountriesForMethodsList($method_ids))) {
+            return [];
+        }
 
         $collection = $this->getCollection();
 
-        $collection->addFieldToSelect( '*' );
+        $collection->addFieldToSelect('*');
 
         // $return_arr['countries'][{country_code}][{method_id}] = $method_data;
         // $return_arr['methods'][{method_id}] = $method_details;
         //
-        // $method_data['method_id'], $method_data['surcharge'], $method_data['base_amount'], $method_data['display_name'], $method_data['description'], $method_data['logo_url']
+        // $method_data['method_id'], $method_data['surcharge'], $method_data['base_amount'],
+        // $method_data['display_name'], $method_data['description'], $method_data['logo_url']
         // $method_details['display_name'], $method_details['description'], $method_details['logo_url']
-        $return_arr = array();
-        $return_arr['countries'] = array();
-        $return_arr['methods'] = array();
+        $return_arr = [];
+        $return_arr['countries'] = [];
+        $return_arr['methods'] = [];
 
-        foreach( $all_configured_methods as $method_id => $methods_per_country )
-        {
-            if( empty( $methods_per_country ) or !is_array( $methods_per_country ) )
+        foreach ($all_configured_methods as $method_id => $methods_per_country) {
+            if (empty($methods_per_country) || !is_array($methods_per_country)) {
                 continue;
+            }
 
-            foreach( $methods_per_country as $country_id => $country_settings )
-            {
-                $method_data = array();
+            foreach ($methods_per_country as $country_id => $country_settings) {
+                $method_data = [];
                 $method_data['surcharge'] = $country_settings['surcharge'];
                 $method_data['fixed_amount'] = $country_settings['fixed_amount'];
 
-                $method_details = array();
+                $method_details = [];
                 $method_details['display_name'] = $country_settings['display_name'];
                 $method_details['description'] = $country_settings['description'];
                 $method_details['logo_url'] = $country_settings['logo_url'];
@@ -350,20 +368,19 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
                 $return_arr['methods'][$method_id] = $method_details;
 
                 // for all countries for current method
-                if( empty( $country_id ) )
-                {
-                    if( empty( $country_methods['methods'][$method_id] ) or !is_array( $country_methods['methods'][$method_id] ) )
+                if (empty($country_id)) {
+                    if (empty($country_methods['methods'][$method_id])
+                        || !is_array($country_methods['methods'][$method_id])) {
                         continue;
+                    }
 
-                    foreach( $country_methods['methods'][$method_id] as $country_code => $country_name )
-                    {
+                    foreach ($country_methods['methods'][$method_id] as $country_code => $country_name) {
                         $return_arr['countries'][$country_code][$method_id] = $method_data;
                     }
-                } else
-                // for specific countries for current method (not implemented yet)
-                {
-                    if( empty( $country_methods['all'][$country_id] ) )
+                } else { // for specific countries for current method (not implemented yet)
+                    if (empty($country_methods['all'][$country_id])) {
                         continue;
+                    }
 
                     $return_arr['countries'][$country_methods['all'][$country_id]['code']][$method_id] = $method_data;
                 }
@@ -373,47 +390,58 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
         return $return_arr;
     }
 
-    public function getConfiguredMethodsForCountryID( $country_id, $environment, $params = false )
+    /**
+     * @param int $country_id
+     * @param string $environment
+     * @param bool|array $params
+     *
+     * @return array
+     */
+    public function getConfiguredMethodsForCountryID($country_id, $environment, $params = false)
     {
-        $country_id = intval( $country_id );
-        if( empty( $country_id ) )
-            return array();
+        $country_id = (int)$country_id;
+        if (empty($country_id)) {
+            return [];
+        }
 
-        if( empty( $params ) or !is_array( $params ) )
-            $params = array();
+        if (empty($params) || !is_array($params)) {
+            $params = [];
+        }
 
-        if( empty( $params['id_in_index'] ) )
+        if (empty($params['id_in_index'])) {
             $params['id_in_index'] = false;
+        }
 
         // 1. get a list of methods available for provided country
         // 2. get default surcharge (s2p_gp_methods_configured.country_id = 0)
-        // 3. overwrite default surcharges for particular cases (if available) (s2p_gp_methods_configured.country_id = $country_id)
+        // 3. overwrite default surcharges for particular cases (if available)
+        // (s2p_gp_methods_configured.country_id = $country_id)
 
         //
         // START 1. get a list of methods available for provided country
         //
 
         $cm_collection = $this->_countryMethodFactory->create()->getCollection();
-        $cm_collection->addFieldToSelect( '*' );
-        $cm_collection->addFieldToFilter( 'main_table.country_id', $country_id );
-        $cm_collection->addFieldToFilter( 'main_table.environment', $environment );
+        $cm_collection->addFieldToSelect('*');
+        $cm_collection->addFieldToFilter('main_table.country_id', $country_id);
+        $cm_collection->addFieldToFilter('main_table.environment', $environment);
 
         $cm_collection->getSelect()->join(
-            $cm_collection->getTable( 's2p_gp_methods' ),
+            $cm_collection->getTable('s2p_gp_methods'),
             's2p_gp_methods.method_id = main_table.method_id'
         );
 
-        $cm_collection->setOrder( 'priority', 'ASC' );
+        $cm_collection->setOrder('priority', 'ASC');
 
-        $methods_arr = array();
-        $method_ids_arr = array();
-        $enabled_method_ids_arr = array();
+        $methods_arr = [];
+        $method_ids_arr = [];
+        $enabled_method_ids_arr = [];
 
-        while( ($method_obj = $cm_collection->fetchItem())
-               and ($method_arr = $method_obj->getData()) )
-        {
-            if( empty( $method_arr['method_id'] ) )
+        while (($method_obj = $cm_collection->fetchItem())
+               && ($method_arr = $method_obj->getData())) {
+            if (empty($method_arr['method_id'])) {
                 continue;
+            }
 
             $method_ids_arr[] = $method_arr['method_id'];
             $methods_arr[$method_arr['method_id']] = $method_arr;
@@ -427,15 +455,15 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
         // START 2. get default surcharge (s2p_gp_methods_configured.country_id = 0)
         //
         $my_collection = $this->getCollection();
-        $my_collection->addFieldToSelect( '*' );
-        $my_collection->addFieldToFilter( 'country_id', 0 );
-        $my_collection->addFieldToFilter( 'method_id', array( 'in' => $method_ids_arr ) );
+        $my_collection->addFieldToSelect('*');
+        $my_collection->addFieldToFilter('country_id', 0);
+        $my_collection->addFieldToFilter('method_id', [ 'in' => $method_ids_arr ]);
 
-        while( ($configured_method_obj = $my_collection->fetchItem())
-               and ($configured_method_arr = $configured_method_obj->getData()) )
-        {
-            if( empty( $configured_method_arr['method_id'] ) )
+        while (($configured_method_obj = $my_collection->fetchItem())
+               && ($configured_method_arr = $configured_method_obj->getData())) {
+            if (empty($configured_method_arr['method_id'])) {
                 continue;
+            }
 
             $methods_arr[$configured_method_arr['method_id']]['surcharge'] = $configured_method_arr['surcharge'];
             $methods_arr[$configured_method_arr['method_id']]['fixed_amount'] = $configured_method_arr['fixed_amount'];
@@ -447,18 +475,19 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
         //
 
         //
-        // START 3. overwrite default surcharges for particular cases (if available) (s2p_gp_methods_configured.country_id = $country_id)
+        // START 3. overwrite default surcharges for particular cases (if available)
+        // (s2p_gp_methods_configured.country_id = $country_id)
         //
         $my_collection = $this->getCollection();
-        $my_collection->addFieldToSelect( '*' );
-        $my_collection->addFieldToFilter( 'country_id', $country_id );
-        $my_collection->addFieldToFilter( 'method_id', array( 'in' => $method_ids_arr ) );
+        $my_collection->addFieldToSelect('*');
+        $my_collection->addFieldToFilter('country_id', $country_id);
+        $my_collection->addFieldToFilter('method_id', [ 'in' => $method_ids_arr ]);
 
-        while( ($configured_method_obj = $my_collection->fetchItem())
-               and ($configured_method_arr = $configured_method_obj->getData()) )
-        {
-            if( empty( $configured_method_arr['method_id'] ) )
+        while (($configured_method_obj = $my_collection->fetchItem())
+               && ($configured_method_arr = $configured_method_obj->getData())) {
+            if (empty($configured_method_arr['method_id'])) {
                 continue;
+            }
 
             $methods_arr[$configured_method_arr['method_id']]['surcharge'] = $configured_method_arr['surcharge'];
             $methods_arr[$configured_method_arr['method_id']]['fixed_amount'] = $configured_method_arr['fixed_amount'];
@@ -466,20 +495,22 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
             $enabled_method_ids_arr[$configured_method_arr['method_id']] = 1;
         }
         //
-        // END 3. overwrite default surcharges for particular cases (if available) (s2p_gp_methods_configured.country_id = $country_id)
+        // END 3. overwrite default surcharges for particular cases (if available)
+        // (s2p_gp_methods_configured.country_id = $country_id)
         //
 
         // clean methods array of methods that are not enabled
-        $methods_result = array();
-        foreach( $methods_arr as $method_id => $method_arr )
-        {
-            if( empty( $enabled_method_ids_arr[$method_id] ) )
+        $methods_result = [];
+        foreach ($methods_arr as $method_id => $method_arr) {
+            if (empty($enabled_method_ids_arr[$method_id])) {
                 continue;
+            }
 
-            if( empty( $params['id_in_index'] ) )
+            if (empty($params['id_in_index'])) {
                 $methods_result[] = $method_arr;
-            else
+            } else {
                 $methods_result[$method_id] = $method_arr;
+            }
         }
 
         return $methods_result;
@@ -491,10 +522,11 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
      *
      * @return array|bool
      */
-    public function saveConfiguredMethods( $configured_methods_arr, $environment )
+    public function saveConfiguredMethods($configured_methods_arr, $environment)
     {
-        if( !is_array( $configured_methods_arr ) )
+        if (!is_array($configured_methods_arr)) {
             return false;
+        }
 
         // if( $this->_resource )
         //     $my_resource = $this->_resource;
@@ -503,30 +535,33 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
 
         $my_resource = $this->_configuredMethodsFactory->create();
 
-        $saved_method_ids = array();
-        $errors_arr = array();
-        foreach( $configured_methods_arr as $method_id => $surcharge_per_countries )
-        {
-            $method_id = intval( $method_id );
-            if( empty( $method_id )
-             or empty( $surcharge_per_countries ) or !is_array( $surcharge_per_countries )
-             or !($countries_ids = array_keys( $surcharge_per_countries )) )
+        $saved_method_ids = [];
+        $errors_arr = [];
+        foreach ($configured_methods_arr as $method_id => $surcharge_per_countries) {
+            $method_id = (int)$method_id;
+            if (empty($method_id)
+             || empty($surcharge_per_countries) || !is_array($surcharge_per_countries)
+             || !($countries_ids = array_keys($surcharge_per_countries))) {
                 continue;
+            }
 
-            $provided_countries = array();
-            foreach( $surcharge_per_countries as $country_id => $country_surcharge )
-            {
-                $country_id = intval( $country_id );
-                if( !is_array( $country_surcharge ) )
+            $provided_countries = [];
+            foreach ($surcharge_per_countries as $country_id => $country_surcharge) {
+                $country_id = (int)$country_id;
+                if (!is_array($country_surcharge)) {
                     continue;
+                }
 
-                if( empty( $country_surcharge['surcharge'] ) )
+                if (empty($country_surcharge['surcharge'])) {
                     $country_surcharge['surcharge'] = 0;
-                if( empty( $country_surcharge['fixed_amount'] ) )
+                }
+                if (empty($country_surcharge['fixed_amount'])) {
                     $country_surcharge['fixed_amount'] = 0;
+                }
 
-                if( !$my_resource->insertOrUpdate( $method_id, $country_id, $environment, $country_surcharge ) )
-                    $errors_arr[] = __( 'Error saving method ID %1, for country %2.', $method_id, $country_id );
+                if (!$my_resource->insertOrUpdate($method_id, $country_id, $environment, $country_surcharge)) {
+                    $errors_arr[] = __('Error saving method ID %1, for country %2.', $method_id, $country_id);
+                }
 
                 $provided_countries[] = $country_id;
             }
@@ -534,12 +569,13 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
             // Delete countries which are not provided for current method
             /** @var \Smart2Pay\GlobalPay\Model\ResourceModel\ConfiguredMethods\Collection $my_collection */
             $my_collection = $this->getCollection();
-            $my_collection->addFieldToFilter( 'method_id', $method_id );
-            $my_collection->addFieldToFilter( 'environment', $environment );
-            if( !empty( $provided_countries ) )
-                $my_collection->addFieldToFilter( 'country_id', array( 'nin' => $provided_countries ) );
+            $my_collection->addFieldToFilter('method_id', $method_id);
+            $my_collection->addFieldToFilter('environment', $environment);
+            if (!empty($provided_countries)) {
+                $my_collection->addFieldToFilter('country_id', [ 'nin' => $provided_countries ]);
+            }
 
-            $my_resource->deleteFromCollection( $my_collection );
+            $my_resource->deleteFromCollection($my_collection);
 
             $saved_method_ids[] = $method_id;
         }
@@ -547,14 +583,16 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
         // delete rest of methods not in $saved_method_ids array...
         /** @var \Smart2Pay\GlobalPay\Model\ResourceModel\ConfiguredMethods\Collection $my_collection */
         $my_collection = $this->getCollection();
-        $my_collection->addFieldToFilter( 'environment', $environment );
-        if( !empty( $saved_method_ids ) )
-            $my_collection->addFieldToFilter( 'method_id', array( 'nin' => $saved_method_ids ) );
+        $my_collection->addFieldToFilter('environment', $environment);
+        if (!empty($saved_method_ids)) {
+            $my_collection->addFieldToFilter('method_id', [ 'nin' => $saved_method_ids ]);
+        }
 
-        $my_resource->deleteFromCollection( $my_collection );
+        $my_resource->deleteFromCollection($my_collection);
 
-        if( !empty( $errors_arr ) )
+        if (!empty($errors_arr)) {
             return $errors_arr;
+        }
 
         return true;
     }
@@ -574,7 +612,7 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
      */
     public function getID()
     {
-        return $this->getData( self::ID );
+        return $this->getData(self::ID);
     }
 
     /**
@@ -582,7 +620,7 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
      */
     public function getEnvironment()
     {
-        return $this->getData( self::ENVIRONMENT );
+        return $this->getData(self::ENVIRONMENT);
     }
 
     /**
@@ -590,7 +628,7 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
      */
     public function getMethodID()
     {
-        return $this->getData( self::METHOD_ID );
+        return $this->getData(self::METHOD_ID);
     }
 
     /**
@@ -598,7 +636,7 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
      */
     public function getCountryID()
     {
-        return $this->getData( self::COUNTRY_ID );
+        return $this->getData(self::COUNTRY_ID);
     }
 
     /**
@@ -606,7 +644,7 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
      */
     public function getSurcharge()
     {
-        return $this->getData( self::SURCHARGE );
+        return $this->getData(self::SURCHARGE);
     }
 
     /**
@@ -614,54 +652,54 @@ class ConfiguredMethods extends \Magento\Framework\Model\AbstractModel implement
      */
     public function getFixedAmount()
     {
-        return $this->getData( self::FIXED_AMOUNT );
+        return $this->getData(self::FIXED_AMOUNT);
     }
 
     /**
      * @inheritDoc
      */
-    public function setID( $id )
+    public function setID($id)
     {
-        return $this->setData( self::ID, $id );
+        return $this->setData(self::ID, $id);
     }
 
     /**
      * @inheritDoc
      */
-    public function setEnvironment( $environment )
+    public function setEnvironment($environment)
     {
-        return $this->setData( self::ENVIRONMENT, $environment );
+        return $this->setData(self::ENVIRONMENT, $environment);
     }
 
     /**
      * @inheritDoc
      */
-    public function setMethodID( $method_id )
+    public function setMethodID($method_id)
     {
-        return $this->setData( self::METHOD_ID, $method_id );
+        return $this->setData(self::METHOD_ID, $method_id);
     }
 
     /**
      * @inheritDoc
      */
-    public function setCountryID( $country_id )
+    public function setCountryID($country_id)
     {
-        return $this->setData( self::COUNTRY_ID, $country_id );
+        return $this->setData(self::COUNTRY_ID, $country_id);
     }
 
     /**
      * @inheritDoc
      */
-    public function setSurcharge( $surcharge )
+    public function setSurcharge($surcharge)
     {
-        return $this->setData( self::SURCHARGE, $surcharge );
+        return $this->setData(self::SURCHARGE, $surcharge);
     }
 
     /**
      * @inheritDoc
      */
-    public function setFixedAmount( $amount )
+    public function setFixedAmount($amount)
     {
-        return $this->setData( self::FIXED_AMOUNT, $amount );
+        return $this->setData(self::FIXED_AMOUNT, $amount);
     }
 }

@@ -1,7 +1,6 @@
 <?php
 namespace Smart2Pay\GlobalPay\Api\Data;
 
-
 interface CountryInterface
 {
     const COUNTRY_ID = 'country_id';
@@ -35,7 +34,7 @@ interface CountryInterface
      * @param int $id
      * @return \Smart2Pay\GlobalPay\Api\Data\CountryInterface
      */
-    public function setCountryID( $country_id );
+    public function setCountryID($country_id);
 
     /**
      * Set country code
@@ -43,7 +42,7 @@ interface CountryInterface
      * @param string $code
      * @return \Smart2Pay\GlobalPay\Api\Data\CountryInterface
      */
-    public function setCode( $code );
+    public function setCode($code);
 
     /**
      * Set country name
@@ -51,6 +50,5 @@ interface CountryInterface
      * @param string $name
      * @return \Smart2Pay\GlobalPay\Api\Data\CountryInterface
      */
-    public function setName( $name );
-
+    public function setName($name);
 }

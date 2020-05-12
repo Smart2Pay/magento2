@@ -29,11 +29,12 @@ class Environment implements ArrayInterface
         ];
     }
 
-    public static function validEnvironment( $env )
+    public static function validEnvironment($env)
     {
-        $env = strtolower( trim( $env ) );
-        if( !in_array( $env, [ self::ENV_DEMO, self::ENV_TEST, self::ENV_LIVE ] ) )
+        $env = strtolower(trim($env));
+        if (!in_array($env, [ self::ENV_DEMO, self::ENV_TEST, self::ENV_LIVE ])) {
             return false;
+        }
 
         return $env;
     }

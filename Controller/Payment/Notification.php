@@ -17,14 +17,12 @@ class Notification extends \Magento\Framework\App\Action\Action
         parent::__construct($context);
 
         // Ugly bug when sending POST data to a script...
-        if( interface_exists( '\Magento\Framework\App\CsrfAwareActionInterface' ) )
-        {
+        if (interface_exists('\Magento\Framework\App\CsrfAwareActionInterface')) {
             $request = $this->getRequest();
-            if( $request instanceof Http
-            and $request->isPost() )
-            {
-                $request->setParam( 'isAjax', true );
-                $request->getHeaders()->addHeaderLine( 'X_REQUESTED_WITH', 'XMLHttpRequest' );
+            if ($request instanceof Http
+            && $request->isPost() ) {
+                $request->setParam('isAjax', true);
+                $request->getHeaders()->addHeaderLine('X_REQUESTED_WITH', 'XMLHttpRequest');
             }
         }
     }

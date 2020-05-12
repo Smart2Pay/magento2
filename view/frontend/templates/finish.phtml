@@ -1,78 +1,77 @@
 <?php
-    // @codingStandardsIgnoreFile
-
+    // @ codingStandardsIgnoreFile
     /** @var \Smart2Pay\GlobalPay\Block\Payment\Finish $block */
 
     $transaction_data = $block->getTransactionData();
     $transaction_extra_data = $block->getTransactionExtraData();
     $transaction_details_titles = $block->getTransactionDetailsTitle();
 ?>
-<div class="smart2pay-finish">
+<div class="smart2pay-finish smart2pay-page">
     <?php
     $error_message = $block->getErrorMessage();
 
-    if( !empty( $error_message ) )
-    {
+    if (!empty($error_message)) {
         ?>
-        <p><?php echo $error_message?></p>
+        <p><?=$error_message?></p>
         <div class="actions-toolbar">
             <div class="primary">
-                <a class="action primary continue" href="<?php /* @escapeNotVerified */ echo $block->getUrl() ?>"><span><?php /* @escapeNotVerified */ echo __('Continue Shopping') ?></span></a>
+                <a class="action primary continue"
+                   href="<?=$block->getUrl() ?>"><span><?=__('Continue Shopping') ?></span></a>
             </div>
         </div>
         <?php
-    } else
-    {
+    } else {
         ?>
-        <h1><?php echo __( 'Thank you for shopping with us!' ) ?></h1>
+        <h1><?=__('Thank you for shopping with us!') ?></h1>
 
-        <h3><?php echo $block->getResultMessage()?></h3>
+        <h3><?=$block->getResultMessage()?></h3>
 
         <?php
-        if( $block->getOrderId() )
-        {
-            if( $block->getCanViewOrder() )
-            {
-                ?><p><?php echo __( 'Your order number is: %1.', sprintf( '<a href="%s" class="order-number"><strong>%s</strong></a>', $block->escapeHtml( $block->getViewOrderUrl() ), $block->escapeHtml( $block->getOrderId() ) ) ) ?></p><?php
-            }
-            else
-            {
-                ?><p><?php echo __( 'Your order # is: <span>%1</span>.', $block->escapeHtml( $block->getOrderId() ) ) ?></p><?php
+        if ($block->getOrderId()) {
+            if ($block->getCanViewOrder()) {
+                ?><p><?=__(
+                    'Your order number is: %1.',
+                    sprintf(
+                        '<a href="%s" class="order-number"><strong>%s</strong></a>',
+                        $block->escapeHtml($block->getViewOrderUrl()),
+                        $block->escapeHtml($block->getOrderId())
+                    )
+                ) ?></p><?php
+            } else {
+                ?><p><?=__('Your order # is: <span>%1</span>.', $block->escapeHtml($block->getOrderId())) ?></p><?php
             }
         }
 
-        if( !empty( $transaction_extra_data ) and is_array( $transaction_extra_data )
-        and !empty( $transaction_details_titles ) and is_array( $transaction_details_titles ) )
-        {
-        ?>
+        if (!empty($transaction_extra_data) && is_array($transaction_extra_data)
+        && !empty($transaction_details_titles) && is_array($transaction_details_titles)) {
+            ?>
         <div style="padding:10px;">
         <table>
             <tr>
-                <td colspan="2"><?php echo __( 'In order to complete the payment you will need the details below. These details are also saved in order information, so you can always view them by checking order details.' )?></td>
+                <td colspan="2"><?=__('In order to complete the payment you will need the details below. '.
+                'These details are also saved in order information, so you can always view them by checking '.
+                'order details.')?></td>
             </tr>
             <?php
-            foreach( $transaction_extra_data as $key => $val )
-            {
-                if( empty( $transaction_details_titles[$key] ) )
+            foreach ($transaction_extra_data as $key => $val) {
+                if (empty($transaction_details_titles[$key])) {
                     continue;
-
-                ?>
+                } ?>
                 <tr>
-                    <td><strong><?php echo $transaction_details_titles[$key]?></strong></td>
-                    <td><?php echo $val?></td>
+                    <td><strong><?=$transaction_details_titles[$key]?></strong></td>
+                    <td><?=$val?></td>
                 </tr>
                 <?php
-            }
-            ?>
+            } ?>
         </table>
         </div>
-        <?php
-        }
-        ?>
+            <?php
+        } ?>
 
         <div class="actions-toolbar">
             <div class="primary">
-                <a class="action primary continue" href="<?php /* @escapeNotVerified */ echo $block->getUrl() ?>"><span><?php /* @escapeNotVerified */ echo __( 'Return to Shop' ) ?></span></a>
+                <a class="action primary continue"
+                   href="<?=$block->getUrl()?>"><span><?=__('Return to Shop')?></span></a>
             </div>
         </div>
         <?php

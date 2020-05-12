@@ -94,61 +94,60 @@ class Finish extends \Magento\Framework\View\Element\Template
         $error_message = '';
         $merchant_transaction_id = 0;
 
-        if( ($status_code = $helper_obj->getParam( 'data', null )) === null )
-            $error_message = __( 'Transaction status not provided.' );
+        if (($status_code = $helper_obj->getParam('data', null)) === null) {
+            $error_message = __('Transaction status not provided.');
+        } elseif (!($merchant_transaction_id = $helper_obj->getParam('MerchantTransactionID', ''))
+             || !($order_id = $helper_obj->convertFromDemoMerchantTransactionId($merchant_transaction_id))) {
+            $error_message = __('Couldn\'t extract transaction information.');
+        } elseif (!$s2p_transaction->loadByMerchantTransactionId($merchant_transaction_id)
+             || !$s2p_transaction->getID()) {
+            $error_message = __('Transaction not found in database.');
+        } elseif (!$order->loadByIncrementId($order_id)
+             || !$order->getEntityId()) {
+            $error_message = __('Order not found in database.');
+        }
 
-        elseif( !($merchant_transaction_id = $helper_obj->getParam( 'MerchantTransactionID', '' ))
-             or !($order_id = $helper_obj->convert_from_demo_merchant_transaction_id( $merchant_transaction_id )) )
-            $error_message = __( 'Couldn\'t extract transaction information.' );
+        $status_code = (int)$status_code;
 
-        elseif( !$s2p_transaction->loadByMerchantTransactionId( $merchant_transaction_id )
-             or !$s2p_transaction->getID() )
-            $error_message = __( 'Transaction not found in database.' );
-
-        elseif( !$order->loadByIncrementId( $order_id )
-             or !$order->getEntityId() )
-            $error_message = __( 'Order not found in database.' );
-
-        $status_code = intval( $status_code );
-
-        if( empty( $status_code ) )
+        if (empty($status_code)) {
             $status_code = $helper_obj::S2P_STATUS_FAILED;
+        }
 
-        if( !($all_params = $s2p_transaction->getExtraDataArray()) )
+        if (!($all_params = $s2p_transaction->getExtraDataArray())) {
             $all_params = [];
+        }
 
         $transaction_extra_data = [];
         $transaction_details_titles = [];
         // if( in_array( $s2p_transaction->getMethodId(),
         //                     [ $helper_obj::PAYMENT_METHOD_BT, $helper_obj::PAYMENT_METHOD_SIBS ] ) )
-        if( !empty( $all_params ) )
-        {
-            if( ($transaction_details_titles = $helper_obj::get_transaction_reference_titles())
-            and is_array( $transaction_details_titles ) )
-            {
-                foreach( $transaction_details_titles as $key => $title )
-                {
-                    if( !array_key_exists( $key, $all_params ) )
+        if (!empty($all_params)) {
+            if (($transaction_details_titles = $helper_obj::getTransactionReferenceTitles())
+             && is_array($transaction_details_titles)) {
+                foreach ($transaction_details_titles as $key => $title) {
+                    if (!array_key_exists($key, $all_params)) {
                         continue;
+                    }
 
                     $transaction_extra_data[$key] = $all_params[$key];
                 }
             }
         }
 
-        $result_message = __( 'Transaction status is unknown.' );
-        if( empty( $error_message ) )
-        {
-            //map all statuses to known Magento statuses (message_data_2, message_data_4, message_data_3 and message_data_7)
-            if( !($magento_status_id = $helper_obj::convert_gp_status_to_magento_status( $status_code )) )
+        $result_message = __('Transaction status is unknown.');
+        if (empty($error_message)) {
+            // map all statuses to known Magento statuses
+            // (message_data_2, message_data_4, message_data_3 and message_data_7)
+            if (!($magento_status_id = $helper_obj::convertGPStatusToMagentoStatus($status_code))) {
                 $magento_status_id = 0;
+            }
 
-            if( isset( $module_settings['message_data_'.$status_code] ) )
+            if (isset($module_settings['message_data_'.$status_code])) {
                 $result_message = $module_settings['message_data_'.$status_code];
-
-            elseif( !empty( $magento_status_id )
-            and isset( $module_settings['message_data_'.$magento_status_id] ) )
+            } elseif (!empty($magento_status_id)
+            && isset($module_settings['message_data_'.$magento_status_id])) {
                 $result_message = $module_settings['message_data_'.$magento_status_id];
+            }
         }
 
         $this->addData(

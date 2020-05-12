@@ -36,7 +36,7 @@ class Info extends ConfigurableInfo
         \Smart2Pay\GlobalPay\Model\MethodFactory $methodsFactory,
         array $data = []
     ) {
-        parent::__construct( $context, $config, $data );
+        parent::__construct($context, $config, $data);
 
         $this->_s2pHelper = $s2pHelper;
         $this->_s2pTransaction = $transactionFactory;
@@ -52,7 +52,7 @@ class Info extends ConfigurableInfo
      */
     protected function _prepareSpecificInformation($transport = null)
     {
-        $transport = parent::_prepareSpecificInformation( $transport );
+        $transport = parent::_prepareSpecificInformation($transport);
 
         $helper_obj = $this->_s2pHelper;
         $s2p_transaction = $this->_s2pTransaction->create();
@@ -61,61 +61,60 @@ class Info extends ConfigurableInfo
         $is_in_frontend = $this->getIsSecureMode();
         $payment = $this->getInfo();
 
-        if( !($extra_info = $payment->getAdditionalInformation())
-         or !is_array( $extra_info )
-         or empty( $extra_info['sp_transaction'] ) )
-        {
+        if (!($extra_info = $payment->getAdditionalInformation())
+        || !is_array($extra_info)
+        || empty($extra_info['sp_transaction']) ) {
             return $transport;
         }
 
-        $s2p_transaction->load( $extra_info['sp_transaction'] );
+        $s2p_transaction->load($extra_info['sp_transaction']);
 
-        if( empty( $extra_info['sp_method'] )
-         or !($method_arr = $s2p_method->getByMethodID( $extra_info['sp_method'] )) )
-            $method_arr = array();
+        if (empty($extra_info['sp_method'])
+        || !($method_arr = $s2p_method->getByMethodID($extra_info['sp_method'])) ) {
+            $method_arr = [];
+        }
 
         $this->setDataToTransfer(
             $transport,
-            __( 'Payment Method' ),
+            __('Payment Method'),
             $method_arr['display_name'].(!$is_in_frontend?' (#'.$method_arr['method_id'].')':'')
         );
 
-        if( !$is_in_frontend )
-        {
+        if (!$is_in_frontend) {
             $this->setDataToTransfer(
                 $transport,
-                __( '3DSecure' ),
-                ($s2p_transaction->get3DSecure()? __( 'Yes' ) : __( 'No' ))
+                __('3DSecure'),
+                ($s2p_transaction->get3DSecure()? __('Yes') : __('No'))
             );
             $this->setDataToTransfer(
                 $transport,
-                __( 'Environment' ),
+                __('Environment'),
                 $s2p_transaction->getEnvironment()
             );
             $this->setDataToTransfer(
                 $transport,
-                __( 'PaymentID' ),
+                __('PaymentID'),
                 $s2p_transaction->getPaymentId()
             );
             $this->setDataToTransfer(
                 $transport,
-                __( 'SiteID' ),
+                __('SiteID'),
                 $s2p_transaction->getSiteId()
             );
         }
 
-        if( ($extra_trans_data = $s2p_transaction->getExtraDataArray())
-        and is_array( $extra_trans_data ) )
-        {
-            if( !($titles_arr = $helper_obj::get_transaction_reference_titles()) )
-                $titles_arr = array();
+        if (($extra_trans_data = $s2p_transaction->getExtraDataArray())
+        && is_array($extra_trans_data) ) {
+            if (!($titles_arr = $helper_obj::getTransactionReferenceTitles())) {
+                $titles_arr = [];
+            }
 
-            foreach( $extra_trans_data as $key => $val )
-            {
-                if( !empty( $titles_arr[$key] ) )
+            foreach ($extra_trans_data as $key => $val) {
+                if (!empty($titles_arr[$key])) {
                     $title_txt = $titles_arr[$key];
-                else
-                    $title_txt = __( $key );
+                } else {
+                    $title_txt = __($key);
+                }
 
                 $this->setDataToTransfer(
                     $transport,

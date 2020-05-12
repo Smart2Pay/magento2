@@ -49,24 +49,30 @@ class CountryMethod extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      */
     protected function _construct()
     {
-        $this->_init( 's2p_gp_countries_methods', 'id' );
+        $this->_init('s2p_gp_countries_methods', 'id');
     }
 
     /**
      * @param \Smart2Pay\GlobalPay\Model\CountryMethod $object
+     *
+     * @return
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    protected function _beforeSave( \Magento\Framework\Model\AbstractModel $object )
+    protected function _beforeSave(\Magento\Framework\Model\AbstractModel $object)
     {
-        if( ($existing_arr = $this->checkMethodCountryID( $object->getMethodID(), $object->getCountryID(), $object->getEnvironment() )) )
-        {
+        if (($existing_arr = $this->checkMethodCountryID(
+            $object->getMethodID(),
+            $object->getCountryID(),
+            $object->getEnvironment()
+        ))) {
             $this->getConnection()->delete(
                 $this->getMainTable(),
-                $this->getConnection()->quoteInto( $this->getIdFieldName() . '=?', $existing_arr[$this->getIdFieldName()] )
-                );
+                $this->getConnection()
+                     ->quoteInto($this->getIdFieldName() . '=?', $existing_arr[$this->getIdFieldName()])
+            );
         }
 
-        return parent::_beforeSave( $object );
+        return parent::_beforeSave($object);
     }
 
     /**
@@ -76,12 +82,13 @@ class CountryMethod extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      * @param null|\Magento\Framework\DB\Select $select
      * @return \Magento\Framework\DB\Select
      */
-    protected function _getLoadByMethodIDSelect( $method_id, $select = null )
+    protected function _getLoadByMethodIDSelect($method_id, $select = null)
     {
-        if( empty( $select ) )
-            $select = parent::_getLoadSelect( 'method_id', $method_id, null );
-        else
-            $select->where( 'method_id = ?', $method_id );
+        if (empty($select)) {
+            $select = parent::_getLoadSelect('method_id', $method_id, null);
+        } else {
+            $select->where('method_id = ?', $method_id);
+        }
 
         return $select;
     }
@@ -93,12 +100,13 @@ class CountryMethod extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      * @param null|\Magento\Framework\DB\Select $select
      * @return \Magento\Framework\DB\Select
      */
-    protected function _getLoadByCountryIDSelect( $country_id, $select = null )
+    protected function _getLoadByCountryIDSelect($country_id, $select = null)
     {
-        if( empty( $select ) )
-            $select = parent::_getLoadSelect( 'country_id', $country_id, null );
-        else
-            $select->where( 'country_id = ?', $country_id );
+        if (empty($select)) {
+            $select = parent::_getLoadSelect('country_id', $country_id, null);
+        } else {
+            $select->where('country_id = ?', $country_id);
+        }
 
         return $select;
     }
@@ -110,15 +118,17 @@ class CountryMethod extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      * @param null|\Magento\Framework\DB\Select $select
      * @return \Magento\Framework\DB\Select
      */
-    protected function _getLoadByEnvironmentSelect( $environment, $select = null )
+    protected function _getLoadByEnvironmentSelect($environment, $select = null)
     {
-        if( empty( $environment ) )
+        if (empty($environment)) {
             $environment = $this->_s2pHelper->getEnvironment();
+        }
 
-        if( empty( $select ) )
-            $select = parent::_getLoadSelect( 'environment', $environment, null );
-        else
-            $select->where( 'environment = ?', $environment );
+        if (empty($select)) {
+            $select = parent::_getLoadSelect('environment', $environment, null);
+        } else {
+            $select->where('environment = ?', $environment);
+        }
 
         return $select;
     }
@@ -131,15 +141,15 @@ class CountryMethod extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      * @param bool|string $environment
      * @return array
      */
-    public function checkMethodCountryID( $method_id, $country_id, $environment = false )
+    public function checkMethodCountryID($method_id, $country_id, $environment = false)
     {
-        $select = $this->_getLoadByMethodIDSelect( $method_id );
-        $select = $this->_getLoadByCountryIDSelect( $country_id, $select );
-        $select = $this->_getLoadByEnvironmentSelect( $environment, $select );
+        $select = $this->_getLoadByMethodIDSelect($method_id);
+        $select = $this->_getLoadByCountryIDSelect($country_id, $select);
+        $select = $this->_getLoadByEnvironmentSelect($environment, $select);
 
-        $select->limit( 1 );
+        $select->limit(1);
 
-        return $this->getConnection()->fetchAssoc( $select );
+        return $this->getConnection()->fetchAssoc($select);
     }
 
     /**
@@ -149,12 +159,12 @@ class CountryMethod extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      * @param bool|string $environment
      * @return array
      */
-    public function getMethodsForCountry( $country_id, $environment = false )
+    public function getMethodsForCountry($country_id, $environment = false)
     {
-        $select = $this->_getLoadByCountryIDSelect( $country_id );
-        $select = $this->_getLoadByEnvironmentSelect( $environment, $select );
+        $select = $this->_getLoadByCountryIDSelect($country_id);
+        $select = $this->_getLoadByEnvironmentSelect($environment, $select);
 
-        return $this->getConnection()->fetchAll( $select );
+        return $this->getConnection()->fetchAll($select);
     }
 
     /**
@@ -164,12 +174,12 @@ class CountryMethod extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      * @param bool|string $environment
      * @return array
      */
-    public function getCountriesForMethod( $method_id, $environment = false )
+    public function getCountriesForMethod($method_id, $environment = false)
     {
-        $select = $this->_getLoadByMethodIDSelect( $method_id );
-        $select = $this->_getLoadByEnvironmentSelect( $environment, $select );
+        $select = $this->_getLoadByMethodIDSelect($method_id);
+        $select = $this->_getLoadByEnvironmentSelect($environment, $select);
 
-        return $this->getConnection()->fetchAll( $select );
+        return $this->getConnection()->fetchAll($select);
     }
 
     /**
@@ -177,17 +187,20 @@ class CountryMethod extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      * @throws \Exception
      * @return bool
      */
-    public function deleteFromCollection( \Smart2Pay\GlobalPay\Model\ResourceModel\CountryMethod\Collection $collection )
+    public function deleteFromCollection(\Smart2Pay\GlobalPay\Model\ResourceModel\CountryMethod\Collection $collection)
     {
-        if( !($collection instanceof \Smart2Pay\GlobalPay\Model\ResourceModel\CountryMethod\Collection) )
+        if (!($collection instanceof \Smart2Pay\GlobalPay\Model\ResourceModel\CountryMethod\Collection)) {
             return false;
+        }
 
-        if( !($it = $collection->getIterator()) )
+        if (!($it = $collection->getIterator())) {
             return false;
+        }
 
         /** @var \Smart2Pay\GlobalPay\Model\CountryMethod $item */
-        foreach( $it as $item )
-            $item->getResource()->delete( $item );
+        foreach ($it as $item) {
+            $item->getResource()->delete($item);
+        }
 
         return true;
     }
@@ -202,27 +215,28 @@ class CountryMethod extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      *
      * @return bool|array
      */
-    public function insertOrUpdate( $method_id, $country_id, $environment, $priority = 0 )
+    public function insertOrUpdate($method_id, $country_id, $environment, $priority = 0)
     {
-        $method_id = intval( $method_id );
-        $country_id = intval( $country_id );
-        $environment = strtolower( trim( $environment ) );
-        if( empty( $method_id ) or empty( $country_id )
-         or empty( $environment ) or !in_array( $environment, array( 'demo', 'test', 'live' ) )
-         or !($conn = $this->getConnection()) )
+        $method_id = (int)$method_id;
+        $country_id = (int)$country_id;
+        $environment = strtolower(trim($environment));
+        if (empty($method_id) || empty($country_id)
+         || empty($environment) || !in_array($environment, [ 'demo', 'test', 'live' ])
+         || !($conn = $this->getConnection())) {
             return false;
+        }
 
-        try
-        {
+        try {
             $model_obj = $this->_countryMethodFactory->create();
 
-            if( ($country_method_arr = $conn->fetchAssoc( 'SELECT * FROM ' . $this->getMainTable() .
-                                                          ' WHERE method_id = \'' . $method_id . '\' AND country_id = \'' . $country_id . '\' AND environment = \'' . $environment . '\''.
-                                                          ' LIMIT 0, 1' ) ) )
-            {
-                $model_obj->setPriority( $priority );
+            if (($country_method_arr = $conn->fetchAssoc(
+                'SELECT * FROM ' . $this->getMainTable() .
+                ' WHERE method_id = \'' . $method_id . '\' AND country_id = \'' . $country_id .
+                '\' AND environment = \'' . $environment . '\' LIMIT 0, 1'
+            ))) {
+                $model_obj->setPriority($priority);
 
-                $model_obj->getResource()->save( $model_obj );
+                $model_obj->getResource()->save($model_obj);
 
                 $country_method_arr['priority'] = $priority;
 
@@ -237,14 +251,13 @@ class CountryMethod extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
                 //     if( array_key_exists( $key, $country_method_arr ) )
                 //         $country_method_arr[$key] = $val;
                 // }
-            } else
-            {
-                $model_obj->setMethodID( $method_id );
-                $model_obj->setCountryID( $country_id );
-                $model_obj->setEnvironment( $environment );
-                $model_obj->setPriority( $priority );
+            } else {
+                $model_obj->setMethodID($method_id);
+                $model_obj->setCountryID($country_id);
+                $model_obj->setEnvironment($environment);
+                $model_obj->setPriority($priority);
 
-                $model_obj->getResource()->save( $model_obj );
+                $model_obj->getResource()->save($model_obj);
 
                 // $country_method_arr = array();
                 // $country_method_arr['method_id'] = $method_id;
@@ -258,11 +271,10 @@ class CountryMethod extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
 
                 $country_method_arr['id'] = $model_obj->getID();
             }
-        } catch( \Exception $e )
-        {
+        } catch (\Exception $e) {
             $s2pLogger = $this->_loggerFactory->create();
 
-            $s2pLogger->write( 'DB Error ['.$e->getMessage().']', 'countries_methods' );
+            $s2pLogger->write('DB Error ['.$e->getMessage().']', 'countries_methods');
             return false;
         }
 

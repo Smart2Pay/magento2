@@ -1,10 +1,6 @@
 <?php
 namespace Smart2Pay\GlobalPay\Model\ResourceModel;
 
-/**
- * Class ConfiguredMethods
- * @package Smart2Pay\GlobalPay\Model\ResourceModel
- */
 class ConfiguredMethods extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
 {
     /**
@@ -29,7 +25,7 @@ class ConfiguredMethods extends \Magento\Framework\Model\ResourceModel\Db\Abstra
         \Smart2Pay\GlobalPay\Helper\S2pHelper $s2pHelper,
         $resourcePrefix = null
     ) {
-        parent::__construct( $context, $resourcePrefix );
+        parent::__construct($context, $resourcePrefix);
 
         $this->_s2pHelper = $s2pHelper;
         $this->_loggerFactory = $loggerFactory;
@@ -42,7 +38,7 @@ class ConfiguredMethods extends \Magento\Framework\Model\ResourceModel\Db\Abstra
      */
     protected function _construct()
     {
-        $this->_init( 's2p_gp_methods_configured', 'id' );
+        $this->_init('s2p_gp_methods_configured', 'id');
     }
 
     /**
@@ -52,17 +48,19 @@ class ConfiguredMethods extends \Magento\Framework\Model\ResourceModel\Db\Abstra
      * @return $this
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    protected function _beforeSave( \Magento\Framework\Model\AbstractModel $object )
+    protected function _beforeSave(\Magento\Framework\Model\AbstractModel $object)
     {
-        if( ($existing_arr = $this->checkMethodCountryID( $object->getMethodID(), $object->getCountryID() )) )
-        {
+        if (($existing_arr = $this->checkMethodCountryID($object->getMethodID(), $object->getCountryID()))) {
             $this->getConnection()->delete(
                 $this->getMainTable(),
-                $this->getConnection()->quoteInto($this->getIdFieldName() . '=?', $existing_arr[$this->getIdFieldName()] )
-                );
+                $this->getConnection()->quoteInto(
+                    $this->getIdFieldName() . '=?',
+                    $existing_arr[$this->getIdFieldName()]
+                )
+            );
         }
 
-        return parent::_beforeSave( $object );
+        return parent::_beforeSave($object);
     }
 
     /**
@@ -72,12 +70,13 @@ class ConfiguredMethods extends \Magento\Framework\Model\ResourceModel\Db\Abstra
      * @param null|\Magento\Framework\DB\Select $select
      * @return \Magento\Framework\DB\Select
      */
-    protected function _getLoadByMethodIDSelect( $method_id, $select = null )
+    protected function _getLoadByMethodIDSelect($method_id, $select = null)
     {
-        if( empty( $select ) )
-            $select = parent::_getLoadSelect( 'method_id', $method_id, null );
-        else
-            $select->where( 'method_id = ?', $method_id );
+        if (empty($select)) {
+            $select = parent::_getLoadSelect('method_id', $method_id, null);
+        } else {
+            $select->where('method_id = ?', $method_id);
+        }
 
         return $select;
     }
@@ -89,12 +88,13 @@ class ConfiguredMethods extends \Magento\Framework\Model\ResourceModel\Db\Abstra
      * @param null|\Magento\Framework\DB\Select $select
      * @return \Magento\Framework\DB\Select
      */
-    protected function _getLoadByCountryIDSelect( $country_id, $select = null )
+    protected function _getLoadByCountryIDSelect($country_id, $select = null)
     {
-        if( empty( $select ) )
-            $select = parent::_getLoadSelect( 'country_id', $country_id, null );
-        else
-            $select->where( 'country_id = ?', $country_id );
+        if (empty($select)) {
+            $select = parent::_getLoadSelect('country_id', $country_id, null);
+        } else {
+            $select->where('country_id = ?', $country_id);
+        }
 
         return $select;
     }
@@ -106,15 +106,17 @@ class ConfiguredMethods extends \Magento\Framework\Model\ResourceModel\Db\Abstra
      * @param null|\Magento\Framework\DB\Select $select
      * @return \Magento\Framework\DB\Select
      */
-    protected function _getLoadByEnvironmentSelect( $environment, $select = null )
+    protected function _getLoadByEnvironmentSelect($environment, $select = null)
     {
-        if( empty( $environment ) )
+        if (empty($environment)) {
             $environment = $this->_s2pHelper->getEnvironment();
+        }
 
-        if( empty( $select ) )
-            $select = parent::_getLoadSelect( 'environment', $environment, null );
-        else
-            $select->where( 'environment = ?', $environment );
+        if (empty($select)) {
+            $select = parent::_getLoadSelect('environment', $environment, null);
+        } else {
+            $select->where('environment = ?', $environment);
+        }
 
         return $select;
     }
@@ -127,15 +129,15 @@ class ConfiguredMethods extends \Magento\Framework\Model\ResourceModel\Db\Abstra
      * @param bool|string $environment
      * @return int
      */
-    public function checkMethodCountryID( $method_id, $country_id, $environment = false )
+    public function checkMethodCountryID($method_id, $country_id, $environment = false)
     {
-        $select = $this->_getLoadByMethodIDSelect( $method_id );
-        $select = $this->_getLoadByCountryIDSelect( $country_id, $select );
-        $select = $this->_getLoadByEnvironmentSelect( $environment, $select );
+        $select = $this->_getLoadByMethodIDSelect($method_id);
+        $select = $this->_getLoadByCountryIDSelect($country_id, $select);
+        $select = $this->_getLoadByEnvironmentSelect($environment, $select);
 
-        $select->limit( 1 );
+        $select->limit(1);
 
-        return $this->getConnection()->fetchOne( $select );
+        return $this->getConnection()->fetchOne($select);
     }
 
     /**
@@ -145,12 +147,12 @@ class ConfiguredMethods extends \Magento\Framework\Model\ResourceModel\Db\Abstra
      * @param string|bool $environment
      * @return array
      */
-    public function getMethodsForCountry( $country_id, $environment = false )
+    public function getMethodsForCountry($country_id, $environment = false)
     {
-        $select = $this->_getLoadByCountryIDSelect( $country_id );
-        $select = $this->_getLoadByEnvironmentSelect( $environment, $select );
+        $select = $this->_getLoadByCountryIDSelect($country_id);
+        $select = $this->_getLoadByEnvironmentSelect($environment, $select);
 
-        return $this->getConnection()->fetchAll( $select );
+        return $this->getConnection()->fetchAll($select);
     }
 
     /**
@@ -159,12 +161,12 @@ class ConfiguredMethods extends \Magento\Framework\Model\ResourceModel\Db\Abstra
      * @param int $method_id
      * @return array
      */
-    public function getCountriesForMethod( $method_id, $environment = false )
+    public function getCountriesForMethod($method_id, $environment = false)
     {
-        $select = $this->_getLoadByMethodIDSelect( $method_id );
-        $select = $this->_getLoadByEnvironmentSelect( $environment, $select );
+        $select = $this->_getLoadByMethodIDSelect($method_id);
+        $select = $this->_getLoadByEnvironmentSelect($environment, $select);
 
-        return $this->getConnection()->fetchAll( $select );
+        return $this->getConnection()->fetchAll($select);
     }
 
     /**
@@ -175,45 +177,45 @@ class ConfiguredMethods extends \Magento\Framework\Model\ResourceModel\Db\Abstra
      *
      * @return bool
      */
-    public function insertOrUpdate( $method_id, $country_id, $environment, $params )
+    public function insertOrUpdate($method_id, $country_id, $environment, $params)
     {
-        $method_id = intval( $method_id );
-        $country_id = intval( $country_id );
-        if( empty( $method_id )
-         or empty( $params ) or !is_array( $params )
-         or !($conn = $this->getConnection()) )
+        $method_id = (int)$method_id;
+        $country_id = (int)$country_id;
+        if (empty($method_id)
+         || empty($params) || !is_array($params)
+         || !($conn = $this->getConnection())) {
             return false;
+        }
 
-        if( empty( $params['surcharge'] ) )
+        if (empty($params['surcharge'])) {
             $params['surcharge'] = 0;
-        if( empty( $params['fixed_amount'] ) )
+        }
+        if (empty($params['fixed_amount'])) {
             $params['fixed_amount'] = 0;
+        }
 
-        $insert_arr = array();
+        $insert_arr = [];
         $insert_arr['surcharge'] = $params['surcharge'];
         $insert_arr['fixed_amount'] = $params['fixed_amount'];
 
-        try
-        {
-            if( ( $existing_id = $conn->fetchOne( 'SELECT id FROM ' . $this->getMainTable() . ' WHERE method_id = \'' . $method_id .
-                                                  '\' AND country_id = \'' . $country_id . '\' AND environment = \'' . $environment . '\' LIMIT 0, 1' ) ) )
-            {
+        try {
+            if (($existing_id = $conn->fetchOne(
+                'SELECT id FROM ' . $this->getMainTable() . ' WHERE method_id = \'' . $method_id .
+                '\' AND country_id = \'' . $country_id . '\' AND environment = \'' . $environment . '\' LIMIT 0, 1'
+            ))) {
                 // we should update record
-                $conn->update( $this->getMainTable(), $insert_arr, 'id = \'' . $existing_id . '\'' );
-            } else
-            {
+                $conn->update($this->getMainTable(), $insert_arr, 'id = \'' . $existing_id . '\'');
+            } else {
                 $insert_arr['environment']  = $environment;
                 $insert_arr['method_id']  = $method_id;
                 $insert_arr['country_id'] = $country_id;
 
-                $conn->insert( $this->getMainTable(), $insert_arr );
-
+                $conn->insert($this->getMainTable(), $insert_arr);
             }
-        } catch( \Exception $e )
-        {
+        } catch (\Exception $e) {
             $s2pLogger = $this->_loggerFactory->create();
 
-            $s2pLogger->write( 'DB Error ['.$e->getMessage().']', 'configured_method' );
+            $s2pLogger->write('DB Error ['.$e->getMessage().']', 'configured_method');
             return false;
         }
 
@@ -225,7 +227,7 @@ class ConfiguredMethods extends \Magento\Framework\Model\ResourceModel\Db\Abstra
      */
     public function truncateTable()
     {
-        $this->getConnection()->truncateTable( $this->getMainTable() );
+        $this->getConnection()->truncateTable($this->getMainTable());
     }
 
     /**
@@ -233,14 +235,17 @@ class ConfiguredMethods extends \Magento\Framework\Model\ResourceModel\Db\Abstra
      *
      * @return bool
      */
-    public function deleteFromCollection( \Smart2Pay\GlobalPay\Model\ResourceModel\ConfiguredMethods\Collection $collection )
-    {
-        if( !($it = $collection->getIterator()) )
+    public function deleteFromCollection(
+        \Smart2Pay\GlobalPay\Model\ResourceModel\ConfiguredMethods\Collection $collection
+    ) {
+        if (!($it = $collection->getIterator())) {
             return false;
+        }
 
         /** @var \Smart2Pay\GlobalPay\Model\ConfiguredMethods $item */
-        foreach( $it as $item )
-            $this->delete( $item );
+        foreach ($it as $item) {
+            $this->delete($item);
+        }
 
         return true;
     }

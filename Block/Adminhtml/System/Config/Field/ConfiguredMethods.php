@@ -48,25 +48,26 @@ class ConfiguredMethods extends \Magento\Config\Block\System\Config\Form\Field
         \Smart2Pay\GlobalPay\Model\ConfiguredMethodsFactory $configuredMethodsFactory,
         \Smart2Pay\GlobalPay\Helper\S2pHelper $s2pHelper,
         array $data = []
-    )
-    {
+    ) {
         $this->_s2pHelper = $s2pHelper;
         $this->_methodFactory = $methodFactory;
         $this->_countryMethodFactory = $countryMethodFactory;
         $this->_configuredMethodsFactory = $configuredMethodsFactory;
 
-        parent::__construct( $context, $data );
+        parent::__construct($context, $data);
     }
 
     public function getBaseCurrency()
     {
-        if( !empty( $this->_base_currency ) )
+        if (!empty($this->_base_currency)) {
             return $this->_base_currency;
+        }
 
         $base_currency = $this->_s2pHelper->getBaseCurrencies();
-        if( !empty( $base_currency ) and is_array( $base_currency )
-        and !empty( $base_currency[0] ) )
+        if (!empty($base_currency) && is_array($base_currency)
+        && !empty($base_currency[0]) ) {
             $this->_base_currency = $base_currency[0];
+        }
 
         return $this->_base_currency;
     }
@@ -79,40 +80,48 @@ class ConfiguredMethods extends \Magento\Config\Block\System\Config\Form\Field
      */
     public function render(\Magento\Framework\Data\Form\Element\AbstractElement $element)
     {
-        $element->setRenderer( $this );
+        $element->setRenderer($this);
         return $this->_toHtml();
     }
 
-    public function get_environment()
+    public function getEnvironment()
     {
         return $this->_s2pHelper->getEnvironment();
     }
 
-    public function get_sdk_version()
+    public function getSDKVersion()
     {
         $sdk_helper = $this->_s2pHelper->getSDKHelper();
-        return $sdk_helper::get_sdk_version();
+        return $sdk_helper::getSDKVersion();
     }
 
-    public function get_last_sync_date()
+    public function getLastSyncDate()
     {
-        return $this->_s2pHelper->last_methods_sync_option();
+        return $this->_s2pHelper->lastMethodsSyncOption();
     }
 
-    public function seconds_to_launch_sync_str()
+    public function secondsToLaunchSyncStr()
     {
-        return $this->_s2pHelper->seconds_to_launch_sync_str();
+        return $this->_s2pHelper->secondsToLaunchSyncStr();
     }
 
-    public function getAllActiveMethods( $environment = false, $params = false )
+    /**
+     * @param bool|string $environment
+     * @param bool|array $params
+     *
+     * @return mixed
+     */
+    public function getAllActiveMethods($environment = false, $params = false)
     {
-        if( empty( $params ) or !is_array( $params ) )
-            $params = array();
+        if (empty($params) || !is_array($params)) {
+            $params = [];
+        }
 
-        if( empty( $params['include_countries'] ) )
+        if (empty($params['include_countries'])) {
             $params['include_countries'] = false;
+        }
 
-        return $this->_methodFactory->create()->getAllActiveMethods( $environment, $params );
+        return $this->_methodFactory->create()->getAllActiveMethods($environment, $params);
     }
 
     /**
@@ -121,14 +130,16 @@ class ConfiguredMethods extends \Magento\Config\Block\System\Config\Form\Field
      *
      * @return array
      */
-    public function getAllConfiguredMethods( $environment = false, $params = false )
+    public function getAllConfiguredMethods($environment = false, $params = false)
     {
-        if( empty( $params ) or !is_array( $params ) )
-            $params = array();
+        if (empty($params) || !is_array($params)) {
+            $params = [];
+        }
 
-        if( !isset( $params['only_active'] ) )
+        if (!isset($params['only_active'])) {
             $params['only_active'] = true;
+        }
 
-        return $this->_configuredMethodsFactory->create()->getAllConfiguredMethods( $environment, $params );
+        return $this->_configuredMethodsFactory->create()->getAllConfiguredMethods($environment, $params);
     }
 }

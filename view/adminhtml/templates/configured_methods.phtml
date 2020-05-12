@@ -5,8 +5,12 @@
 </tbody></table>
 <div style="clear:both;"></div>
 
-<input type="hidden" value="1" name="groups[smart2pay][groups][smart2pay_methods][fields][configured_methods][value]" id="payment_smart2pay_smart2pay_methods_configured_methods" />
-<input type="hidden" value="" name="groups[smart2pay][groups][smart2pay_methods][fields][configured_methods][action]" id="payment_smart2pay_smart2pay_methods_configured_methods_action" />
+<input type="hidden" value="1"
+       name="groups[smart2pay][groups][smart2pay_methods][fields][configured_methods][value]"
+       id="payment_smart2pay_smart2pay_methods_configured_methods" />
+<input type="hidden" value=""
+       name="groups[smart2pay][groups][smart2pay_methods][fields][configured_methods][action]"
+       id="payment_smart2pay_smart2pay_methods_configured_methods_action" />
 
 <style type="text/css">
 .s2p-method-img-td { height:50px; width: 134px; text-align: center !important; }
@@ -20,7 +24,7 @@
 <script type="text/javascript">
 function s2p_config_js_select_all()
 {
-    form_obj = document.getElementById( 'config-edit-form' );
+    var form_obj = document.getElementById( 'config-edit-form' );
     if( form_obj && form_obj.elements && form_obj.elements.length )
     {
         for( i = 0; i < form_obj.elements.length; i++ )
@@ -35,10 +39,10 @@ function s2p_config_js_select_all()
 }
 function s2p_config_js_deselect_all()
 {
-    form_obj = document.getElementById( 'config-edit-form' );
+    var form_obj = document.getElementById( 'config-edit-form' );
     if( form_obj && form_obj.elements && form_obj.elements.length )
     {
-        for( i = 0; i < form_obj.elements.length; i++ )
+        for( var i = 0; i < form_obj.elements.length; i++ )
         {
             if( form_obj.elements[i].type == 'checkbox' && form_obj.elements[i].name == 's2p_enabled_methods[]' )
             {
@@ -50,10 +54,10 @@ function s2p_config_js_deselect_all()
 }
 function s2p_config_js_invert()
 {
-    form_obj = document.getElementById( 'config-edit-form' );
+    var form_obj = document.getElementById( 'config-edit-form' );
     if( form_obj && form_obj.elements && form_obj.elements.length )
     {
-        for( i = 0; i < form_obj.elements.length; i++ )
+        for( var i = 0; i < form_obj.elements.length; i++ )
         {
             if( form_obj.elements[i].type == 'checkbox' && form_obj.elements[i].name == 's2p_enabled_methods[]' )
             {
@@ -81,156 +85,175 @@ function show_all_countries_for_method( method_id, action )
 function s2p_submit_sync_methods()
 {
     jQuery( "#payment_smart2pay_smart2pay_methods_configured_methods_action" ).val( "do_sync" );
-    //jQuery( "#payment_smart2pay_smart2pay_methods_configured_methods_action" ).closest("form").submit();
+    // jQuery( "#payment_smart2pay_smart2pay_methods_configured_methods_action" ).closest("form").submit();
     jQuery( "#save" ).click();
 }
 </script>
 <?php
-    $environment = $block->get_environment();
-    if( !($all_methods = $block->getAllActiveMethods( $environment, [ 'include_countries' => true ] )) )
-        $all_methods = array();
-    if( !($all_configured_methods = $block->getAllConfiguredMethods( $environment, [ 'only_active' => true ] )) )
-        $all_configured_methods = array();
+    $environment = $block->getEnvironment();
+if (!($all_methods = $block->getAllActiveMethods($environment, [ 'include_countries' => true ]))) {
+    $all_methods = [];
+}
+if (!($all_configured_methods = $block->getAllConfiguredMethods($environment, [ 'only_active' => true ]))) {
+    $all_configured_methods = [];
+}
 
-    if( !($last_sync_date = $block->get_last_sync_date()) )
-        $last_sync_date = false;
-    if( !($launch_sync_str = $block->seconds_to_launch_sync_str()) )
-        $launch_sync_str = false;
-    if( !($sdk_version = $block->get_sdk_version()) )
-        $sdk_version = 'N/A';
+if (!($last_sync_date = $block->getLastSyncDate())) {
+    $last_sync_date = false;
+}
+if (!($launch_sync_str = $block->secondsToLaunchSyncStr())) {
+    $launch_sync_str = false;
+}
+if (!($sdk_version = $block->getSDKVersion())) {
+    $sdk_version = 'N/A';
+}
 ?>
 <div class="smart2pay_globalpay_configured_methods">
 <div class="admin__control-table-wrapper">
 <?php
 
-    if( empty( $all_methods ) )
-    {
-        ?>
+if (empty($all_methods)) {
+    ?>
+    <div style="text-align: center">
+        <?=__('SDK version: %1', $sdk_version)?><br/>
+        <?=__('No payment methods defined in database for <strong>%1</strong> environment.', $environment)?>
+        <?=__('In order to update payment methods, please select desired environment from Environment drop-down '.
+              'option and then save settings.')?><br/>
+        <br/>
+        <?=__('Last syncronization: %1', (empty($last_sync_date)?'Never':$last_sync_date))?><br/>
+        <button type="button" value="Syncronize Now" title="Syncronize Now"
+                name="s2p_submit_syncronize_methods" id="s2p_submit_syncronize_methods"
+                onclick="s2p_submit_sync_methods()"
+                class="scalable save"><span><span>Syncronize Now</span></span></button>
+    </div>
+    <?php
+} else {
+    ?>
         <div style="text-align: center">
-            SDK version: <?php echo $sdk_version?><br/>
-            No payment methods defined in database for <strong><?php echo $environment?></strong> environment.
-            In order to update payment methods, please select desired environment from Environment drop-down option and then save settings.<br/>
+            <?=__('SDK version')?>: <?=$sdk_version?><br/>
+            <?=__('Displaying payment methods for <strong>%1</strong> environment.', $environment)?>
+            <?=__('In order to update payment methods for other environments please select desired environment from '.
+                  'Environment drop-down option and then save settings.')?><br/>
             <br/>
-            Last syncronization: <?php echo (empty( $last_sync_date )?'Never':$last_sync_date)?><br/>
-            <button type="button" value="Syncronize Now" title="Syncronize Now"
-                    name="s2p_submit_syncronize_methods" id="s2p_submit_syncronize_methods"
-                    onclick="s2p_submit_sync_methods()"
-                    class="scalable save"><span><span>Syncronize Now</span></span></button>
-        </div>
+            <?=__('Last syncronization: %1', (empty($last_sync_date)?'Never':$last_sync_date))?><br/>
         <?php
-    } else
-    {
-        ?>
-        <div style="text-align: center">
-            SDK version: <?php echo $sdk_version?><br/>
-            Displaying payment methods for <strong><?php echo $environment?></strong> environment.
-            In order to update payment methods for other environments please select desired environment from Environment drop-down option and then save settings.<br/>
-            <br/>
-            Last syncronization: <?php echo (empty( $last_sync_date )?'Never':$last_sync_date)?><br/>
-            <?php
-            if( empty( $launch_sync_str ) )
-            {
-                ?>
-                <button type="submit" value="Syncronize Now" title="Syncronize Now"
+        if (empty($launch_sync_str)) {
+            ?>
+                <button type="submit" value="<?=__('Syncronize Now')?>" title="<?=__('Syncronize Now')?>"
                         name="s2p_submit_syncronize_methods" id="s2p_submit_syncronize_methods"
                         onclick="s2p_submit_sync_methods()"
-                        class="scalable save"><span><span>Syncronize Now</span></span></button>
-                <?php
-            } else
-            {
-                ?>Time untill syncronization is available: <?php echo $launch_sync_str;?>.<?php
-            }
-            ?><br/><br/>
+                        class="scalable save"><span><span><?=__('Syncronize Now')?></span></span></button>
+            <?php
+        } else {
+            echo __('Time untill syncronization is available: %1.', $launch_sync_str)?><?php
+        } ?><br/><br/>
         </div>
 
         <table class="admin__control-table" id="s2p_methods_table">
         <thead>
         <tr>
             <th style="width: 30px;">#</th>
-            <th style="width: 60px;"><?php echo __( 'Enabled?' )?></th>
+            <th style="width: 60px;"><?=__('Enabled?')?></th>
             <?php
-            if( false )
-            {
-            ?>
-            <th style="width: 90px;"><?php echo __( 'Surcharge' )?></th>
-            <?php
-            }
-            ?>
-            <th colspan="2"><?php echo __( 'Method' )?></th>
+             if (false) {
+                 ?>
+                 <th style="width: 90px;"><?=__('Surcharge')?></th>
+                 <?php
+             } ?>
+            <th colspan="2"><?=__('Method')?></th>
         </tr>
         </thead>
         <tbody>
         <tr>
             <td colspan="5">
                 <p>
-                    <a href="javascript:void(0);" onclick="s2p_config_js_select_all()">Select all</a>
+                    <a href="javascript:void(0);" onclick="s2p_config_js_select_all()"><?=__('Select all')?></a>
                     |
-                    <a href="javascript:void(0);" onclick="s2p_config_js_invert()">Invert</a>
+                    <a href="javascript:void(0);" onclick="s2p_config_js_invert()"><?=__('Invert')?></a>
                     |
-                    <a href="javascript:void(0);" onclick="s2p_config_js_deselect_all()">Select none</a>
+                    <a href="javascript:void(0);" onclick="s2p_config_js_deselect_all()"><?=__('Select none')?></a>
                 </p>
 
             </td>
         </tr>
         <?php
         $knti = 1;
-        foreach( $all_methods as $method_arr )
-        {
-            ?>
+                  foreach ($all_methods as $method_arr) {
+                      ?>
             <tr class="s2p-method-tr">
-                <td class="sp2-middle-all"><?php echo $knti?></td>
-                <td class="sp2-middle-all"><input type="checkbox" id="s2p_enabled_method_<?php echo $method_arr['method_id']?>" name="s2p_enabled_methods[]" value="<?php echo $method_arr['method_id']?>" <?php echo (!empty( $all_configured_methods[$method_arr['method_id']][0] )?'checked="checked"':'')?> /></td>
-                <?php
-                if( false )
-                {
-                ?>
-                <td class="sp2-middle-vertical" style="text-align: left;">
-                    <div style="padding:2px; clear:both;"><input type="text" class="input-text" style="width: 50px !important; text-align: right;" name="s2p_surcharge[<?php echo $method_arr['method_id']?>]" id="s2p_surcharge_<?php echo $method_arr['method_id']?>" value="<?php echo ((!empty( $all_configured_methods[$method_arr['method_id']][0] ) and !empty( $all_configured_methods[$method_arr['method_id']][0]['surcharge'] ))?$all_configured_methods[$method_arr['method_id']][0]['surcharge']:0)?>"/>%</div>
-                    <div style="padding:2px; clear:both;"><input type="text" class="input-text" style="width: 50px !important; text-align: right;" name="s2p_fixed_amount[<?php echo $method_arr['method_id']?>]" id="s2p_fixed_amount<?php echo $method_arr['method_id']?>" value="<?php echo ((!empty( $all_configured_methods[$method_arr['method_id']][0] ) and !empty( $all_configured_methods[$method_arr['method_id']][0]['fixed_amount'] ))?$all_configured_methods[$method_arr['method_id']][0]['fixed_amount']:0)?>"/> <?php echo $block->getBaseCurrency()?></div>
+                <td class="sp2-middle-all"><?=$knti?></td>
+                <td class="sp2-middle-all">
+                    <input type="checkbox" id="s2p_enabled_method_<?=$method_arr['method_id']?>"
+                          name="s2p_enabled_methods[]" value="<?=$method_arr['method_id']?>"
+                          <?=(!empty($all_configured_methods[$method_arr['method_id']][0])?
+                              'checked="checked"':'')?> />
                 </td>
                 <?php
-                }
-                ?>
-                <td class="sp2-middle-all s2p-method-img-td"><img class="s2p-method-img" alt="<?php echo __( $method_arr['display_name'] ); ?>" src="<?php echo $method_arr['logo_url']?>" /></td>
-                <td>
-                    <label for="s2p_enabled_method<?php echo $method_arr['method_id']?>"><strong><?php echo __( $method_arr['display_name'] ); ?></strong></label>
-                    <br/>
-                    <?php echo __( $method_arr['description'] ); ?><br/>
-                    <div id="s2p_meth_countries_<?php echo $method_arr['method_id']?>" style="height: 40px; overflow: hidden; text-overflow: ellipsis; display:block;">
-                    <strong>Available in following countries</strong>:
-                        (<a href="javascript:void(0);" style="text-decoration: underline;" onclick="show_all_countries_for_method( '<?php echo $method_arr['method_id']?>' )">toggle</a>)
+                if (false) {
+                    ?>
+                <td class="sp2-middle-vertical" style="text-align: left;">
+                    <div style="padding:2px; clear:both;">
+                        <input type="text" class="input-text" style="width: 50px !important; text-align: right;"
+                               name="s2p_surcharge[<?=$method_arr['method_id']?>]"
+                               id="s2p_surcharge_<?=$method_arr['method_id']?>"
+                               value="<?=((!empty($all_configured_methods[$method_arr['method_id']][0])
+                                       && !empty($all_configured_methods[$method_arr['method_id']][0]['surcharge']))?
+                                   $all_configured_methods[$method_arr['method_id']][0]['surcharge']:0)?>" />%
+                    </div>
+                    <div style="padding:2px; clear:both;">
+                        <input type="text" class="input-text" style="width: 50px !important; text-align: right;"
+                               name="s2p_fixed_amount[<?=$method_arr['method_id']?>]"
+                               id="s2p_fixed_amount<?=$method_arr['method_id']?>"
+                               value="<?=((!empty($all_configured_methods[$method_arr['method_id']][0])
+                                   && !empty($all_configured_methods[$method_arr['method_id']][0]['fixed_amount']))?
+                                   $all_configured_methods[$method_arr['method_id']][0]['fixed_amount']:0)?>" />
+                        <?=$block->getBaseCurrency()?>
+                    </div>
+                </td>
                     <?php
-                    if( empty( $method_arr['countries_list'] )
-                     or !is_array( $method_arr['countries_list'] ) )
+                } ?>
+                <td class="sp2-middle-all s2p-method-img-td"><img
+                        class="s2p-method-img" alt="<?=__($method_arr['display_name']); ?>"
+                        src="<?=$method_arr['logo_url']?>" /></td>
+                <td>
+                    <label for="s2p_enabled_method<?=$method_arr['method_id']?>">
+                        <strong><?=__($method_arr['display_name']); ?></strong>
+                    </label>
+                    <br/>
+                    <?=__($method_arr['description']); ?><br/>
+                    <div id="s2p_meth_countries_<?=$method_arr['method_id']?>"
+                         style="height: 40px; overflow: hidden; text-overflow: ellipsis; display:block;">
+                    <strong><?=__('Available in following countries')?></strong>:
+                        (<a href="javascript:void(0);" style="text-decoration: underline;"
+                            onclick="show_all_countries_for_method( '<?=$method_arr['method_id']?>' )"
+                        ><?=__('toggle')?></a>)
+                    <?php
+                    if (empty($method_arr['countries_list'])
+                     || !is_array($method_arr['countries_list'])) {
                         echo 'N/A';
-
-                    else
-                    {
+                    } else {
                         $first = true;
-                        foreach( $method_arr['countries_list'] as $country_id => $country_arr )
-                        {
-                            if( !$first )
+                        foreach ($method_arr['countries_list'] as $country_id => $country_arr) {
+                            if (!$first) {
                                 echo ', ';
+                            }
 
                             echo $country_arr['name'];
                             $first = false;
-
                         }
                         echo '.';
-                    }
-                    ?>
+                    } ?>
                     </div>
                 </td>
             </tr>
             <?php
             $knti++;
-        }
-        ?>
+                  } ?>
         </tbody>
         </table>
     <?php
-    }
-    ?>
+}
+?>
 </div>
 </div>
 

@@ -1,7 +1,6 @@
 <?php
 namespace Smart2Pay\GlobalPay\Api\Data;
 
-
 interface CountryMethodInterface
 {
     const ID = 'id';
@@ -51,7 +50,7 @@ interface CountryMethodInterface
      * @param int $id
      * @return \Smart2Pay\GlobalPay\Api\Data\ConfiguredMethodsInterface
      */
-    public function setID( $id );
+    public function setID($id);
 
     /**
      * Set Method ID
@@ -59,7 +58,7 @@ interface CountryMethodInterface
      * @param string $environment
      * @return \Smart2Pay\GlobalPay\Api\Data\ConfiguredMethodsInterface
      */
-    public function setEnvironment( $environment );
+    public function setEnvironment($environment);
 
     /**
      * Set Method ID
@@ -67,7 +66,7 @@ interface CountryMethodInterface
      * @param int $method_id
      * @return \Smart2Pay\GlobalPay\Api\Data\ConfiguredMethodsInterface
      */
-    public function setMethodID( $method_id );
+    public function setMethodID($method_id);
 
     /**
      * Set Country ID
@@ -75,7 +74,7 @@ interface CountryMethodInterface
      * @param int $country_id
      * @return \Smart2Pay\GlobalPay\Api\Data\ConfiguredMethodsInterface
      */
-    public function setCountryID( $country_id );
+    public function setCountryID($country_id);
 
     /**
      * Set Priority
@@ -83,6 +82,5 @@ interface CountryMethodInterface
      * @param int $priority
      * @return \Smart2Pay\GlobalPay\Api\Data\ConfiguredMethodsInterface
      */
-    public function setPriority( $priority );
-
+    public function setPriority($priority);
 }

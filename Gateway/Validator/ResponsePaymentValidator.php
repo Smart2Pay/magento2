@@ -19,7 +19,7 @@ class ResponsePaymentValidator extends AbstractValidator
         \Smart2Pay\GlobalPay\Helper\S2pHelper $s2pHelper,
         ResultInterfaceFactory $resultFactory
     ) {
-        parent::__construct( $resultFactory );
+        parent::__construct($resultFactory);
 
         $this->_s2pHelper = $s2pHelper;
     }
@@ -34,19 +34,17 @@ class ResponsePaymentValidator extends AbstractValidator
     {
         $s2p_helper = $this->_s2pHelper;
 
-        if( !($response = \Magento\Payment\Gateway\Helper\SubjectReader::readResponse( $validationSubject ))
-         or !is_array( $response ) )
-        {
+        if (!($response = \Magento\Payment\Gateway\Helper\SubjectReader::readResponse($validationSubject))
+         || !is_array($response) ) {
             return $this->createResult(
                 false,
                 [
-                    __( 'Error parsing response from server.' )
+                    __('Error parsing response from server.')
                 ]
             );
         }
 
-        if( !empty( $response['errors'] ) and is_array( $response['errors'] ) )
-        {
+        if (!empty($response['errors']) && is_array($response['errors'])) {
             return $this->createResult(
                 false,
                 $response['errors']

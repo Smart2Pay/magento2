@@ -8,7 +8,6 @@ use Magento\Framework\DataObject\IdentityInterface;
 /**
  * Class Country
  * @method \Smart2Pay\GlobalPay\Model\ResourceModel\CountryMethod _getResource()
- * @package Smart2Pay\GlobalPay\Model
  */
 class CountryMethod extends \Magento\Framework\Model\AbstractModel implements CountryMethodInterface, IdentityInterface
 {
@@ -55,13 +54,12 @@ class CountryMethod extends \Magento\Framework\Model\AbstractModel implements Co
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
-    )
-    {
+    ) {
         $this->_s2pHelper = $s2pHelper;
         $this->_countryFactory = $countryFactory;
         $this->_loggerFactory = $loggerFactory;
 
-        parent::__construct( $context, $registry, $resource, $resourceCollection, $data );
+        parent::__construct($context, $registry, $resource, $resourceCollection, $data);
     }
 
     /**
@@ -71,7 +69,7 @@ class CountryMethod extends \Magento\Framework\Model\AbstractModel implements Co
      */
     protected function _construct()
     {
-        $this->_init( 'Smart2Pay\GlobalPay\Model\ResourceModel\CountryMethod' );
+        $this->_init('Smart2Pay\GlobalPay\Model\ResourceModel\CountryMethod');
     }
 
     /**
@@ -83,9 +81,9 @@ class CountryMethod extends \Magento\Framework\Model\AbstractModel implements Co
      * @param bool|string $environment
      * @return array
      */
-    public function checkMethodCountryID( $method_id, $country_id, $environment = false )
+    public function checkMethodCountryID($method_id, $country_id, $environment = false)
     {
-        return $this->_getResource()->checkMethodCountryID( $method_id, $country_id, $environment );
+        return $this->_getResource()->checkMethodCountryID($method_id, $country_id, $environment);
     }
 
     /**
@@ -96,9 +94,9 @@ class CountryMethod extends \Magento\Framework\Model\AbstractModel implements Co
      * @param bool|string $environment
      * @return array
      */
-    public function getMethodsForCountry( $country_id, $environment = false )
+    public function getMethodsForCountry($country_id, $environment = false)
     {
-        return $this->_getResource()->getMethodsForCountry( $country_id, $environment );
+        return $this->_getResource()->getMethodsForCountry($country_id, $environment);
     }
 
     /**
@@ -108,39 +106,39 @@ class CountryMethod extends \Magento\Framework\Model\AbstractModel implements Co
      * @param bool|string $environment
      * @return array
      */
-    public function getCountriesForMethod( $method_id, $environment = false )
+    public function getCountriesForMethod($method_id, $environment = false)
     {
-        return $this->_getResource()->getCountriesForMethod( $method_id, $environment );
+        return $this->_getResource()->getCountriesForMethod($method_id, $environment);
     }
 
-    public function getCountriesForMethodsList( $methods_arr = false, $environment = false )
+    public function getCountriesForMethodsList($methods_arr = false, $environment = false)
     {
-        if( empty( $environment ) )
+        if (empty($environment)) {
             $environment = $this->_s2pHelper->getEnvironment();
+        }
 
         $method_ids_arr = false;
-        if( !empty( $methods_arr ) and is_array( $methods_arr ) )
-        {
-            $method_ids_arr = array();
-            foreach( $methods_arr as $method_id )
-            {
-                $method_id = intval( $method_id );
-                if( empty( $method_id ) )
+        if (!empty($methods_arr) && is_array($methods_arr)) {
+            $method_ids_arr = [];
+            foreach ($methods_arr as $method_id) {
+                $method_id = (int)$method_id;
+                if (empty($method_id)) {
                     continue;
+                }
 
                 $method_ids_arr[] = $method_id;
             }
         }
 
         $collection = $this->getCollection();
-        $collection->addFieldToFilter( 'main_table.environment', $environment );
+        $collection->addFieldToFilter('main_table.environment', $environment);
 
-        if( !empty( $method_ids_arr ) )
-        {
-            if( count( $method_ids_arr ) == 1 )
-                $collection->addFieldToFilter( 'main_table.method_id', $method_ids_arr[0] );
-            else
-                $collection->addFieldToFilter( 'main_table.method_id', array( 'in' => $method_ids_arr ) );
+        if (!empty($method_ids_arr)) {
+            if (count($method_ids_arr) === 1) {
+                $collection->addFieldToFilter('main_table.method_id', $method_ids_arr[0]);
+            } else {
+                $collection->addFieldToFilter('main_table.method_id', [ 'in' => $method_ids_arr ]);
+            }
         }
 
         $country_collection = $this->_countryFactory->create()->getCollection();
@@ -150,25 +148,25 @@ class CountryMethod extends \Magento\Framework\Model\AbstractModel implements Co
             'main_table.country_id = '.$country_collection->getMainTable().'.country_id'
         );
 
-        $return_arr = array();
-        $return_arr['all'] = array();
-        $return_arr['methods'] = array();
+        $return_arr = [];
+        $return_arr['all'] = [];
+        $return_arr['methods'] = [];
 
-        while( ($country_method_obj = $collection->fetchItem())
-           and ($country_method_arr = $country_method_obj->getData()) )
-        {
-            if( empty( $country_method_arr['country_id'] ) )
+        while (($country_method_obj = $collection->fetchItem())
+           && ($country_method_arr = $country_method_obj->getData())) {
+            if (empty($country_method_arr['country_id'])) {
                 continue;
-
-            if( !isset( $return_arr['all'][$country_method_arr['country_id']] ) )
-            {
-                $return_arr['all'][$country_method_arr['country_id']] = array(
-                    'code' => $country_method_arr['code'],
-                    'name' => $country_method_arr['name'],
-                );
             }
 
-            $return_arr['methods'][$country_method_arr['method_id']][$country_method_arr['code']] = $country_method_arr['name'];
+            if (!isset($return_arr['all'][$country_method_arr['country_id']])) {
+                $return_arr['all'][$country_method_arr['country_id']] = [
+                    'code' => $country_method_arr['code'],
+                    'name' => $country_method_arr['name'],
+                ];
+            }
+
+            $return_arr['methods'][$country_method_arr['method_id']][$country_method_arr['code']] =
+                $country_method_arr['name'];
         }
 
         return $return_arr;
@@ -182,18 +180,19 @@ class CountryMethod extends \Magento\Framework\Model\AbstractModel implements Co
      *
      * @return bool
      */
-    public function deleteCountryMethodsForEnvironment( $environment, $method_id = 0 )
+    public function deleteCountryMethodsForEnvironment($environment, $method_id = 0)
     {
         /** @var \Smart2Pay\GlobalPay\Model\ResourceModel\CountryMethod $my_resource */
         $my_resource = $this->getResource();
 
         /** @var \Smart2Pay\GlobalPay\Model\ResourceModel\CountryMethod\Collection $my_collection */
         $my_collection = $this->getCollection();
-        $my_collection->addFieldToFilter( 'environment', $environment );
-        if( !empty( $method_id ) )
-            $my_collection->addFieldToFilter( 'method_id', $method_id );
+        $my_collection->addFieldToFilter('environment', $environment);
+        if (!empty($method_id)) {
+            $my_collection->addFieldToFilter('method_id', $method_id);
+        }
 
-        return $my_resource->deleteFromCollection( $my_collection );
+        return $my_resource->deleteFromCollection($my_collection);
     }
 
     /**
@@ -206,7 +205,7 @@ class CountryMethod extends \Magento\Framework\Model\AbstractModel implements Co
      *
      * @return bool|string
      */
-    public function updateMethodCountries( $method_id, $countries_arr, $environment, $params = false )
+    public function updateMethodCountries($method_id, $countries_arr, $environment, $params = false)
     {
         $country_obj = $this->_countryFactory->create();
         $s2pLogger = $this->_loggerFactory->create();
@@ -214,44 +213,47 @@ class CountryMethod extends \Magento\Framework\Model\AbstractModel implements Co
         /** @var \Smart2Pay\GlobalPay\Model\ResourceModel\CountryMethod $my_resource */
         $my_resource = $this->getResource();
 
-        if( empty( $params ) or !is_array( $params ) )
-            $params = array();
+        if (empty($params) || !is_array($params)) {
+            $params = [];
+        }
 
-        if( !isset( $params['delete_before_update'] ) )
+        if (!isset($params['delete_before_update'])) {
             $params['delete_before_update'] = true;
+        }
 
-        $method_id = intval( $method_id );
-        $environment = strtolower( trim( $environment ) );
-        if( empty( $method_id )
-         or empty( $environment ) or !in_array( $environment, array( 'demo', 'test', 'live' ) ) )
+        $method_id = (int)$method_id;
+        $environment = strtolower(trim($environment));
+        if (empty($method_id)
+         || empty($environment) || !in_array($environment, [ 'demo', 'test', 'live' ], true)) {
             return 'Bad parameters when updating method countries.';
+        }
 
-        if( !($db_countries_arr = $country_obj->getCountriesCodeAsKey()) )
-        {
-            $s2pLogger->write( 'Couldn\'t retrieve countries from database.', 'update_method_countries' );
+        if (!($db_countries_arr = $country_obj->getCountriesCodeAsKey())) {
+            $s2pLogger->write('Couldn\'t retrieve countries from database.', 'update_method_countries');
 
             return 'Couldn\'t retrieve countries from database.';
         }
 
-        if( !empty( $params['delete_before_update'] )
-        and !$this->deleteCountryMethodsForEnvironment( $environment, $method_id ) )
-        {
-            $s2pLogger->write( 'Couldn\'t delete existing method countries.', 'update_method_countries' );
+        if (!empty($params['delete_before_update'])
+        && !$this->deleteCountryMethodsForEnvironment($environment, $method_id)) {
+            $s2pLogger->write('Couldn\'t delete existing method countries.', 'update_method_countries');
 
             return 'Couldn\'t delete existing method countries.';
         }
 
-        foreach( $countries_arr as $country )
-        {
-            $country = strtoupper( trim( $country ) );
-            if( empty( $db_countries_arr[$country] ) )
+        foreach ($countries_arr as $country) {
+            $country = strtoupper(trim($country));
+            if (empty($db_countries_arr[$country])) {
                 continue;
+            }
 
-            if( !$my_resource->insertOrUpdate( $method_id, $db_countries_arr[$country], $environment ) )
-            {
-                $s2pLogger->write( 'Couldn\'t update method countries for method #'.$method_id.'.', 'update_method_countries' );
+            if (!$my_resource->insertOrUpdate($method_id, $db_countries_arr[$country], $environment)) {
+                $s2pLogger->write(
+                    'Couldn\'t update method countries for method #'.$method_id.'.',
+                    'update_method_countries'
+                );
 
-                $this->deleteCountryMethodsForEnvironment( $environment, $method_id );
+                $this->deleteCountryMethodsForEnvironment($environment, $method_id);
 
                 return 'Couldn\'t update method countries for method #'.$method_id.'.';
             }
@@ -275,7 +277,7 @@ class CountryMethod extends \Magento\Framework\Model\AbstractModel implements Co
      */
     public function getID()
     {
-        return $this->getData( self::ID );
+        return $this->getData(self::ID);
     }
 
     /**
@@ -283,7 +285,7 @@ class CountryMethod extends \Magento\Framework\Model\AbstractModel implements Co
      */
     public function getEnvironment()
     {
-        return $this->getData( self::ENVIRONMENT );
+        return $this->getData(self::ENVIRONMENT);
     }
 
     /**
@@ -291,7 +293,7 @@ class CountryMethod extends \Magento\Framework\Model\AbstractModel implements Co
      */
     public function getMethodID()
     {
-        return $this->getData( self::METHOD_ID );
+        return $this->getData(self::METHOD_ID);
     }
 
     /**
@@ -299,7 +301,7 @@ class CountryMethod extends \Magento\Framework\Model\AbstractModel implements Co
      */
     public function getCountryID()
     {
-        return $this->getData( self::COUNTRY_ID );
+        return $this->getData(self::COUNTRY_ID);
     }
 
     /**
@@ -307,46 +309,46 @@ class CountryMethod extends \Magento\Framework\Model\AbstractModel implements Co
      */
     public function getPriority()
     {
-        return $this->getData( self::PRIORITY );
+        return $this->getData(self::PRIORITY);
     }
 
     /**
      * @inheritDoc
      */
-    public function setID( $id )
+    public function setID($id)
     {
-        return $this->setData( self::ID, $id );
+        return $this->setData(self::ID, $id);
     }
 
     /**
      * @inheritDoc
      */
-    public function setEnvironment( $environment )
+    public function setEnvironment($environment)
     {
-        return $this->setData( self::ENVIRONMENT, $environment );
+        return $this->setData(self::ENVIRONMENT, $environment);
     }
 
     /**
      * @inheritDoc
      */
-    public function setMethodID( $method_id )
+    public function setMethodID($method_id)
     {
-        return $this->setData( self::METHOD_ID, $method_id );
+        return $this->setData(self::METHOD_ID, $method_id);
     }
 
     /**
      * @inheritDoc
      */
-    public function setCountryID( $country_id )
+    public function setCountryID($country_id)
     {
-        return $this->setData( self::COUNTRY_ID, $country_id );
+        return $this->setData(self::COUNTRY_ID, $country_id);
     }
 
     /**
      * @inheritDoc
      */
-    public function setPriority( $priority )
+    public function setPriority($priority)
     {
-        return $this->setData( self::PRIORITY, $priority );
+        return $this->setData(self::PRIORITY, $priority);
     }
 }

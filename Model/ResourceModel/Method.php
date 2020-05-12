@@ -25,7 +25,7 @@ class Method extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         \Smart2Pay\GlobalPay\Model\LoggerFactory $loggerFactory,
         $resourcePrefix = null
     ) {
-        parent::__construct( $context, $resourcePrefix );
+        parent::__construct($context, $resourcePrefix);
 
         $this->_s2pHelper = $s2pHelper;
         $this->_loggerFactory = $loggerFactory;
@@ -38,22 +38,21 @@ class Method extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      */
     protected function _construct()
     {
-        $this->_init( 's2p_gp_methods', 'id' );
+        $this->_init('s2p_gp_methods', 'id');
     }
 
     /**
      * @inheritdoc
      */
-    protected function _beforeSave( \Magento\Framework\Model\AbstractModel $object )
+    protected function _beforeSave(\Magento\Framework\Model\AbstractModel $object)
     {
-        if( $this->checkObjectMethodID( $object ) )
-        {
+        if ($this->checkObjectMethodID($object)) {
             throw new \Magento\Framework\Exception\LocalizedException(
-                __( 'Method ID already exists in database.' )
+                __('Method ID already exists in database.')
             );
         }
 
-        return parent::_beforeSave( $object );
+        return parent::_beforeSave($object);
     }
 
     /**
@@ -64,9 +63,9 @@ class Method extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      * @param \Smart2Pay\GlobalPay\Model\Method $object
      * @return \Zend_Db_Select
      */
-    protected function _getLoadSelect( $field, $value, $object = null )
+    protected function _getLoadSelect($field, $value, $object = null)
     {
-        $select = parent::_getLoadSelect( $field, $value, $object );
+        $select = parent::_getLoadSelect($field, $value, $object);
 
         $select->where(
             'active = ?',
@@ -86,17 +85,20 @@ class Method extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      * @param int $isActive
      * @return \Magento\Framework\DB\Select
      */
-    protected function _getLoadByMethodIDSelect( $method_id, $environment = false, $isActive = null )
+    protected function _getLoadByMethodIDSelect($method_id, $environment = false, $isActive = null)
     {
-        if( $environment === false )
+        if ($environment === false) {
             $environment = $this->_s2pHelper->getEnvironment();
+        }
 
-        $select = parent::_getLoadSelect( 'method_id', $method_id, null );
+        $select = parent::_getLoadSelect('method_id', $method_id, null);
 
-        if( !empty( $environment ) )
-            $select->where( 'environment = ?', $environment );
-        if( !is_null( $isActive ) )
-            $select->where( 'active = ?', (!empty( $isActive )?1:0) );
+        if (!empty($environment)) {
+            $select->where('environment = ?', $environment);
+        }
+        if ($isActive!==null) {
+            $select->where('active = ?', (!empty($isActive)?1:0));
+        }
 
         return $select;
     }
@@ -109,16 +111,17 @@ class Method extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      * @param bool|string $environment
      * @return int
      */
-    public function checkMethodID( $method_id, $environment = false )
+    public function checkMethodID($method_id, $environment = false)
     {
-        if( $environment === false )
+        if ($environment === false) {
             $environment = $this->_s2pHelper->getEnvironment();
+        }
 
-        $select = $this->_getLoadByMethodIDSelect( $method_id, $environment );
+        $select = $this->_getLoadByMethodIDSelect($method_id, $environment);
 
-        $select->limit( 1 );
+        $select->limit(1);
 
-        return $this->getConnection()->fetchOne( $select );
+        return $this->getConnection()->fetchOne($select);
     }
 
     /**
@@ -129,21 +132,24 @@ class Method extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      * @param bool|string $environment
      * @return array|bool
      */
-    public function getByMethodID( $method_id, $environment = false )
+    public function getByMethodID($method_id, $environment = false)
     {
-        if( $environment === false )
+        if ($environment === false) {
             $environment = $this->_s2pHelper->getEnvironment();
+        }
 
-        $select = $this->_getLoadByMethodIDSelect( $method_id, $environment );
+        $select = $this->_getLoadByMethodIDSelect($method_id, $environment);
 
-        $select->limit( 1 );
+        $select->limit(1);
 
-        if( !($result_arr = $this->getConnection()->fetchAssoc( $select ))
-         or !is_array( $result_arr ) )
+        if (!($result_arr = $this->getConnection()->fetchAssoc($select))
+         || !is_array($result_arr)) {
             return false;
+        }
 
-        foreach( $result_arr as $key => $method_arr )
+        foreach ($result_arr as $key => $method_arr) {
             break;
+        }
 
         return $method_arr;
     }
@@ -156,12 +162,13 @@ class Method extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      * @param bool|string $environment
      * @return int
      */
-    public function checkObjectMethodID( \Smart2Pay\GlobalPay\Model\Method $object, $environment = false )
+    public function checkObjectMethodID(\Smart2Pay\GlobalPay\Model\Method $object, $environment = false)
     {
-        if( $environment === false )
+        if ($environment === false) {
             $environment = $this->_s2pHelper->getEnvironment();
+        }
 
-        return $this->checkMethodID( $object->getMethodID(), $environment );
+        return $this->checkMethodID($object->getMethodID(), $environment);
     }
 
     /**
@@ -169,17 +176,20 @@ class Method extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      * @throws \Exception
      * @return bool
      */
-    public function deleteFromCollection( \Smart2Pay\GlobalPay\Model\ResourceModel\Method\Collection $collection )
+    public function deleteFromCollection(\Smart2Pay\GlobalPay\Model\ResourceModel\Method\Collection $collection)
     {
-        if( !($collection instanceof \Smart2Pay\GlobalPay\Model\ResourceModel\Method\Collection) )
+        if (!($collection instanceof \Smart2Pay\GlobalPay\Model\ResourceModel\Method\Collection)) {
             return false;
+        }
 
-        if( !($it = $collection->getIterator()) )
+        if (!($it = $collection->getIterator())) {
             return false;
+        }
 
         /** @var \Smart2Pay\GlobalPay\Model\Method $item */
-        foreach( $it as $item )
-            $item->getResource()->delete( $item );
+        foreach ($it as $item) {
+            $item->getResource()->delete($item);
+        }
 
         return true;
     }
@@ -191,50 +201,53 @@ class Method extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      *
      * @return bool
      */
-    public function insertOrUpdate( $method_id, $environment, $params )
+    public function insertOrUpdate($method_id, $environment, $params)
     {
-        $method_id = intval( $method_id );
-        if( empty( $method_id )
-         or empty( $params ) or !is_array( $params )
-         or empty( $params['display_name'] )
-         or !($conn = $this->getConnection()) )
+        $method_id = (int)$method_id;
+        if (empty($method_id)
+         || empty($params) || !is_array($params)
+         || empty($params['display_name'])
+         || !($conn = $this->getConnection())) {
             return false;
+        }
 
-        if( empty( $params['description'] ) )
+        if (empty($params['description'])) {
             $params['description'] = '';
-        if( empty( $params['logo_url'] ) )
+        }
+        if (empty($params['logo_url'])) {
             $params['logo_url'] = '';
-        if( empty( $params['guaranteed'] ) )
+        }
+        if (empty($params['guaranteed'])) {
             $params['guaranteed'] = 0;
-        if( empty( $params['active'] ) )
+        }
+        if (empty($params['active'])) {
             $params['active'] = 0;
+        }
 
-        $insert_arr = array();
+        $insert_arr = [];
         $insert_arr['display_name'] = $params['display_name'];
         $insert_arr['description'] = $params['description'];
         $insert_arr['logo_url'] = $params['logo_url'];
         $insert_arr['guaranteed'] = $params['guaranteed'];
         $insert_arr['active'] = $params['active'];
 
-        try
-        {
-            if( ( $existing_id = $conn->fetchOne( 'SELECT id FROM ' . $this->getMainTable() . ' WHERE method_id = \'' . $method_id . '\' AND environment = \'' . $environment . '\' LIMIT 0, 1' ) ) )
-            {
+        try {
+            if (($existing_id = $conn->fetchOne(
+                'SELECT id FROM ' . $this->getMainTable() . ' WHERE method_id = \'' . $method_id .
+                '\' AND environment = \'' . $environment . '\' LIMIT 0, 1'
+            ))) {
                 // we should update record
-                $conn->update( $this->getMainTable(), $insert_arr, 'id = \'' . $existing_id . '\'' );
-            } else
-            {
+                $conn->update($this->getMainTable(), $insert_arr, 'id = \'' . $existing_id . '\'');
+            } else {
                 $insert_arr['method_id']  = $method_id;
                 $insert_arr['environment'] = $environment;
 
-                $conn->insert( $this->getMainTable(), $insert_arr );
-
+                $conn->insert($this->getMainTable(), $insert_arr);
             }
-        } catch( \Zend_Db_Adapter_Exception $e )
-        {
+        } catch (\Zend_Db_Adapter_Exception $e) {
             $s2pLogger = $this->_loggerFactory->create();
 
-            $s2pLogger->write( 'DB Error ['.$e->getMessage().']', 'configured_method' );
+            $s2pLogger->write('DB Error ['.$e->getMessage().']', 'configured_method');
             return false;
         }
 

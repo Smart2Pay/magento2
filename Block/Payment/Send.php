@@ -108,86 +108,91 @@ class Send extends \Magento\Framework\View\Element\Template
 
         // Sorry for any inconvenience!!! No other way to obtain order after gateway payment processing...
         // If you have a cleaner solution, please contact us!
-        $types = array( 'config', 'layout', 'block_html', 'collections', 'reflection', 'db_ddl', 'eav',
+        $types = [ 'config', 'layout', 'block_html', 'collections', 'reflection', 'db_ddl', 'eav',
                         'config_integration', 'config_integration_api', 'full_page', 'translate',
-                        'config_webservice' );
+                        'config_webservice' ];
 
-        foreach( $types as $type )
-            $this->_cacheTypeList->cleanType( $type );
+        foreach ($types as $type) {
+            $this->_cacheTypeList->cleanType($type);
+        }
 
-        foreach( $this->_cacheFrontendPool as $cacheFrontend )
+        foreach ($this->_cacheFrontendPool as $cacheFrontend) {
             $cacheFrontend->getBackend()->clean();
+        }
 
         $order_is_ok = true;
         $order_error_message = '';
-        $additional_info = array();
-        if( !($order = $this->_checkoutSession->getLastRealOrder()) )
-            $order_error_message = __( 'Couldn\'t extract order information.' );
+        $additional_info = [];
+        if (!($order = $this->_checkoutSession->getLastRealOrder())) {
+            $order_error_message = __('Couldn\'t extract order information.');
+        } elseif (!in_array(
+            $order->getState(),
+            [ Order::STATE_NEW, Order::STATE_PENDING_PAYMENT, Order::STATE_PAYMENT_REVIEW ],
+            true
+        )) {
+            $order_error_message = __('Order was already processed or session information expired.');
+        } elseif (!($additional_info = $order->getPayment()->getAdditionalInformation())
+             || !is_array($additional_info)
+             || empty($additional_info['sp_method']) || empty($additional_info['sp_transaction'])) {
+            $order_error_message = __('Couldn\'t extract payment information from order.');
+        } elseif (!$s2p_transaction->load($additional_info['sp_transaction'])) {
+            $order_error_message = __('Transaction not found in database.');
+        }
 
-        elseif( !in_array( $order->getState(), array( Order::STATE_NEW, Order::STATE_PENDING_PAYMENT, Order::STATE_PAYMENT_REVIEW ) ) )
-            $order_error_message = __( 'Order was already processed or session information expired.' );
-
-        elseif( !($additional_info = $order->getPayment()->getAdditionalInformation())
-             or !is_array( $additional_info )
-             or empty( $additional_info['sp_method'] ) or empty( $additional_info['sp_transaction'] ) )
-            $order_error_message = __( 'Couldn\'t extract payment information from order.' );
-
-        elseif( !$s2p_transaction->load( $additional_info['sp_transaction'] ) )
-            $order_error_message = __( 'Transaction not found in database.' );
-
-        if( !empty( $order_error_message ) )
+        if (!empty($order_error_message)) {
             $order_is_ok = false;
+        }
 
         $smart2pay_config = $helper_obj->getFullConfigArray();
 
         $result_message = '';
         $transaction_extra_data = [];
         $transaction_details_titles = [];
-        if( !empty( $order_is_ok ) )
-        {
-            if( !empty( $additional_info['sp_do_redirect'] )
-            and !empty( $additional_info['sp_redirect_url'] ) )
-            {
-                $order->addStatusHistoryComment( 'Smart2Pay :: redirecting to payment page for payment ID: '.(!empty( $additional_info['sp_payment_id'] )?$additional_info['sp_payment_id']:'N/A') );
+        if (!empty($order_is_ok)) {
+            if (!empty($additional_info['sp_do_redirect'])
+            && !empty($additional_info['sp_redirect_url'])) {
+                $order->addStatusHistoryComment(
+                    'Smart2Pay :: redirecting to payment page for payment ID: '.
+                    (!empty($additional_info['sp_payment_id'])?$additional_info['sp_payment_id']:'N/A')
+                );
 
-                $this->http_response->setRedirect( $additional_info['sp_redirect_url'] );
-            } else
-            {
+                $this->http_response->setRedirect($additional_info['sp_redirect_url']);
+            } else {
                 $status_code = $s2p_transaction->getPaymentStatus();
 
-                if( !($all_params = $s2p_transaction->getExtraDataArray()) )
+                if (!($all_params = $s2p_transaction->getExtraDataArray())) {
                     $all_params = [];
+                }
 
                 // if( in_array( $s2p_transaction->getMethodId(),
                 //               [ $helper_obj::PAYMENT_METHOD_BT, $helper_obj::PAYMENT_METHOD_SIBS ] ) )
-                if( !empty( $all_params ) )
-                {
-                    if( ($transaction_details_titles = $helper_obj::get_transaction_reference_titles())
-                    and is_array( $transaction_details_titles ) )
-                    {
-                        foreach( $transaction_details_titles as $key => $title )
-                        {
-                            if( !array_key_exists( $key, $all_params ) )
+                if (!empty($all_params)) {
+                    if (($transaction_details_titles = $helper_obj::getTransactionReferenceTitles())
+                    && is_array($transaction_details_titles)) {
+                        foreach ($transaction_details_titles as $key => $title) {
+                            if (!array_key_exists($key, $all_params)) {
                                 continue;
+                            }
 
                             $transaction_extra_data[$key] = $all_params[$key];
                         }
                     }
                 }
 
-                $result_message = __( 'Transaction status is unknown.' );
-                if( empty( $order_error_message ) )
-                {
-                    // map all statuses to known Magento statuses (message_data_2, message_data_4, message_data_3 and message_data_7)
-                    if( !($magento_status_id = $helper_obj::convert_gp_status_to_magento_status( $status_code )) )
+                $result_message = __('Transaction status is unknown.');
+                if (empty($order_error_message)) {
+                    // map all statuses to known Magento statuses (message_data_2, message_data_4,
+                    // message_data_3 and message_data_7)
+                    if (!($magento_status_id = $helper_obj::convertGPStatusToMagentoStatus($status_code))) {
                         $magento_status_id = 0;
+                    }
 
-                    if( isset( $smart2pay_config['message_data_'.$status_code] ) )
+                    if (isset($smart2pay_config['message_data_'.$status_code])) {
                         $result_message = $smart2pay_config['message_data_'.$status_code];
-
-                    elseif( !empty( $magento_status_id )
-                        and isset( $smart2pay_config['message_data_'.$magento_status_id] ) )
+                    } elseif (!empty($magento_status_id)
+                        && isset($smart2pay_config['message_data_'.$magento_status_id])) {
                         $result_message = $smart2pay_config['message_data_'.$magento_status_id];
+                    }
                 }
             }
         }
@@ -209,8 +214,9 @@ class Send extends \Magento\Framework\View\Element\Template
                 'can_view_order'  => $this->canViewOrder($order),
                 'order_id'  => $order->getIncrementId(),
 
-                'sp_do_redirect'  => (!empty( $additional_info['sp_do_redirect'] )?true:false),
-                'sp_redirect_url'  => (!empty( $additional_info['sp_redirect_url'] )?$additional_info['sp_redirect_url']:''),
+                'sp_do_redirect'  => (!empty($additional_info['sp_do_redirect'])),
+                'sp_redirect_url'  => (!empty($additional_info['sp_redirect_url'])?
+                    $additional_info['sp_redirect_url']:''),
             ]
         );
     }
@@ -221,7 +227,7 @@ class Send extends \Magento\Framework\View\Element\Template
      * @param Order $order
      * @return bool
      */
-    protected function isVisible( Order $order )
+    protected function isVisible(Order $order)
     {
         return !in_array(
             $order->getStatus(),

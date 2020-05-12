@@ -15,7 +15,7 @@ class InstallData implements InstallDataInterface
      * {@inheritdoc}
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
-    public function install( ModuleDataSetupInterface $setup, ModuleContextInterface $context )
+    public function install(ModuleDataSetupInterface $setup, ModuleContextInterface $context)
     {
         $installer = $setup;
 
@@ -269,9 +269,11 @@ class InstallData implements InstallDataInterface
 
         ];
 
-        $installer->getConnection()->insertArray( $installer->getTable( 's2p_gp_countries' ),
-                                                  ['code','name'],
-                                                  $insert_data );
+        $installer->getConnection()->insertArray(
+            $installer->getTable('s2p_gp_countries'),
+            ['code','name'],
+            $insert_data
+        );
 
         // /**
         //  * Install order statuses from config

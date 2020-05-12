@@ -28,7 +28,7 @@ class Template extends \Magento\Config\Model\Config\Source\Email\Template
         \Magento\Email\Model\Template\Config $emailConfig,
         array $data = []
     ) {
-        parent::__construct( $coreRegistry, $templatesFactory, $emailConfig, $data );
+        parent::__construct($coreRegistry, $templatesFactory, $emailConfig, $data);
 
         $this->_coreRegistry = $coreRegistry;
         $this->_emailConfig = $emailConfig;
@@ -42,23 +42,23 @@ class Template extends \Magento\Config\Model\Config\Source\Email\Template
     public function toOptionArray()
     {
         /** @var $collection \Magento\Email\Model\ResourceModel\Template\Collection */
-        if( !($collection = $this->_coreRegistry->registry( 'config_system_email_template' )) )
-        {
+        if (!($collection = $this->_coreRegistry->registry('config_system_email_template'))) {
             $collection = $this->_templatesFactory->create();
             $collection->load();
-            $this->_coreRegistry->register( 'config_system_email_template', $collection );
+            $this->_coreRegistry->register('config_system_email_template', $collection);
         }
 
         $options = $collection->toOptionArray();
 
         $template_id = '';
-        if( ($path_arr = explode( '/', $this->getPath() )) )
-            $template_id = array_pop( $path_arr );
+        if (($path_arr = explode('/', $this->getPath()))) {
+            $template_id = array_pop($path_arr);
+        }
 
-        $templateLabel = $this->_emailConfig->getTemplateLabel( $template_id );
-        $templateLabel = __( '%1 (Default)', $templateLabel );
+        $templateLabel = $this->_emailConfig->getTemplateLabel($template_id);
+        $templateLabel = __('%1 (Default)', $templateLabel);
 
-        array_unshift( $options, ['value' => $template_id, 'label' => $templateLabel ] );
+        array_unshift($options, ['value' => $template_id, 'label' => $templateLabel ]);
         return $options;
     }
 }

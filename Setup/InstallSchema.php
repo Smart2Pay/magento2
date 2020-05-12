@@ -16,7 +16,7 @@ class InstallSchema implements InstallSchemaInterface
      * {@inheritdoc}
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
-    public function install( SchemaSetupInterface $setup, ModuleContextInterface $context )
+    public function install(SchemaSetupInterface $setup, ModuleContextInterface $context)
     {
         $installer = $setup;
 
@@ -87,7 +87,7 @@ class InstallSchema implements InstallSchemaInterface
         )->setComment(
             'Smart2Pay Payment Methods'
         );
-        $installer->getConnection()->createTable( $table );
+        $installer->getConnection()->createTable($table);
 
         /**
          * Create table 's2p_gp_countries'
@@ -118,7 +118,7 @@ class InstallSchema implements InstallSchemaInterface
         )->setComment(
             'Smart2Pay Countries'
         );
-        $installer->getConnection()->createTable( $table );
+        $installer->getConnection()->createTable($table);
 
         /**
          * Create table 's2p_gp_countries_methods'
@@ -167,7 +167,7 @@ class InstallSchema implements InstallSchemaInterface
         )->setComment(
             'Smart2Pay Methods per Countries'
         );
-        $installer->getConnection()->createTable( $table );
+        $installer->getConnection()->createTable($table);
 
         /**
          * Create table 's2p_gp_transactions'
@@ -246,7 +246,7 @@ class InstallSchema implements InstallSchemaInterface
         )->setComment(
             'Transaction details from backend script. Will be used in order details'
         );
-        $installer->getConnection()->createTable( $table );
+        $installer->getConnection()->createTable($table);
 
         /**
          * Create table 's2p_gp_methods_configured'
@@ -301,7 +301,7 @@ class InstallSchema implements InstallSchemaInterface
         )->setComment(
             'Payment methods to be used and their surcharge (if applicable)'
         );
-        $installer->getConnection()->createTable( $table );
+        $installer->getConnection()->createTable($table);
 
         /**
          * Create table 's2p_gp_logs'
@@ -359,7 +359,7 @@ class InstallSchema implements InstallSchemaInterface
         )->setComment(
             'Smart2Pay Logs'
         );
-        $installer->getConnection()->createTable( $table );
+        $installer->getConnection()->createTable($table);
 
         $installer->endSetup();
     }

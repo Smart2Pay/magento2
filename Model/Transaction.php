@@ -6,9 +6,7 @@ use Smart2Pay\GlobalPay\Api\Data\TransactionInterface;
 use Magento\Framework\DataObject\IdentityInterface;
 
 /**
- * Class Transaction
  * @method \Smart2Pay\GlobalPay\Model\ResourceModel\Transaction _getResource()
- * @package Smart2Pay\GlobalPay\Model
  */
 class Transaction extends \Magento\Framework\Model\AbstractModel implements TransactionInterface, IdentityInterface
 {
@@ -43,9 +41,8 @@ class Transaction extends \Magento\Framework\Model\AbstractModel implements Tran
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
-    )
-    {
-        parent::__construct( $context, $registry, $resource, $resourceCollection, $data );
+    ) {
+        parent::__construct($context, $registry, $resource, $resourceCollection, $data);
 
         $this->_helper = $helperSmart2Pay;
     }
@@ -57,7 +54,7 @@ class Transaction extends \Magento\Framework\Model\AbstractModel implements Tran
      */
     protected function _construct()
     {
-        $this->_init( 'Smart2Pay\GlobalPay\Model\ResourceModel\Transaction' );
+        $this->_init('Smart2Pay\GlobalPay\Model\ResourceModel\Transaction');
     }
 
     /**
@@ -66,14 +63,14 @@ class Transaction extends \Magento\Framework\Model\AbstractModel implements Tran
      * @param string $mt_id
      * @return array
      */
-    public function checkMerchantTransactionId( $mt_id )
+    public function checkMerchantTransactionId($mt_id)
     {
-        return $this->_getResource()->checkMerchantTransactionId( $mt_id );
+        return $this->_getResource()->checkMerchantTransactionId($mt_id);
     }
 
-    public function loadByMerchantTransactionId( $mt_id )
+    public function loadByMerchantTransactionId($mt_id)
     {
-        return parent::load( $mt_id, self::MERCHANT_TRANSACTION_ID );
+        return parent::load($mt_id, self::MERCHANT_TRANSACTION_ID);
     }
 
     /**
@@ -91,7 +88,7 @@ class Transaction extends \Magento\Framework\Model\AbstractModel implements Tran
      */
     public function getID()
     {
-        return $this->getData( self::ID );
+        return $this->getData(self::ID);
     }
 
     /**
@@ -99,7 +96,7 @@ class Transaction extends \Magento\Framework\Model\AbstractModel implements Tran
      */
     public function getMethodId()
     {
-        return $this->getData( self::METHOD_ID );
+        return $this->getData(self::METHOD_ID);
     }
 
     /**
@@ -107,7 +104,7 @@ class Transaction extends \Magento\Framework\Model\AbstractModel implements Tran
      */
     public function getPaymentId()
     {
-        return $this->getData( self::PAYMENT_ID );
+        return $this->getData(self::PAYMENT_ID);
     }
 
     /**
@@ -115,7 +112,7 @@ class Transaction extends \Magento\Framework\Model\AbstractModel implements Tran
      */
     public function getMerchantTransactionId()
     {
-        return $this->getData( self::MERCHANT_TRANSACTION_ID );
+        return $this->getData(self::MERCHANT_TRANSACTION_ID);
     }
 
     /**
@@ -123,7 +120,7 @@ class Transaction extends \Magento\Framework\Model\AbstractModel implements Tran
      */
     public function getSiteId()
     {
-        return $this->getData( self::SITE_ID );
+        return $this->getData(self::SITE_ID);
     }
 
     /**
@@ -131,7 +128,7 @@ class Transaction extends \Magento\Framework\Model\AbstractModel implements Tran
      */
     public function getEnvironment()
     {
-        return $this->getData( self::ENVIRONMENT );
+        return $this->getData(self::ENVIRONMENT);
     }
 
     /**
@@ -139,7 +136,7 @@ class Transaction extends \Magento\Framework\Model\AbstractModel implements Tran
      */
     public function getExtraData()
     {
-        return $this->getData( self::EXTRA_DATA );
+        return $this->getData(self::EXTRA_DATA);
     }
 
     /**
@@ -147,10 +144,11 @@ class Transaction extends \Magento\Framework\Model\AbstractModel implements Tran
      */
     public function getExtraDataArray()
     {
-        if( !($extra_data_str = $this->getExtraData()) )
+        if (!($extra_data_str = $this->getExtraData())) {
             return [];
+        }
 
-        return $this->_helper->parse_string( $extra_data_str );
+        return $this->_helper->parseString($extra_data_str);
     }
 
     /**
@@ -158,7 +156,7 @@ class Transaction extends \Magento\Framework\Model\AbstractModel implements Tran
      */
     public function get3DSecure()
     {
-        return $this->getData( self::TDSECURE );
+        return $this->getData(self::TDSECURE);
     }
 
     /**
@@ -166,7 +164,7 @@ class Transaction extends \Magento\Framework\Model\AbstractModel implements Tran
      */
     public function getPaymentStatus()
     {
-        return $this->getData( self::PAYMENT_STATUS );
+        return $this->getData(self::PAYMENT_STATUS);
     }
 
     /**
@@ -174,7 +172,7 @@ class Transaction extends \Magento\Framework\Model\AbstractModel implements Tran
      */
     public function getCreated()
     {
-        return $this->getData( self::CREATED );
+        return $this->getData(self::CREATED);
     }
 
     /**
@@ -182,120 +180,123 @@ class Transaction extends \Magento\Framework\Model\AbstractModel implements Tran
      */
     public function getUpdated()
     {
-        return $this->getData( self::UPDATED );
+        return $this->getData(self::UPDATED);
     }
 
     /**
      * @inheritDoc
      */
-    public function setID( $id )
+    public function setID($id)
     {
-        $id = intval( $id );
-        return $this->setData( self::ID, $id );
+        $id = (int)$id;
+        return $this->setData(self::ID, $id);
     }
 
     /**
      * @inheritDoc
      */
-    public function setMethodID( $method_id )
+    public function setMethodID($method_id)
     {
-        $method_id = intval( $method_id );
-        return $this->setData( self::METHOD_ID, $method_id );
+        $method_id = (int)$method_id;
+        return $this->setData(self::METHOD_ID, $method_id);
     }
 
     /**
      * @inheritDoc
      */
-    public function setPaymentID( $payment_id )
+    public function setPaymentID($payment_id)
     {
-        $payment_id = intval( $payment_id );
-        return $this->setData( self::PAYMENT_ID, $payment_id );
+        $payment_id = (int)$payment_id;
+        return $this->setData(self::PAYMENT_ID, $payment_id);
     }
 
     /**
      * @inheritDoc
      */
-    public function setMerchantTransactionID( $mt_id )
+    public function setMerchantTransactionID($mt_id)
     {
-        return $this->setData( self::MERCHANT_TRANSACTION_ID, $mt_id );
+        return $this->setData(self::MERCHANT_TRANSACTION_ID, $mt_id);
     }
 
     /**
      * @inheritDoc
      */
-    public function setSiteID( $site_id )
+    public function setSiteID($site_id)
     {
-        $site_id = intval( $site_id );
-        return $this->setData( self::SITE_ID, $site_id );
+        $site_id = (int)$site_id;
+        return $this->setData(self::SITE_ID, $site_id);
     }
 
     /**
      * @inheritDoc
      */
-    public function setEnvironment( $environment )
+    public function setEnvironment($environment)
     {
-        $environment = trim( $environment );
-        return $this->setData( self::ENVIRONMENT, $environment );
+        $environment = trim($environment);
+        return $this->setData(self::ENVIRONMENT, $environment);
     }
 
     /**
      * @inheritDoc
      */
-    public function setExtraData( $data )
+    public function setExtraData($data)
     {
-        if( is_array( $data ) )
-            return $this->setExtraDataArray( $data );
+        if (is_array($data)) {
+            return $this->setExtraDataArray($data);
+        }
 
-        if( !is_string( $data ) )
+        if (!is_string($data)) {
             return $this;
+        }
 
-        $data = trim( $data );
+        $data = trim($data);
 
-        return $this->setData( self::EXTRA_DATA, $data );
+        return $this->setData(self::EXTRA_DATA, $data);
     }
 
     /**
      * @inheritDoc
      */
-    public function setExtraDataArray( $data_arr )
+    public function setExtraDataArray($data_arr)
     {
-        if( !is_array( $data_arr ) )
+        if (!is_array($data_arr)) {
             return $this;
+        }
 
-        $data = $this->_helper->to_string( $data_arr );
+        $data = $this->_helper->toString($data_arr);
 
-        return $this->setData( self::EXTRA_DATA, $data );
+        return $this->setData(self::EXTRA_DATA, $data);
     }
 
     /**
      * @inheritDoc
      */
-    public function set3DSecure( $tdsecure )
+    public function set3DSecure($tdsecure)
     {
-        return $this->setData( self::TDSECURE, $tdsecure );
+        return $this->setData(self::TDSECURE, $tdsecure);
     }
 
     /**
      * @inheritDoc
      */
-    public function setPaymentStatus( $status )
+    public function setPaymentStatus($status)
     {
-        return $this->setData( self::PAYMENT_STATUS, $status );
+        return $this->setData(self::PAYMENT_STATUS, $status);
     }
 
     /**
      * @inheritDoc
      */
-    public function setCreated( $time )
+    public function setCreated($time)
     {
-        return $this->setData( self::CREATED, $time );
+        return $this->setData(self::CREATED, $time);
     }
 
     /**
      * @inheritDoc
      */
-    public function setUpdated( $time )
+    public function setUpdated($time)
     {
-        return $this->setData( self::UPDATED, $time );
+        return $this->setData(self::UPDATED, $time);
     }
 }

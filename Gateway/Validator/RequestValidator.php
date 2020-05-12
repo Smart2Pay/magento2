@@ -19,7 +19,7 @@ class RequestValidator extends AbstractValidator
         \Smart2Pay\GlobalPay\Helper\S2pHelper $s2pHelper,
         ResultInterfaceFactory $resultFactory
     ) {
-        parent::__construct( $resultFactory );
+        parent::__construct($resultFactory);
 
         $this->_s2pHelper = $s2pHelper;
     }
@@ -40,16 +40,16 @@ class RequestValidator extends AbstractValidator
             []
         );
 
-        if ($this->isSuccessfulTransaction($response)) {
-            return $this->createResult(
-                true,
-                []
-            );
-        } else {
-            return $this->createResult(
-                false,
-                [__('RequestValidator failed.')]
-            );
-        }
+        // if ($this->isSuccessfulTransaction($response)) {
+        //     return $this->createResult(
+        //         true,
+        //         []
+        //     );
+        // } else {
+        //     return $this->createResult(
+        //         false,
+        //         [__('RequestValidator failed.')]
+        //     );
+        // }
     }
 }

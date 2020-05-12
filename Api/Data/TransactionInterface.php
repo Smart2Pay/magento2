@@ -1,7 +1,6 @@
 <?php
 namespace Smart2Pay\GlobalPay\Api\Data;
 
-
 interface TransactionInterface
 {
     const ID = 'id';
@@ -106,7 +105,7 @@ interface TransactionInterface
      * @param int $id
      * @return \Smart2Pay\GlobalPay\Api\Data\TransactionInterface
      */
-    public function setID( $id );
+    public function setID($id);
 
     /**
      * Set method ID
@@ -114,7 +113,7 @@ interface TransactionInterface
      * @param int $method_id
      * @return \Smart2Pay\GlobalPay\Api\Data\TransactionInterface
      */
-    public function setMethodID( $method_id );
+    public function setMethodID($method_id);
 
     /**
      * Set payment ID
@@ -122,7 +121,7 @@ interface TransactionInterface
      * @param int $payment_id
      * @return \Smart2Pay\GlobalPay\Api\Data\TransactionInterface
      */
-    public function setPaymentID( $payment_id );
+    public function setPaymentID($payment_id);
 
     /**
      * Set merchant transaction ID
@@ -130,7 +129,7 @@ interface TransactionInterface
      * @param string $mt_id
      * @return \Smart2Pay\GlobalPay\Api\Data\TransactionInterface
      */
-    public function setMerchantTransactionID( $mt_id );
+    public function setMerchantTransactionID($mt_id);
 
     /**
      * Set site ID
@@ -138,7 +137,7 @@ interface TransactionInterface
      * @param int $site_id
      * @return \Smart2Pay\GlobalPay\Api\Data\TransactionInterface
      */
-    public function setSiteID( $site_id );
+    public function setSiteID($site_id);
 
     /**
      * Set environment
@@ -146,7 +145,7 @@ interface TransactionInterface
      * @param string $environment
      * @return \Smart2Pay\GlobalPay\Api\Data\TransactionInterface
      */
-    public function setEnvironment( $environment );
+    public function setEnvironment($environment);
 
     /**
      * Set extra data
@@ -154,7 +153,7 @@ interface TransactionInterface
      * @param string|array $data
      * @return \Smart2Pay\GlobalPay\Api\Data\TransactionInterface
      */
-    public function setExtraData( $data );
+    public function setExtraData($data);
 
     /**
      * Set extra data
@@ -162,7 +161,7 @@ interface TransactionInterface
      * @param array $data_arr
      * @return \Smart2Pay\GlobalPay\Api\Data\TransactionInterface
      */
-    public function setExtraDataArray( $data_arr );
+    public function setExtraDataArray($data_arr);
 
     /**
      * Set 3D Secure
@@ -170,7 +169,7 @@ interface TransactionInterface
      * @param int $tdsecure
      * @return \Smart2Pay\GlobalPay\Api\Data\TransactionInterface
      */
-    public function set3DSecure( $tdsecure );
+    public function set3DSecure($tdsecure);
 
     /**
      * Set payment status
@@ -178,7 +177,7 @@ interface TransactionInterface
      * @param int $status
      * @return \Smart2Pay\GlobalPay\Api\Data\TransactionInterface
      */
-    public function setPaymentStatus( $status );
+    public function setPaymentStatus($status);
 
     /**
      * Set creation time
@@ -186,7 +185,7 @@ interface TransactionInterface
      * @param int $time
      * @return \Smart2Pay\GlobalPay\Api\Data\TransactionInterface
      */
-    public function setCreated( $time );
+    public function setCreated($time);
 
     /**
      * Set update time
@@ -194,6 +193,5 @@ interface TransactionInterface
      * @param int $time
      * @return \Smart2Pay\GlobalPay\Api\Data\TransactionInterface
      */
-    public function setUpdated( $time );
-
+    public function setUpdated($time);
 }

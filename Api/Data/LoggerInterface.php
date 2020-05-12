@@ -1,7 +1,6 @@
 <?php
 namespace Smart2Pay\GlobalPay\Api\Data;
 
-
 interface LoggerInterface
 {
     const LOG_ID = 'log_id';
@@ -59,7 +58,7 @@ interface LoggerInterface
      * @param int $log_id
      * @return \Smart2Pay\GlobalPay\Api\Data\LoggerInterface
      */
-    public function setLogID( $log_id );
+    public function setLogID($log_id);
 
     /**
      * Set log type
@@ -67,7 +66,7 @@ interface LoggerInterface
      * @param string $type
      * @return \Smart2Pay\GlobalPay\Api\Data\LoggerInterface
      */
-    public function setType( $type );
+    public function setType($type);
 
     /**
      * Set log message
@@ -75,7 +74,7 @@ interface LoggerInterface
      * @param string $message
      * @return \Smart2Pay\GlobalPay\Api\Data\LoggerInterface
      */
-    public function setMessage( $message );
+    public function setMessage($message);
 
     /**
      * Set file
@@ -83,7 +82,7 @@ interface LoggerInterface
      * @param string $name
      * @return \Smart2Pay\GlobalPay\Api\Data\LoggerInterface
      */
-    public function setFile( $file );
+    public function setFile($file);
 
     /**
      * Set log name
@@ -91,7 +90,7 @@ interface LoggerInterface
      * @param string $line
      * @return \Smart2Pay\GlobalPay\Api\Data\LoggerInterface
      */
-    public function setFileLine( $line );
+    public function setFileLine($line);
 
     /**
      * Set log name
@@ -99,6 +98,5 @@ interface LoggerInterface
      * @param string $creation
      * @return \Smart2Pay\GlobalPay\Api\Data\LoggerInterface
      */
-    public function setCreated( $creation );
-
+    public function setCreated($creation);
 }

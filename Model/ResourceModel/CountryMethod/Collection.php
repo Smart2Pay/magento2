@@ -10,8 +10,9 @@ class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\Ab
      */
     protected function _construct()
     {
-        $this->_init( 'Smart2Pay\GlobalPay\Model\CountryMethod', 'Smart2Pay\GlobalPay\Model\ResourceModel\CountryMethod' );
+        $this->_init(
+            'Smart2Pay\GlobalPay\Model\CountryMethod',
+            'Smart2Pay\GlobalPay\Model\ResourceModel\CountryMethod'
+        );
     }
-
 }
-

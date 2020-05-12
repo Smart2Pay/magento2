@@ -23,7 +23,7 @@ class Country extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      */
     protected function _construct()
     {
-        $this->_init( 's2p_gp_countries', 'country_id' );
+        $this->_init('s2p_gp_countries', 'country_id');
     }
 
     /**
@@ -33,24 +33,21 @@ class Country extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      * @return $this
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    protected function _beforeSave( \Magento\Framework\Model\AbstractModel $object )
+    protected function _beforeSave(\Magento\Framework\Model\AbstractModel $object)
     {
-        if( !$object->getCode() )
-        {
+        if (!$object->getCode()) {
             throw new \Magento\Framework\Exception\LocalizedException(
                 __('Please provide country code.')
             );
         }
 
-        if( !$object->getName() )
-        {
+        if (!$object->getName()) {
             throw new \Magento\Framework\Exception\LocalizedException(
                 __('Please provide country name.')
             );
         }
 
-        if( $this->checkCode( $object ) )
-        {
+        if ($this->checkCode($object)) {
             throw new \Magento\Framework\Exception\LocalizedException(
                 __('Country code already exists in database.')
             );
@@ -65,9 +62,9 @@ class Country extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      * @param string $code
      * @return \Magento\Framework\DB\Select
      */
-    protected function _getLoadByCodeSelect( $code )
+    protected function _getLoadByCodeSelect($code)
     {
-        $select = parent::_getLoadSelect( 'code', $code, null );
+        $select = parent::_getLoadSelect('code', $code, null);
 
         return $select;
     }
@@ -79,12 +76,12 @@ class Country extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      * @param string $code
      * @return int
      */
-    public function checkCode( $code )
+    public function checkCode($code)
     {
-        $select = $this->_getLoadByCodeSelect( $code );
+        $select = $this->_getLoadByCodeSelect($code);
 
-        $select->limit( 1 );
+        $select->limit(1);
 
-        return $this->getConnection()->fetchOne( $select );
+        return $this->getConnection()->fetchOne($select);
     }
 }

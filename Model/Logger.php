@@ -7,13 +7,11 @@ use Smart2Pay\GlobalPay\Api\Data\LoggerInterface;
 /**
  * Class Country
  * @method \Smart2Pay\GlobalPay\Model\ResourceModel\Logger _getResource()
- * @package Smart2Pay\GlobalPay\Model
  */
 class Logger extends \Magento\Framework\Model\AbstractModel implements LoggerInterface
 {
     /**
      * Prefix of model events names
-     *
      * @var string
      */
     protected $_eventPrefix = 'smart2pay_globalpay_logger';
@@ -25,7 +23,7 @@ class Logger extends \Magento\Framework\Model\AbstractModel implements LoggerInt
      */
     protected function _construct()
     {
-        $this->_init( 'Smart2Pay\GlobalPay\Model\ResourceModel\Logger' );
+        $this->_init('Smart2Pay\GlobalPay\Model\ResourceModel\Logger');
     }
 
     /**
@@ -39,25 +37,21 @@ class Logger extends \Magento\Framework\Model\AbstractModel implements LoggerInt
      *
      * @return bool Returns true if succes, false if failed
      */
-    public function write( $message, $type = 'info', $transaction_id = '', $file = '', $line = '' )
+    public function write($message, $type = 'info', $transaction_id = '', $file = '', $line = '')
     {
-        if( empty( $file ) or empty( $line ) )
-        {
-            if( ($backtrace = debug_backtrace())
-            and !empty( $backtrace[0] )
-            and is_array( $backtrace[0] ) )
-            {
+        if (empty($file) || empty($line)) {
+            if (($backtrace = debug_backtrace())
+            && !empty($backtrace[0])
+            && is_array($backtrace[0])) {
                 $file = $backtrace[0]['file'];
                 $line = $backtrace[0]['line'];
             }
         }
 
-        try
-        {
-            $this->_getResource()->write( $message, $type, $transaction_id, $file, $line );
-        } catch( \Exception $e )
-        {
-            \Zend_Debug::dump( $e->getMessage() );
+        try {
+            $this->_getResource()->write($message, $type, $transaction_id, $file, $line);
+        } catch (\Exception $e) {
+            \Zend_Debug::dump($e->getMessage());
             return false;
         }
 
@@ -69,7 +63,7 @@ class Logger extends \Magento\Framework\Model\AbstractModel implements LoggerInt
      */
     public function getLogId()
     {
-        return $this->getData( self::LOG_ID );
+        return $this->getData(self::LOG_ID);
     }
 
     /**
@@ -77,7 +71,7 @@ class Logger extends \Magento\Framework\Model\AbstractModel implements LoggerInt
      */
     public function getType()
     {
-        return $this->getData( self::LOG_TYPE );
+        return $this->getData(self::LOG_TYPE);
     }
 
     /**
@@ -85,7 +79,7 @@ class Logger extends \Magento\Framework\Model\AbstractModel implements LoggerInt
      */
     public function getMessage()
     {
-        return $this->getData( self::LOG_MESSAGE );
+        return $this->getData(self::LOG_MESSAGE);
     }
 
     /**
@@ -93,7 +87,7 @@ class Logger extends \Magento\Framework\Model\AbstractModel implements LoggerInt
      */
     public function getFile()
     {
-        return $this->getData( self::LOG_SOURCE_FILE );
+        return $this->getData(self::LOG_SOURCE_FILE);
     }
 
     /**
@@ -101,7 +95,7 @@ class Logger extends \Magento\Framework\Model\AbstractModel implements LoggerInt
      */
     public function getFileLine()
     {
-        return $this->getData( self::LOG_SOURCE_FILE_LINE );
+        return $this->getData(self::LOG_SOURCE_FILE_LINE);
     }
 
     /**
@@ -109,54 +103,54 @@ class Logger extends \Magento\Framework\Model\AbstractModel implements LoggerInt
      */
     public function getCreated()
     {
-        return $this->getData( self::LOG_CREATED );
+        return $this->getData(self::LOG_CREATED);
     }
 
     /**
      * @inheritDoc
      */
-    public function setLogID( $log_id )
+    public function setLogID($log_id)
     {
-        return $this->setData( self::LOG_ID, $log_id );
+        return $this->setData(self::LOG_ID, $log_id);
     }
 
     /**
      * @inheritDoc
      */
-    public function setType( $type )
+    public function setType($type)
     {
-        return $this->setData( self::LOG_TYPE, $type );
+        return $this->setData(self::LOG_TYPE, $type);
     }
 
     /**
      * @inheritDoc
      */
-    public function setMessage( $message )
+    public function setMessage($message)
     {
-        return $this->setData( self::LOG_MESSAGE, $message );
+        return $this->setData(self::LOG_MESSAGE, $message);
     }
 
     /**
      * @inheritDoc
      */
-    public function setFile( $file )
+    public function setFile($file)
     {
-        return $this->setData( self::LOG_SOURCE_FILE, $file );
+        return $this->setData(self::LOG_SOURCE_FILE, $file);
     }
 
     /**
      * @inheritDoc
      */
-    public function setFileLine( $line )
+    public function setFileLine($line)
     {
-        return $this->setData( self::LOG_SOURCE_FILE_LINE, $line );
+        return $this->setData(self::LOG_SOURCE_FILE_LINE, $line);
     }
 
     /**
      * @inheritDoc
      */
-    public function setCreated( $creation )
+    public function setCreated($creation)
     {
-        return $this->setData( self::LOG_CREATED, $creation );
+        return $this->setData(self::LOG_CREATED, $creation);
     }
 }

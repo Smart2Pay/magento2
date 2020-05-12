@@ -1,7 +1,6 @@
 <?php
 namespace Smart2Pay\GlobalPay\Api\Data;
 
-
 interface ConfiguredMethodsInterface
 {
     const ID = 'id';
@@ -59,7 +58,7 @@ interface ConfiguredMethodsInterface
      * @param int $id
      * @return \Smart2Pay\GlobalPay\Api\Data\ConfiguredMethodsInterface
      */
-    public function setID( $id );
+    public function setID($id);
 
     /**
      * Set Environment
@@ -67,7 +66,7 @@ interface ConfiguredMethodsInterface
      * @param string $environment
      * @return \Smart2Pay\GlobalPay\Api\Data\ConfiguredMethodsInterface
      */
-    public function setEnvironment( $environment );
+    public function setEnvironment($environment);
 
     /**
      * Set Method ID
@@ -75,7 +74,7 @@ interface ConfiguredMethodsInterface
      * @param int $method_id
      * @return \Smart2Pay\GlobalPay\Api\Data\ConfiguredMethodsInterface
      */
-    public function setMethodID( $method_id );
+    public function setMethodID($method_id);
 
     /**
      * Set Country ID
@@ -83,7 +82,7 @@ interface ConfiguredMethodsInterface
      * @param int $country_id
      * @return \Smart2Pay\GlobalPay\Api\Data\ConfiguredMethodsInterface
      */
-    public function setCountryID( $country_id );
+    public function setCountryID($country_id);
 
     /**
      * Set Surcharge amount
@@ -91,7 +90,7 @@ interface ConfiguredMethodsInterface
      * @param float $surcharge_amount
      * @return \Smart2Pay\GlobalPay\Api\Data\ConfiguredMethodsInterface
      */
-    public function setSurcharge( $surcharge_amount );
+    public function setSurcharge($surcharge_amount);
 
     /**
      * Set Surcharge fixed amount
@@ -99,6 +98,5 @@ interface ConfiguredMethodsInterface
      * @param float $fixed_amount
      * @return \Smart2Pay\GlobalPay\Api\Data\ConfiguredMethodsInterface
      */
-    public function setFixedAmount( $fixed_amount );
-
+    public function setFixedAmount($fixed_amount);
 }
