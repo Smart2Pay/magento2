@@ -327,8 +327,8 @@ class Notification extends \Magento\Framework\App\Action\Action
                         ) * 100;
                         $orderCurrency = $order->getBaseCurrency()->getCurrencyCode();
 
-                        if ((string)$orderAmount !== $payment_arr['amount']
-                         || (string)$orderCurrency !== $payment_arr['currency']) {
+                        if ((string)$orderAmount !== (string)$payment_arr['amount']
+                         || (string)$orderCurrency !== (string)$payment_arr['currency']) {
                             $order->addStatusHistoryComment('S2P Notification: notification has different amount ['.
                                     $orderAmount.'/'.$payment_arr['amount'].'] and/or currency ['.
                                     $orderCurrency.'/'.$payment_arr['currency'].
