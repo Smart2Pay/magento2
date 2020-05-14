@@ -82,34 +82,33 @@ class S2pHelper extends AbstractHelper
 
     public static function convertGPStatusToMagentoStatus($status_code)
     {
+        // 7 self::S2P_STATUS_PENDING_PROVIDER
+        // 2 self::S2P_STATUS_SUCCESS
+        // 3 self::S2P_STATUS_CANCELLED
+        // 4 self::S2P_STATUS_FAILED
+        // Any other statuses not defined here will be considered as pending
         $status_id_to_string = [
+
             self::S2P_STATUS_OPEN => self::S2P_STATUS_PENDING_PROVIDER,
+            self::S2P_STATUS_AUTHORIZED => self::S2P_STATUS_PENDING_PROVIDER,
+
             self::S2P_STATUS_SUCCESS => self::S2P_STATUS_SUCCESS,
+            self::S2P_STATUS_CAPTURED => self::S2P_STATUS_SUCCESS,
+            self::S2P_STATUS_COMPLETED => self::S2P_STATUS_SUCCESS,
+
             self::S2P_STATUS_CANCELLED => self::S2P_STATUS_CANCELLED,
+
             self::S2P_STATUS_FAILED => self::S2P_STATUS_FAILED,
             self::S2P_STATUS_EXPIRED => self::S2P_STATUS_FAILED,
-            self::S2P_STATUS_PENDING_CUSTOMER => self::S2P_STATUS_PENDING_PROVIDER,
-            self::S2P_STATUS_PENDING_PROVIDER => self::S2P_STATUS_PENDING_PROVIDER,
-            self::S2P_STATUS_SUBMITTED => self::S2P_STATUS_PENDING_PROVIDER,
-            self::S2P_STATUS_AUTHORIZED => self::S2P_STATUS_PENDING_PROVIDER,
-            self::S2P_STATUS_APPROVED => self::S2P_STATUS_PENDING_PROVIDER,
-            self::S2P_STATUS_CAPTURED => self::S2P_STATUS_PENDING_PROVIDER,
             self::S2P_STATUS_REJECTED => self::S2P_STATUS_FAILED,
-            self::S2P_STATUS_PENDING_CAPTURE => self::S2P_STATUS_PENDING_PROVIDER,
-            self::S2P_STATUS_EXCEPTION => self::S2P_STATUS_PENDING_PROVIDER,
-            self::S2P_STATUS_PENDING_CANCEL => self::S2P_STATUS_PENDING_PROVIDER,
-            self::S2P_STATUS_REVERSED => self::S2P_STATUS_PENDING_PROVIDER,
-            self::S2P_STATUS_COMPLETED => self::S2P_STATUS_SUCCESS,
-            self::S2P_STATUS_PROCESSING => self::S2P_STATUS_PENDING_PROVIDER,
-            self::S2P_STATUS_DISPUTED => self::S2P_STATUS_PENDING_PROVIDER,
-            self::S2P_STATUS_CHARGEBACK => self::S2P_STATUS_PENDING_PROVIDER,
+
         ];
 
         if (!empty($status_id_to_string[$status_code])) {
             return $status_id_to_string[$status_code];
         }
 
-        return false;
+        return self::S2P_STATUS_PENDING_PROVIDER;
     }
 
     public static function defaultPaymentRequestFlow()

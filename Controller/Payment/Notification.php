@@ -389,7 +389,7 @@ class Notification extends \Magento\Framework\App\Action\Action
                                             )
                                         );
 
-                                        $order->setIsCustomerNotified(true);
+                                        //$order->setIsCustomerNotified(true);
                                         $order->save();
                                     } catch (\Exception $e) {
                                         $s2pLogger->write('Error auto-generating invoice: ['.
@@ -435,7 +435,10 @@ class Notification extends \Magento\Framework\App\Action\Action
 
                             // Inform customer
                             if ($module_config['notify_customer']) {
-                                $this->informCustomer($order, $payment_arr['amount'], $payment_arr['currency']);
+                                if ($this->informCustomer($order, $payment_arr['amount'], $payment_arr['currency'])) {
+                                    $order->setIsCustomerNotified(true);
+                                    $order->save();
+                                }
                             }
                         }
                         break;
@@ -707,6 +710,7 @@ class Notification extends \Magento\Framework\App\Action\Action
     {
         $helper_obj = $this->helper;
 
+        $send_result = true;
         try {
             $store_id = $order->getStore()->getId();
 
@@ -755,11 +759,13 @@ class Notification extends \Magento\Framework\App\Action\Action
                 'email_template'
             );
             $this->s2pLogger->write($e->getMessage(), 'email_exception');
+            $send_result = false;
         } catch (\Exception $e) {
             $this->s2pLogger->write($e->getMessage(), 'exception');
+            $send_result = false;
         }
 
-        return true;
+        return $send_result;
     }
 
     public static function defaultPaymentDetailsParams()
