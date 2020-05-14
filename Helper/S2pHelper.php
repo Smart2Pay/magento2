@@ -82,34 +82,33 @@ class S2pHelper extends AbstractHelper
 
     public static function convertGPStatusToMagentoStatus($status_code)
     {
+        // 7 self::S2P_STATUS_PENDING_PROVIDER
+        // 2 self::S2P_STATUS_SUCCESS
+        // 3 self::S2P_STATUS_CANCELLED
+        // 4 self::S2P_STATUS_FAILED
+        // Any other statuses not defined here will be considered as pending
         $status_id_to_string = [
+
             self::S2P_STATUS_OPEN => self::S2P_STATUS_PENDING_PROVIDER,
+            self::S2P_STATUS_AUTHORIZED => self::S2P_STATUS_PENDING_PROVIDER,
+
             self::S2P_STATUS_SUCCESS => self::S2P_STATUS_SUCCESS,
+            self::S2P_STATUS_CAPTURED => self::S2P_STATUS_SUCCESS,
+            self::S2P_STATUS_COMPLETED => self::S2P_STATUS_SUCCESS,
+
             self::S2P_STATUS_CANCELLED => self::S2P_STATUS_CANCELLED,
+
             self::S2P_STATUS_FAILED => self::S2P_STATUS_FAILED,
             self::S2P_STATUS_EXPIRED => self::S2P_STATUS_FAILED,
-            self::S2P_STATUS_PENDING_CUSTOMER => self::S2P_STATUS_PENDING_PROVIDER,
-            self::S2P_STATUS_PENDING_PROVIDER => self::S2P_STATUS_PENDING_PROVIDER,
-            self::S2P_STATUS_SUBMITTED => self::S2P_STATUS_PENDING_PROVIDER,
-            self::S2P_STATUS_AUTHORIZED => self::S2P_STATUS_PENDING_PROVIDER,
-            self::S2P_STATUS_APPROVED => self::S2P_STATUS_PENDING_PROVIDER,
-            self::S2P_STATUS_CAPTURED => self::S2P_STATUS_PENDING_PROVIDER,
             self::S2P_STATUS_REJECTED => self::S2P_STATUS_FAILED,
-            self::S2P_STATUS_PENDING_CAPTURE => self::S2P_STATUS_PENDING_PROVIDER,
-            self::S2P_STATUS_EXCEPTION => self::S2P_STATUS_PENDING_PROVIDER,
-            self::S2P_STATUS_PENDING_CANCEL => self::S2P_STATUS_PENDING_PROVIDER,
-            self::S2P_STATUS_REVERSED => self::S2P_STATUS_PENDING_PROVIDER,
-            self::S2P_STATUS_COMPLETED => self::S2P_STATUS_SUCCESS,
-            self::S2P_STATUS_PROCESSING => self::S2P_STATUS_PENDING_PROVIDER,
-            self::S2P_STATUS_DISPUTED => self::S2P_STATUS_PENDING_PROVIDER,
-            self::S2P_STATUS_CHARGEBACK => self::S2P_STATUS_PENDING_PROVIDER,
+
         ];
 
         if (!empty($status_id_to_string[$status_code])) {
             return $status_id_to_string[$status_code];
         }
 
-        return false;
+        return self::S2P_STATUS_PENDING_PROVIDER;
     }
 
     public static function defaultPaymentRequestFlow()
@@ -300,7 +299,9 @@ class S2pHelper extends AbstractHelper
                 $product_arr['qty_ordered'] = $product_arr['qty'];
             }
 
-            // 1 => 'Product', 2 => 'Shipping', 3 => 'Handling',
+            // 1 => 'Product', 2 => 'Shipping', 3 => 'Handling', (OLD WAY)
+            // 4 = Discount, 5 = Physical, 6 = Shipping_fee, 7 = Sales_tax, 8 = Digital,
+            // 9 = Gift_card, 10 = Store_credit, 11 = Surcharge
             $article_arr = [];
             $article_arr['ID'] = $product_arr['product_id'];
             $article_arr['Name'] = $product_arr['name'];
@@ -309,7 +310,7 @@ class S2pHelper extends AbstractHelper
             // VAT Percent
             $article_arr['VAT'] = self::klarnaPrice($product_arr['tax_percent']);
             // $article_arr['Discount'] = 0;
-            $article_arr['Type'] = 1;
+            $article_arr['Type'] = 5;
 
             if ($article_arr['Price'] > $biggest_price) {
                 $biggest_price_knti = $articles_knti;
@@ -335,7 +336,9 @@ class S2pHelper extends AbstractHelper
 
         $transport_index = 0;
         if ($params['transport_amount'] !== 0.0) {
-            // 1 => 'Product', 2 => 'Shipping', 3 => 'Handling',
+            // 1 => 'Product', 2 => 'Shipping', 3 => 'Handling', (OLD WAY)
+            // 4 = Discount, 5 = Physical, 6 = Shipping_fee, 7 = Sales_tax, 8 = Digital,
+            // 9 = Gift_card, 10 = Store_credit, 11 = Surcharge
             $article_arr = [];
             $article_arr['ID'] = 0;
             $article_arr['Name'] = 'Transport';
@@ -343,7 +346,7 @@ class S2pHelper extends AbstractHelper
             $article_arr['Price'] = self::klarnaPrice($params['transport_amount']);
             $article_arr['VAT'] = 0;
             //$article_arr['Discount'] = 0;
-            $article_arr['Type'] = 2;
+            $article_arr['Type'] = 6;
 
             $articles_arr[$articles_knti] = $article_arr;
 
@@ -417,7 +420,9 @@ class S2pHelper extends AbstractHelper
                 $articles_meta_arr[$transport_index]['total_price'] += $amount_diff;
             } else {
                 // we DON'T have transport in articles...
-                // 1 => 'Product', 2 => 'Shipping', 3 => 'Handling',
+                // 1 => 'Product', 2 => 'Shipping', 3 => 'Handling', (OLD WAY)
+                // 4 = Discount, 5 = Physical, 6 = Shipping_fee, 7 = Sales_tax, 8 = Digital,
+                // 9 = Gift_card, 10 = Store_credit, 11 = Surcharge
                 $article_arr = [];
                 $article_arr['ID'] = 0;
                 $article_arr['Name'] = 'Transport';
@@ -425,7 +430,7 @@ class S2pHelper extends AbstractHelper
                 $article_arr['Price'] = $amount_diff;
                 $article_arr['VAT'] = 0;
                 //$article_arr['Discount'] = 0;
-                $article_arr['Type'] = 2;
+                $article_arr['Type'] = 6;
 
                 $articles_arr[$articles_knti] = $article_arr;
 
