@@ -367,7 +367,7 @@ class Notification extends \Magento\Framework\App\Action\Action
                                     );
                                 } else {
                                     try {
-                                        $invoice = $this->_invoiceService->prepareInvoice($order);
+                                        $invoice = $this->invoiceService->prepareInvoice($order);
                                         $invoice->setRequestedCaptureCase(
                                             \Magento\Sales\Model\Order\Invoice::CAPTURE_OFFLINE
                                         );
@@ -375,11 +375,11 @@ class Notification extends \Magento\Framework\App\Action\Action
                                         //$invoice->setState( \Magento\Sales\Model\Order\Invoice::STATE_PAID );
                                         //$invoice->save();
 
-                                        $transactionSave = $this->_dbTransaction->addObject($invoice)
+                                        $transactionSave = $this->dbTransaction->addObject($invoice)
                                                                                 ->addObject($invoice->getOrder());
                                         $transactionSave->save();
 
-                                        $this->_invoiceSender->send($invoice);
+                                        $this->invoiceSender->send($invoice);
 
                                         //send notification code
                                         $order->addStatusHistoryComment(
@@ -436,13 +436,13 @@ class Notification extends \Magento\Framework\App\Action\Action
                             // Inform customer
                             if ($module_config['notify_customer']) {
                                 if ($this->informCustomer($order, $payment_arr['amount'], $payment_arr['currency'])) {
-                                    $order->addStatusHistoryComment(
+                                    $historyItem = $order->addStatusHistoryComment(
                                         __(
                                             'S2P Notification: Payment confirmation email sent to client.'
                                         )
                                     );
-                                    $order->setIsCustomerNotified(true);
-                                    $order->save();
+                                    $historyItem->setIsCustomerNotified(true)->save();
+                                    //$order->save();
                                 }
                             }
                         }
