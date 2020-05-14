@@ -436,6 +436,11 @@ class Notification extends \Magento\Framework\App\Action\Action
                             // Inform customer
                             if ($module_config['notify_customer']) {
                                 if ($this->informCustomer($order, $payment_arr['amount'], $payment_arr['currency'])) {
+                                    $order->addStatusHistoryComment(
+                                        __(
+                                            'S2P Notification: Payment confirmation email sent to client.'
+                                        )
+                                    );
                                     $order->setIsCustomerNotified(true);
                                     $order->save();
                                 }
