@@ -2,30 +2,20 @@
 
 namespace Smart2Pay\GlobalPay\Controller\Payment;
 
-use Magento\Framework\App\Request\Http;
+use \Smart2Pay\GlobalPay\Model\Config\Source\Environment;
 
 class Registration extends \Magento\Framework\App\Action\Action
 {
-    /** @var \Magento\Framework\App\Http\Context */
-    protected $httpContext;
-
-    /** @var \Smart2Pay\GlobalPay\Model\Logger */
-    protected $s2pLogger;
-
     /** @var \Smart2Pay\GlobalPay\Helper\S2pHelper */
     protected $helper;
 
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
-        \Magento\Framework\App\Http\Context $httpContext,
-        \Smart2Pay\GlobalPay\Model\Logger $s2pLogger,
         \Smart2Pay\GlobalPay\Helper\S2pHelper $helperSmart2Pay
     ) {
         parent::__construct($context);
 
-        $this->httpContext = $httpContext;
         $this->helper = $helperSmart2Pay;
-        $this->s2pLogger = $s2pLogger;
 
         // Ugly bug when sending POST data to a script...
         if (interface_exists('\Magento\Framework\App\CsrfAwareActionInterface')) {
@@ -44,404 +34,47 @@ class Registration extends \Magento\Framework\App\Action\Action
     public function execute()
     {
         $helper_obj = $this->helper;
-        $s2pLogger = $this->s2pLogger;
 
-        $module_config = $helper_obj->getFullConfigArray(false, $order->getStoreId());
-
-        if (!$helper_obj->checkRegistrationNotificationNounce()) {
-            $error_msg = 'Couldn\'t load Smart2Pay API credentials for current environment.';
-
-            $s2pLogger->write($error_msg, 'error', $merchanttransactionid);
-            return $this->sendResponseError($error_msg, 404);
+        if (!($nounce = $helper_obj->getParam('nounce', ''))
+         || !$helper_obj->checkRegistrationNotificationNounce($nounce)) {
+            return $this->sendResponseError('Invalid request.', 400);
         }
 
-        \S2P_SDK\S2P_SDK_Module::one_call_settings(
-            [
-                'api_key' => $api_credentials['apikey'],
-                'site_id' => $api_credentials['site_id'],
-                'environment' => $api_credentials['api_environment'],
-            ]
-        );
-
-        if (!$notification_obj->check_authentication()) {
-            if ($notification_obj->has_error()
-            && ($error_arr = $notification_obj->get_error())) {
-                $error_msg = 'Error: '.$error_arr['display_error'];
-            } else {
-                $error_msg = 'Authentication failed.';
-            }
-
-            $s2pLogger->write($error_msg, 'error', $merchanttransactionid);
-            return $this->sendResponseError($error_msg, 401);
-        }
-
-        $s2pLogger->write('Received notification type ['.$notification_title.'].', 'info', $merchanttransactionid);
-
-        switch ($notification_type) {
-            case $notification_obj::TYPE_PAYMENT:
-                if (empty($payment_arr['status']) || empty($payment_arr['status']['id'])) {
-                    $error_msg = 'Status not provided.';
-                    $error_msg .= 'Input buffer: '.$notification_obj->get_input_buffer();
-
-                    $s2pLogger->write($error_msg, 'error', $merchanttransactionid);
-                    return $this->sendResponseError($error_msg, 400);
-                }
-
-                if (!isset($payment_arr['amount']) || !isset($payment_arr['currency'])) {
-                    $error_msg = 'Amount or Currency not provided.';
-                    $error_msg .= 'Input buffer: '.$notification_obj->get_input_buffer();
-
-                    $s2pLogger->write($error_msg, 'error', $merchanttransactionid);
-                    return $this->sendResponseError($error_msg, 400);
-                }
-
-                $order->addStatusHistoryComment('S2P Notification: payment notification received (Status: '.
-                                                $payment_arr['status']['id'].').');
-
-                if (!($status_title = \S2P_SDK\S2P_SDK_Meth_Payments::valid_status($payment_arr['status']['id']))) {
-                    $status_title = '(unknown)';
-                }
-
-                $something_changed = false;
-                if ((int)$s2pTransactionLogger->getPaymentStatus() !== (int)$payment_arr['status']['id']) {
-                    $something_changed = true;
-                    $s2pTransactionLogger->setPaymentStatus($payment_arr['status']['id']);
-                }
-                if (!empty($payment_arr['methodid'])
-                && (int)$s2pTransactionLogger->getMethodId() !== (int)$payment_arr['methodid']) {
-                    $something_changed = true;
-                    $s2pTransactionLogger->setMethodID($payment_arr['methodid']);
-                }
-
-                if (!($transaction_extra_data_arr = $s2pTransactionLogger->getExtraDataArray())) {
-                    $transaction_extra_data_arr = [];
-                }
-
-                if (!empty($payment_request['referencedetails']) && is_array($payment_request['referencedetails'])) {
-                    foreach ($payment_request['referencedetails'] as $key => $val) {
-                        if ($val === null
-                         || (array_key_exists($key, $transaction_extra_data_arr)
-                                && (string)$transaction_extra_data_arr[$key] === (string)$val)
-                        ) {
-                            continue;
-                        }
-
-                        $something_changed = true;
-                        $transaction_extra_data_arr[$key] = $val;
-                    }
-
-                    if ($something_changed) {
-                        $s2pTransactionLogger->setExtraDataArray($transaction_extra_data_arr);
-                    }
-                }
-
-                if ($something_changed) {
-                    try {
-                        $s2pTransactionLogger->save();
-                    } catch (\Exception $e) {
-                        $error_msg = 'Couldn\'t save transaction details to database [#'.
-                                     $s2pTransactionLogger->getID().', Order: '.
-                                     $s2pTransactionLogger->getMerchantTransactionId().'].';
-
-                        $s2pLogger->write($error_msg, 'error', $merchanttransactionid);
-                        return $this->sendResponseError($error_msg, 529);
-                    }
-                }
-
-                // Send order confirmation email (if not already sent)
-                // if( !$order->getEmailSent() )
-                //     $order->sendNewOrderEmail();
-
-                $s2pLogger->write('Received '.$status_title.' notification for order '.
-                                  $payment_arr['merchanttransactionid'].'.', 'info', $merchanttransactionid);
-
-                // Update database according to payment status
-                switch ($payment_arr['status']['id']) {
-                    default:
-                        $order->addStatusHistoryComment('Smart2Pay status ID "'.
-                                                        $payment_arr['status']['id'].'" occurred.');
-                        break;
-
-                    case \S2P_SDK\S2P_SDK_Meth_Payments::STATUS_OPEN:
-                        $order->addStatusHistoryComment(
-                            'Smart2Pay status ID "'.
-                                                        $payment_arr['status']['id'].'" occurred.',
-                            $module_config['order_status']
-                        );
-
-                        // if (!empty($payment_arr['methodid'])
-                        // && $module_config['notify_payment_instructions']
-                        // && in_array((int)$payment_arr['methodid'], [ $helper_obj::PAYMENT_METHOD_BT,
-                        // $helper_obj::PAYMENT_METHOD_SIBS ], true)) {
-                        //     // Inform customer
-                        //     $this->sendPaymentDetails($order, $transaction_extra_data_arr);
-                        // }
-                        break;
-
-                    case \S2P_SDK\S2P_SDK_Meth_Payments::STATUS_SUCCESS:
-                    case \S2P_SDK\S2P_SDK_Meth_Payments::STATUS_CAPTURED:
-                        $orderAmount =  number_format(
-                            $order->getBaseGrandTotal(),
-                            2,
-                            '.',
-                            ''
-                        ) * 100;
-                        $orderCurrency = $order->getBaseCurrency()->getCurrencyCode();
-
-                        if ((string)$orderAmount !== (string)$payment_arr['amount']
-                         || (string)$orderCurrency !== (string)$payment_arr['currency']) {
-                            $order->addStatusHistoryComment('S2P Notification: notification has different amount ['.
-                                    $orderAmount.'/'.$payment_arr['amount'].'] and/or currency ['.
-                                    $orderCurrency.'/'.$payment_arr['currency'].
-                                    ']!. Please contact support@smart2pay.com', $module_config['order_status_on_4']);
-                            $order->save();
-                        } elseif ($order->getState() != \Magento\Sales\Model\Order::STATE_PAYMENT_REVIEW) {
-                            $order->addStatusHistoryComment('S2P Notification: Order not in payment review state. ['.
-                                                            $order->getState().']');
-                            $order->save();
-                        } else {
-                            $order->addStatusHistoryComment('S2P Notification: order has been paid. [MethodID: '.
-                                                $payment_arr['methodid'] .']', $module_config['order_status_on_2']);
-                            $order->setState(\Magento\Sales\Model\Order::STATE_PROCESSING);
-
-                            /** @var \Magento\Sales\Model\Order\Payment $payment_obj */
-                            if (($payment_obj = $order->getPayment())) {
-                                if (($orderTransaction = $this->getOrderTransaction($payment_obj))) {
-                                    $orderTransaction->setIsClosed(true);
-                                    $orderTransaction->save();
-                                }
-
-                                $payment_obj->setIsTransactionPending(false);
-                                $payment_obj->save();
-                            }
-
-                            $order->save();
-
-                            // Generate invoice
-                            if ($module_config['auto_invoice']) {
-                                // Create and pay Order Invoice
-                                if (!$order->canInvoice()) {
-                                    $s2pLogger->write(
-                                        'Order can not be invoiced',
-                                        'warning',
-                                        $merchanttransactionid
-                                    );
-                                } else {
-                                    try {
-                                        $invoice = $this->invoiceService->prepareInvoice($order);
-                                        $invoice->setRequestedCaptureCase(
-                                            \Magento\Sales\Model\Order\Invoice::CAPTURE_OFFLINE
-                                        );
-                                        $invoice->register();
-                                        //$invoice->setState( \Magento\Sales\Model\Order\Invoice::STATE_PAID );
-                                        //$invoice->save();
-
-                                        $transactionSave = $this->dbTransaction->addObject($invoice)
-                                                                                ->addObject($invoice->getOrder());
-                                        $transactionSave->save();
-
-                                        $this->invoiceSender->send($invoice);
-
-                                        //send notification code
-                                        $order->addStatusHistoryComment(
-                                            __(
-                                                'S2P Notification: order has been automatically invoiced. #%1.',
-                                                $invoice->getId()
-                                            )
-                                        );
-
-                                        //$order->setIsCustomerNotified(true);
-                                        $order->save();
-                                    } catch (\Exception $e) {
-                                        $s2pLogger->write('Error auto-generating invoice: ['.
-                                                          $e->getMessage().']', 'error', $merchanttransactionid);
-                                    }
-
-                                    // /** @var Mage_Sales_Model_Order_Invoice $invoice */
-                                    // $invoice = Mage::getModel('sales/service_order', $order)->prepareInvoice();
-                                    // $invoice->setRequestedCaptureCase(
-                                    // Mage_Sales_Model_Order_Invoice::CAPTURE_OFFLINE
-                                    // );
-                                    // $invoice->register();
-                                    // $transactionSave = Mage::getModel('core/resource_transaction')
-                                    //     ->addObject( $invoice )
-                                    //     ->addObject( $invoice->getOrder() );
-                                    // $transactionSave->save();
-                                    //
-                                    // $order->addStatusHistoryComment(
-                                    // 'S2P Notification: order has been automatically invoiced.'
-                                    // );
-                                }
-                            }
-
-                            // Check shipment
-                            if ($module_config['auto_ship']) {
-                                if (!$order->canShip()) {
-                                    $s2pLogger->write(
-                                        'Order can not be shipped',
-                                        'warning',
-                                        $merchanttransactionid
-                                    );
-                                } //else {
-                                    // $itemQty =  $order->getItemsCollection()->count();
-                                    // $shipment = Mage::getModel( 'sales/service_order', $order )->
-                                    // prepareShipment( $itemQty );
-                                    // $shipment = new Mage_Sales_Model_Order_Shipment_Api();
-                                    // $shipmentId = $shipment->create( $order->getIncrementId() );
-                                    // $order->addStatusHistoryComment(
-                                    // 'S2P Notification: order has been automatically shipped.'
-                                    // );
-                                //}
-                            }
-
-                            // Inform customer
-                            if ($module_config['notify_customer']) {
-                                if ($this->informCustomer($order, $payment_arr['amount'], $payment_arr['currency'])) {
-                                    $historyItem = $order->addStatusHistoryComment(
-                                        __(
-                                            'S2P Notification: Payment confirmation email sent to client.'
-                                        )
-                                    );
-                                    $historyItem->setIsCustomerNotified(true)->save();
-                                    //$order->save();
-                                }
-                            }
-                        }
-                        break;
-
-                    case \S2P_SDK\S2P_SDK_Meth_Payments::STATUS_CANCELLED:
-                        if (!$order->canCancel()) {
-                            $s2pLogger->write(
-                                'Cannot cancel the order',
-                                'warning',
-                                $merchanttransactionid
-                            );
-                        } else {
-                            $order->cancel();
-                        }
-
-                        $order->addStatusHistoryComment(
-                            'S2P Notification: payment has been canceled.',
-                            $module_config['order_status_on_3']
-                        );
-                        $order->setState(\Magento\Sales\Model\Order::STATE_CANCELED);
-
-                        $order->save();
-
-                        // /** @var \Magento\Sales\Model\Order\Payment $payment_obj */
-                        // if( ($payment_obj = $order->getPayment()) )
-                        // {
-                        //     $authTransaction = $payment_obj->getAuthorizationTransaction();
-                        //     $authTransaction->setIsClosed( true );
-                        //     $authTransaction->save();
-                        //
-                        //     $payment_obj->setIsTransactionPending( false );
-                        //     $payment_obj->save();
-                        // }
-                        break;
-
-                    case \S2P_SDK\S2P_SDK_Meth_Payments::STATUS_FAILED:
-                        if (!$order->canCancel()) {
-                            $s2pLogger->write(
-                                'Cannot cancel the order',
-                                'warning',
-                                $merchanttransactionid
-                            );
-                        } else {
-                            $order->cancel();
-                        }
-
-                        $order->addStatusHistoryComment(
-                            'S2P Notification: payment has failed.',
-                            $module_config['order_status_on_4']
-                        );
-                        $order->setState(\Magento\Sales\Model\Order::STATE_CANCELED);
-
-                        $order->save();
-
-                        // /** @var \Magento\Sales\Model\Order\Payment $payment_obj */
-                        // if( ($payment_obj = $order->getPayment()) )
-                        // {
-                        //     $authTransaction = $payment_obj->getAuthorizationTransaction();
-                        //     $authTransaction->setIsClosed( true );
-                        //     $authTransaction->save();
-                        //
-                        //     $payment_obj->setIsTransactionPending( false );
-                        //     $payment_obj->save();
-                        // }
-                        break;
-
-                    case \S2P_SDK\S2P_SDK_Meth_Payments::STATUS_EXPIRED:
-                        if (!$order->canCancel()) {
-                            $s2pLogger->write(
-                                'Cannot cancel the order',
-                                'warning',
-                                $merchanttransactionid
-                            );
-                        } else {
-                            $order->cancel();
-                        }
-
-                        $order->addStatusHistoryComment(
-                            'S2P Notification: payment has expired.',
-                            $module_config['order_status_on_5']
-                        );
-                        $order->setState(\Magento\Sales\Model\Order::STATE_CANCELED);
-
-                        $order->save();
-
-                        // /** @var \Magento\Sales\Model\Order\Payment $payment_obj */
-                        // if( ($payment_obj = $order->getPayment()) )
-                        // {
-                        //     $authTransaction = $payment_obj->getAuthorizationTransaction();
-                        //     $authTransaction->setIsClosed( true );
-                        //     $authTransaction->save();
-                        //
-                        //     $payment_obj->setIsTransactionPending( false );
-                        //     $payment_obj->save();
-                        // }
-                        break;
-                }
-
-                break;
-
-            case $notification_obj::TYPE_PREAPPROVAL:
-                $s2pLogger->write('Preapprovals not implemented.', 'error', $merchanttransactionid);
-                break;
-        }
-
-        if ($notification_obj->respond_ok()) {
-            $s2pLogger->write(
-                '--- Sent OK -------------------------------',
-                'info',
-                $merchanttransactionid
+        if (!($site_id = $helper_obj->getParam('site_id', ''))
+         || !($apikey = $helper_obj->getParam('apikey', ''))) {
+            return $this->sendResponseError(
+                'Invalid parameters.',
+                400
             );
-        } else {
-            if ($notification_obj->has_error()
-                && ($error_arr = $notification_obj->get_error())) {
-                $error_msg = 'Error: '.$error_arr['display_error'];
-            } else {
-                $error_msg = 'Couldn\'t send ok response.';
-            }
-
-            $s2pLogger->write($error_msg, 'error', $merchanttransactionid);
-            return $this->sendResponseError($error_msg, 503);
         }
+
+        if ($helper_obj->getRegistrationNotificationOption()) {
+            return $this->sendResponseOk('Notification already processed.');
+        }
+
+        if (($api_settings = $helper_obj->getApiSettingsByEnvironment(Environment::ENV_TEST))
+         && !empty($api_settings['site_id'])
+         && !empty($api_settings['apikey'])) {
+            return $this->sendResponseOk('TEST environment already set.');
+        }
+
+        $helper_obj->upateRegistrationNotificationSettings($site_id, $apikey);
 
         return $this->sendResponseOk();
     }
 
     /**
      * Send OK response
+     * @param string $extra_message Extra message (if any)
      * @return \Magento\Framework\App\ResponseInterface
      */
-    protected function sendResponseOk()
+    protected function sendResponseOk($extra_message = '')
     {
         return $this->getResponse()
             ->clearHeader('Content-Type')
-            ->setHeader('Content-Type', 'text/plain')
-            ->setBody()
-            ->setHttpResponseCode(204);
+            ->setHeader('Content-Type', 'application/json')
+            ->setBody('{"ok":true'.(!empty($extra_message)?',"message":"'.$extra_message.'"':'').'}')
+            ->setHttpResponseCode(200);
     }
 
     /**
@@ -463,206 +96,5 @@ class Registration extends \Magento\Framework\App\Action\Action
         }
 
         return $this->getResponse();
-    }
-
-    /**
-     * Get transaction with type order
-     *
-     * @param \Magento\Sales\Model\Order\Payment $payment
-     * @return false|\Magento\Sales\Model\Order\Payment\Transaction
-     */
-    protected function getOrderTransaction($payment)
-    {
-        $transaction_obj = false;
-        try {
-            $transaction_obj = $this->transactionRepository->getByTransactionType(
-                \Magento\Sales\Model\Order\Payment\Transaction::TYPE_ORDER,
-                $payment->getId(),
-                $payment->getOrder()->getId()
-            );
-        } catch (\Exception $e) {
-            return false;
-        }
-
-        return $transaction_obj;
-    }
-
-    /**
-     * Send email with payment details to customer
-     *
-     * @param Order $order Order
-     * @param array $payment_details_arr Payment details
-     *
-     * @return bool True if success, false if failed
-     */
-    public function sendPaymentDetails(\Magento\Sales\Model\Order $order, $payment_details_arr)
-    {
-        $helper_obj = $this->helper;
-
-        $payment_details_arr = $helper_obj::validateTransactionReferenceValues($payment_details_arr);
-
-        try {
-            if (!($order_increment_id = $order->getRealOrderId())
-             || !($transaction_data = $this->s2pTransaction->create()->
-                            loadByMerchantTransactionId($order_increment_id)->getData())
-             || !is_array($transaction_data)
-             || empty($transaction_data['id'])
-             || empty($transaction_data['method_id'])
-             || !in_array(
-                 (int)$transaction_data['method_id'],
-                 [$helper_obj::PAYMENT_METHOD_BT, $helper_obj::PAYMENT_METHOD_SIBS],
-                 true
-             )
-             || !($method_config = $helper_obj->getFullConfigArray(false, $order->getStoreId()))
-            ) {
-                return false;
-            }
-
-            $siteUrl = $order->getStore()->getBaseUrl();
-            $siteName = $this->helper->getStoreName($order->getStoreId());
-
-            $supportEmail = $this->helper->getStoreConfig(
-                'trans_email/ident_support/email',
-                $order->getStoreId()
-            );
-            $supportName = $this->helper->getStoreConfig(
-                'trans_email/ident_support/name',
-                $order->getStoreId()
-            );
-
-            if ((int)$transaction_data['method_id'] === $helper_obj::PAYMENT_METHOD_SIBS) {
-                $templateId = $method_config['smart2pay_email_payment_instructions_sibs'];
-            } else {
-                $templateId = $method_config['smart2pay_email_payment_instructions_bt'];
-            }
-
-            $payment_details_arr['site_url'] = $siteUrl;
-            $payment_details_arr['order_increment_id'] = $order_increment_id;
-            $payment_details_arr['site_name'] = $siteName;
-            $payment_details_arr['customer_name'] = $order->getCustomerName();
-            $payment_details_arr['order_date'] = $order->getCreatedAtFormatted(\IntlDateFormatter::LONG);
-            $payment_details_arr['support_email'] = $supportEmail;
-
-            $this->inlineTranslation->suspend();
-
-            $transport = $this->transportBuilder->setTemplateIdentifier($templateId)
-                                                ->setTemplateOptions(
-                                                    [
-                                                         'area' => \Magento\Framework\App\Area::AREA_ADMINHTML,
-                                                         'store' => $order->getStoreId()
-                                                     ]
-                                                )
-                                                ->setTemplateVars($payment_details_arr)
-                                                ->setFrom(['name' => $supportName, 'email' => $supportEmail ])
-                                                ->addTo($order->getCustomerEmail())
-                                                ->getTransport();
-            $transport->sendMessage();
-
-            $this->inlineTranslation->resume();
-        } catch (\Magento\Framework\Exception\MailException $e) {
-            $this->s2pLogger->write(
-                'Error sending payment instructions email to ['.$order->getCustomerEmail().']',
-                'email_template'
-            );
-            $this->s2pLogger->write($e->getMessage(), 'email_exception');
-        } catch (\Exception $e) {
-            $this->s2pLogger->write($e->getMessage(), 'exception');
-        }
-
-        return true;
-    }
-
-    public function informCustomer(\Magento\Sales\Model\Order $order, $amount, $currency)
-    {
-        $helper_obj = $this->helper;
-
-        $send_result = true;
-        try {
-            $store_id = $order->getStore()->getId();
-
-            if (!($order_increment_id = $order->getRealOrderId())
-             || !($method_config = $helper_obj->getFullConfigArray(false, $store_id))) {
-                return false;
-            }
-
-            $siteUrl = $order->getStore()->getBaseUrl();
-            $siteName = $this->helper->getStoreName();
-
-            $supportEmail = $this->helper->getStoreConfig('trans_email/ident_support/email', $store_id);
-            $supportName = $this->helper->getStoreConfig('trans_email/ident_support/name', $store_id);
-
-            $payment_details_arr['site_url'] = $siteUrl;
-            $payment_details_arr['order_increment_id'] = $order_increment_id;
-            $payment_details_arr['site_name'] = $siteName;
-            $payment_details_arr['customer_name'] = $order->getCustomerName();
-            $payment_details_arr['order_date'] = $order->getCreatedAtFormatted(\IntlDateFormatter::LONG);
-            $payment_details_arr['support_email'] = $supportEmail;
-            $payment_details_arr['total_paid'] = number_format(($amount / 100), 2);
-            $payment_details_arr['currency'] = $currency;
-
-            $this->inlineTranslation->suspend();
-
-            $transport = $this->transportBuilder->setTemplateIdentifier(
-                $method_config['smart2pay_email_payment_confirmation']
-            )
-            ->setTemplateOptions(
-                [
-                    'area' => \Magento\Framework\App\Area::AREA_ADMINHTML,
-                    'store' => $store_id
-                ]
-            )
-            ->setTemplateVars($payment_details_arr)
-            ->setFrom(['name' => $supportName, 'email' => $supportEmail ])
-            ->addTo($order->getCustomerEmail())
-            ->getTransport();
-
-            $transport->sendMessage();
-
-            $this->inlineTranslation->resume();
-        } catch (\Magento\Framework\Exception\MailException $e) {
-            $this->s2pLogger->write(
-                'Error sending customer informational email to ['.$order->getCustomerEmail().']',
-                'email_template'
-            );
-            $this->s2pLogger->write($e->getMessage(), 'email_exception');
-            $send_result = false;
-        } catch (\Exception $e) {
-            $this->s2pLogger->write($e->getMessage(), 'exception');
-            $send_result = false;
-        }
-
-        return $send_result;
-    }
-
-    public static function defaultPaymentDetailsParams()
-    {
-        return [
-            'reference_number' => 0,
-            'amount_to_pay' => 0,
-            'account_holder' => '',
-            'bank_name' => '',
-            'account_number' => '',
-            'account_currency' => '',
-            'swift_bic' => '',
-            'iban' => '',
-            'entity_number' => '',
-            'instructions' => '',
-        ];
-    }
-
-    public static function validatePaymentDetailsParams($query_arr)
-    {
-        if (empty($query_arr) || !is_array($query_arr)) {
-            $query_arr = [];
-        }
-
-        $default_values = self::defaultPaymentDetailsParams();
-        foreach ($default_values as $key => $val) {
-            if (!array_key_exists($key, $query_arr)) {
-                $query_arr[$key] = $val;
-            }
-        }
-
-        return $query_arr;
     }
 }
