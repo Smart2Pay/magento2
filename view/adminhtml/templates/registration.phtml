@@ -1,0 +1,13 @@
+<?php
+/** @var \Smart2Pay\GlobalPay\Block\Adminhtml\System\Config\Field\Registration $block */
+/** @var Magento\Framework\View\TemplateEngine\Php $this */
+
+if (!($plugin_settings = $block->getPluginSettings())) {
+    $plugin_settings = [];
+}
+
+if (true or empty($plugin_settings['registration_notification'])) {
+    var_dump( $plugin_settings );
+    $link_str = '<a href="'.$this->getRegistrationLink().'">'.__('here').'</a>';
+    echo __('If you don\'t have yet a Smart2Pay account, you can open one %1', $link_str);
+}

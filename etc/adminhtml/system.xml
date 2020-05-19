@@ -5,6 +5,10 @@
             <group id="smart2pay" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Smart2Pay</label>
 
+                <field id="smart2pay_registration" type="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <frontend_model>Smart2Pay\GlobalPay\Block\Adminhtml\System\Config\Field\Registration</frontend_model>
+                </field>
+
                 <group id="smart2pay_general" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Smart2Pay - General Settings</label>
 

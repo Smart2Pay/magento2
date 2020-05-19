@@ -12,6 +12,9 @@ class S2pHelper extends AbstractHelper
 {
     const METHOD_CODE = 'smart2pay';
 
+    const DEMO_ENV_SITE_ID = '33844',
+          DEMO_ENV_APIKEY = 'gb0LO1CS7iHihW+3yygoPJOmrlrQ2e0UQRGKPdznYgFW3mohdg';
+
     const STATUS_NEW = 'smart2pay_new', STATUS_SUCCESS = 'smart2pay_success', STATUS_CANCELED = 'smart2pay_canceled',
           STATUS_FAILED = 'smart2pay_failed', STATUS_EXPIRED = 'smart2pay_expired';
 
@@ -570,6 +573,7 @@ class S2pHelper extends AbstractHelper
             'last_sync_demo' => false,
             'last_sync_test' => false,
             'last_sync_live' => false,
+            'registration_notification' => false,
             'site_id_test' => 0,
             'apikey_test' => '',
             'site_id_live' => 0,
@@ -650,8 +654,8 @@ class S2pHelper extends AbstractHelper
         if ($environment === Environment::ENV_DEMO) {
             // demo environment
             $api_settings['api_environment'] = Environment::ENV_TEST;
-            $api_settings['apikey'] = 'gb0LO1CS7iHihW+3yygoPJOmrlrQ2e0UQRGKPdznYgFW3mohdg';
-            $api_settings['site_id'] = '33844';
+            $api_settings['apikey'] = self::DEMO_ENV_APIKEY;
+            $api_settings['site_id'] = self::DEMO_ENV_SITE_ID;
             $api_settings['last_sync'] = $this->getModuleConfig('last_sync_demo', $storeId);
         } elseif (in_array($environment, [ Environment::ENV_TEST, Environment::ENV_LIVE ], true)) {
             $api_settings['api_environment'] = $environment;
