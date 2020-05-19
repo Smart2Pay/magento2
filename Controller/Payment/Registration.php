@@ -4,76 +4,28 @@ namespace Smart2Pay\GlobalPay\Controller\Payment;
 
 use Magento\Framework\App\Request\Http;
 
-class Notification extends \Magento\Framework\App\Action\Action
+class Registration extends \Magento\Framework\App\Action\Action
 {
-    /** @var  \Magento\Framework\Mail\Template\TransportBuilder */
-    private $transportBuilder;
-
-    /** @var \Magento\Sales\Model\OrderFactory */
-    protected $orderFactory;
-
-    /** @var \Magento\Sales\Model\Order\Config */
-    protected $orderConfig;
-
-    /** @var \Magento\Framework\DB\Transaction */
-    protected $dbTransaction;
-
     /** @var \Magento\Framework\App\Http\Context */
     protected $httpContext;
 
     /** @var \Smart2Pay\GlobalPay\Model\Logger */
     protected $s2pLogger;
 
-    /** @var \Smart2Pay\GlobalPay\Model\TransactionFactory */
-    protected $s2pTransaction;
-
-    /** @var \Magento\Sales\Model\Service\InvoiceService */
-    protected $invoiceService;
-
-    /** @var \Magento\Sales\Model\Order\Email\Sender\InvoiceSender $invoiceSender */
-    protected $invoiceSender;
-
-    /** @var \Magento\Framework\Translate\Inline\StateInterface */
-    protected $inlineTranslation;
-
     /** @var \Smart2Pay\GlobalPay\Helper\S2pHelper */
     protected $helper;
 
-    /** @var \Magento\Sales\Model\Order\Payment\Transaction\Repository */
-    protected $transactionRepository;
-
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
-        \Magento\Sales\Model\OrderFactory $orderFactory,
-        \Magento\Sales\Model\Order\Config $orderConfig,
         \Magento\Framework\App\Http\Context $httpContext,
-        \Magento\Framework\Mail\Template\TransportBuilder $transportBuilder,
-        \Magento\Framework\DB\Transaction $dbTransaction,
-        \Magento\Sales\Model\Service\InvoiceService $invoiceService,
-        \Magento\Sales\Model\Order\Email\Sender\InvoiceSender $invoiceSender,
-        \Smart2Pay\GlobalPay\Model\TransactionFactory $s2pTransaction,
-        \Magento\Sales\Api\TransactionRepositoryInterface $transactionRepository,
-        \Magento\Framework\Translate\Inline\StateInterface $inlineTranslation,
         \Smart2Pay\GlobalPay\Model\Logger $s2pLogger,
         \Smart2Pay\GlobalPay\Helper\S2pHelper $helperSmart2Pay
     ) {
         parent::__construct($context);
 
-        $this->orderFactory = $orderFactory;
-        $this->orderConfig = $orderConfig;
         $this->httpContext = $httpContext;
-        $this->transportBuilder = $transportBuilder;
-        $this->inlineTranslation = $inlineTranslation;
-        $this->dbTransaction = $dbTransaction;
-
-        $this->invoiceService = $invoiceService;
-        $this->invoiceSender = $invoiceSender;
-
         $this->helper = $helperSmart2Pay;
-        $this->s2pTransaction = $s2pTransaction;
         $this->s2pLogger = $s2pLogger;
-
-        $this->transactionRepository = $transactionRepository;
 
         // Ugly bug when sending POST data to a script...
         if (interface_exists('\Magento\Framework\App\CsrfAwareActionInterface')) {
@@ -92,97 +44,11 @@ class Notification extends \Magento\Framework\App\Action\Action
     public function execute()
     {
         $helper_obj = $this->helper;
-        $sdk_obj = $helper_obj->getSDKHelper();
         $s2pLogger = $this->s2pLogger;
-        $s2pTransactionLogger = $this->s2pTransaction->create();
-        $order = $this->orderFactory->create();
-
-        if (!($sdk_version = $sdk_obj::getSDKVersion())
-         || !defined('S2P_SDK_DIR_CLASSES')
-         || !defined('S2P_SDK_DIR_METHODS')) {
-            $error_msg = 'Unknown SDK version';
-            $s2pLogger->write($error_msg, 'error');
-
-            return $this->sendResponseError($error_msg, 503);
-        }
-
-        $api_credentials = $sdk_obj->getAPICredentials();
-
-        $s2pLogger->write('SDK version: '.$sdk_version, 'info');
-
-        if (!defined('S2P_SDK_NOTIFICATION_IDENTIFIER')) {
-            define('S2P_SDK_NOTIFICATION_IDENTIFIER', microtime(true));
-        }
-
-        \S2P_SDK\S2P_SDK_Notification::logging_enabled(false);
-
-        $notification_params = [];
-        $notification_params['auto_extract_parameters'] = true;
-
-        /** @var \S2P_SDK\S2P_SDK_Notification $notification_obj */
-        if (!($notification_obj =
-                \S2P_SDK\S2P_SDK_Module::get_instance('S2P_SDK_Notification', $notification_params))
-         || $notification_obj->has_error()) {
-            if ((\S2P_SDK\S2P_SDK_Module::st_has_error() && $error_arr = \S2P_SDK\S2P_SDK_Module::st_get_error())
-             || (!empty($notification_obj) && $notification_obj->has_error()
-                 && ($error_arr = $notification_obj->get_error()))) {
-                $error_msg = 'Error ['.$error_arr['error_no'].']: '.$error_arr['display_error'];
-            } else {
-                $error_msg = 'Error initiating notification object.';
-            }
-
-            $s2pLogger->write($error_msg, 'error');
-
-            return $this->sendResponseError($error_msg, 503);
-        }
-
-        if (!($notification_type = $notification_obj->get_type())
-         || !($notification_title = $notification_obj::get_type_title($notification_type))) {
-            $error_msg = 'Unknown notification type.';
-            $error_msg .= 'Input buffer: '.$notification_obj->get_input_buffer();
-
-            $s2pLogger->write($error_msg, 'error');
-
-            return $this->sendResponseError($error_msg, 400);
-        }
-
-        if (!($result_arr = $notification_obj->get_array())) {
-            $error_msg = 'Couldn\'t extract notification object.';
-            $error_msg .= 'Input buffer: '.$notification_obj->get_input_buffer();
-
-            $s2pLogger->write($error_msg, 'error');
-            return $this->sendResponseError($error_msg, 400);
-        }
-
-        $notification_type = (int)$notification_type;
-        if ($notification_type !== $notification_obj::TYPE_PAYMENT) {
-            $error_msg = 'Plugin currently supports only payment notifications.';
-
-            $s2pLogger->write($error_msg, 'error');
-            return $this->sendResponseError($error_msg, 406);
-        }
-
-        if (empty($result_arr['payment']) || !is_array($result_arr['payment'])
-         || empty($result_arr['payment']['merchanttransactionid'])
-         || !($order->loadByIncrementId($result_arr['payment']['merchanttransactionid']))
-         || !($s2pTransactionLogger->loadByMerchantTransactionId($result_arr['payment']['merchanttransactionid']))
-         || !$s2pTransactionLogger->getID()
-          ) {
-            $error_msg = 'Couldn\'t load order or transaction as provided in notification.';
-            $error_msg .= 'Input buffer: '.$notification_obj->get_input_buffer();
-
-            $s2pLogger->write($error_msg, 'error');
-            return $this->sendResponseError($error_msg, 404);
-        }
-
-        $merchanttransactionid = $result_arr['payment']['merchanttransactionid'];
-        $payment_arr = $result_arr['payment'];
 
         $module_config = $helper_obj->getFullConfigArray(false, $order->getStoreId());
 
-        if (!$s2pTransactionLogger->getEnvironment()
-         || !($api_credentials = $helper_obj->getApiSettingsByEnvironment($s2pTransactionLogger->getEnvironment()))
-         || empty($api_credentials['site_id']) || empty($api_credentials['apikey'])) {
+        if (!$helper_obj->checkRegistrationNotificationNounce()) {
             $error_msg = 'Couldn\'t load Smart2Pay API credentials for current environment.';
 
             $s2pLogger->write($error_msg, 'error', $merchanttransactionid);
@@ -589,7 +455,7 @@ class Notification extends \Magento\Framework\App\Action\Action
     {
         $this->getResponse()
             ->clearHeader('Content-Type')
-            ->setHeader('Content-Type', 'text/plain')
+            ->setHeader('Content-Type', 'application/json')
             ->setBody($message);
 
         if ($httpCode!==0) {

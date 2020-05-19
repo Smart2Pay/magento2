@@ -6,8 +6,15 @@ if (!($plugin_settings = $block->getPluginSettings())) {
     $plugin_settings = [];
 }
 
-if (true or empty($plugin_settings['registration_notification'])) {
-    var_dump( $plugin_settings );
-    $link_str = '<a href="'.$this->getRegistrationLink().'">'.__('here').'</a>';
-    echo __('If you don\'t have yet a Smart2Pay account, you can open one %1', $link_str);
+echo '['.$block->getNotificationURL().']';
+echo '['.$block->getReturnURL().']';
+
+if (true or !$block->getRegistrationNotificationOption()) {
+    echo '<p>'.__('If you don\'t have yet a Smart2Pay account, you can create one by clicking the link below.'.
+            ' If you already have an account, please provide your Test or Live environment settings below.'.
+            'Don\'t forget to change your Environment option according.').'</p>';
+    echo '<p>'.__('Once you create a new account, Test Site ID and Test API Key will be automatically populated '.
+            'by a notification sent by our server to your shop. As this notification might take some time, please '.
+            'refresh settings page.').'</p>';
+    echo '<a href="'.$block->getRegistrationLink().'">'.__('Create a Smart2Pay Account').'</a>';
 }

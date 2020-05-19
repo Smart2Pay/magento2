@@ -53,6 +53,9 @@ class S2pHelper extends AbstractHelper
     /** @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface */
     protected $timezone;
 
+    /** @var \Magento\Store\Model\StoreManagerInterface */
+    protected $storeManager;
+
     /** @var ResolverInterface */
     private $localeResolver;
 
@@ -69,6 +72,7 @@ class S2pHelper extends AbstractHelper
         \Magento\Framework\App\Config\ConfigResource\ConfigInterface $resourceConfig,
         \Magento\Directory\Model\CurrencyFactory $currencyFactory,
         \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
         ResolverInterface $localeResolver = null
     ) {
         parent::__construct($context);
@@ -78,6 +82,7 @@ class S2pHelper extends AbstractHelper
         $this->_resourceConfig = $resourceConfig;
         $this->_currencyFactory = $currencyFactory;
         $this->timezone = $timezone;
+        $this->storeManager = $storeManager;
         $this->localeResolver = $localeResolver ?: ObjectManager::getInstance()->get(ResolverInterface::class);
 
         $this->_sdk_helper->s2pHelper($this);
@@ -515,6 +520,25 @@ class S2pHelper extends AbstractHelper
         return $currency->getConfigBaseCurrencies();
     }
 
+    public function getStoreBaseURL()
+    {
+        try {
+            return $this->storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB);
+        } catch (\Exception $e) {
+            return 'ErrorObtainingStoreBaseURL';
+        }
+    }
+
+    public function getRegistrationNotificationNounce()
+    {
+        return md5($this->getStoreBaseURL());
+    }
+
+    public function checkRegistrationNotificationNounce($nounce)
+    {
+        return (!empty($nounce) && $this->getRegistrationNotificationNounce()===$nounce);
+    }
+
     public function getStoreName($storeId = null)
     {
         return $this->scopeConfig->getValue(
@@ -713,6 +737,26 @@ class S2pHelper extends AbstractHelper
         $return_arr['environment'] = $api_settings['api_environment'];
 
         return $return_arr;
+    }
+
+    public function upateRegistrationNotificationOption($value)
+    {
+        $this->_resourceConfig->saveConfig(
+            'payment/smart2pay/registration_notification',
+            $value,
+            \Magento\Framework\App\Config\ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+            \Magento\Store\Model\Store::DEFAULT_STORE_ID
+        );
+    }
+
+    public function getRegistrationNotificationOption()
+    {
+        if (!($full_config_arr = $this->getFullConfigArray())
+         || empty($full_config_arr['registration_notification'])) {
+            return false;
+        }
+
+        return $full_config_arr['registration_notification'];
     }
 
     public function upateLastMethodsSyncOption($value, $environment = false)
