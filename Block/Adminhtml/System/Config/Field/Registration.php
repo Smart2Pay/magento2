@@ -11,11 +11,14 @@ class Registration extends \Magento\Config\Block\System\Config\Form\Field
      */
     protected $_template = 'registration.phtml';
 
-    /** @var \Smart2Pay\GlobalPay\Helper\S2pHelper $_s2pHelper */
+    /** @var \Smart2Pay\GlobalPay\Helper\S2pHelper */
     protected $s2pHelper;
 
-    /** @var \Magento\Backend\Model\UrlInterface $backendUrl */
+    /** @var \Magento\Backend\Model\UrlInterface */
     protected $backendUrl;
+
+    /** @var \Magento\Framework\Url */
+    protected $frontUrl;
 
     /**
      * @param \Magento\Backend\Block\Template\Context $context
@@ -24,10 +27,12 @@ class Registration extends \Magento\Config\Block\System\Config\Form\Field
     public function __construct(
         \Magento\Backend\Block\Template\Context $context,
         \Magento\Backend\Model\UrlInterface $backendUrl,
+        \Magento\Framework\Url $frontUrl,
         \Smart2Pay\GlobalPay\Helper\S2pHelper $s2pHelper,
         array $data = []
     ) {
         $this->s2pHelper = $s2pHelper;
+        $this->frontUrl = $frontUrl;
         $this->backendUrl = $backendUrl;
 
         parent::__construct($context, $data);
@@ -57,13 +62,14 @@ class Registration extends \Magento\Config\Block\System\Config\Form\Field
 
     public function getNotificationURL()
     {
-        $params = array('nounce'=>$this->s2pHelper->getRegistrationNotificationNounce());
-        return $this->backendUrl->getUrl('smart2pay/payment/registration', $params);
+        $params = ['nounce'=>$this->s2pHelper->getRegistrationNotificationNounce(),'_nosid' => true];
+        return $this->frontUrl->getUrl('smart2pay/payment/registration', $params);
     }
 
     public function getReturnURL()
     {
-        return $this->backendUrl->getUrl('admin/admin/system_config/edit/section/payment');
+        $params = ['_nosid' => true];
+        return $this->backendUrl->getUrl('admin/admin/system_config/edit/section/payment',$params);
     }
 
     public function getRegistrationLink()
