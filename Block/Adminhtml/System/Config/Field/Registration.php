@@ -79,7 +79,8 @@ class Registration extends \Magento\Config\Block\System\Config\Form\Field
             $url .= '?';
         }
 
-        $url .= '&__json_data=1';
+        //$url .= '&__json_data=1';
+        $url .= '&__send_get=1';
 
         return $url;
     }
@@ -87,7 +88,7 @@ class Registration extends \Magento\Config\Block\System\Config\Form\Field
     public function getReturnURL()
     {
         $params = ['_nosid' => true];
-        return $this->backendUrl->getUrl('admin/admin/system_config/edit/section/payment', $params);
+        return $this->backendUrl->turnOffSecretKey()->getUrl('admin/admin/system_config/edit/section/payment', $params);
     }
 
     public function getRegistrationLink()
