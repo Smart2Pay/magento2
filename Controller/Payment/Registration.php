@@ -9,13 +9,18 @@ class Registration extends \Magento\Framework\App\Action\Action
     /** @var \Smart2Pay\GlobalPay\Helper\S2pHelper */
     protected $helper;
 
+    /** @var \Magento\Framework\Serialize\Serializer\Json */
+    protected $json;
+
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
+        \Magento\Framework\Serialize\Serializer\Json $json,
         \Smart2Pay\GlobalPay\Helper\S2pHelper $helperSmart2Pay
     ) {
         parent::__construct($context);
 
         $this->helper = $helperSmart2Pay;
+        $this->json = $json;
 
         // Ugly bug when sending POST data to a script...
         if (interface_exists('\Magento\Framework\App\CsrfAwareActionInterface')) {
@@ -34,6 +39,7 @@ class Registration extends \Magento\Framework\App\Action\Action
     public function execute()
     {
         $helper_obj = $this->helper;
+        $json_obj = $this->json;
 
         if (!($nounce = $helper_obj->getParam('nounce', ''))
          || !$helper_obj->checkRegistrationNotificationNounce($nounce)) {
@@ -65,15 +71,24 @@ class Registration extends \Magento\Framework\App\Action\Action
 
     /**
      * Send OK response
-     * @param string $extra_message Extra message (if any)
+     * @param string $message Extra message (if any)
      * @return \Magento\Framework\App\ResponseInterface
      */
-    protected function sendResponseOk($extra_message = '')
+    protected function sendResponseOk($message = '')
     {
+        $helper_obj = $this->helper;
+        $json_obj = $this->json;
+
+        $json_arr = [
+            'ok' => false,
+            'message' => $message,
+            'notification_url' => $helper_obj->getPaymentNotificationURL(),
+        ];
+
         return $this->getResponse()
             ->clearHeader('Content-Type')
             ->setHeader('Content-Type', 'application/json')
-            ->setBody('{"ok":true'.(!empty($extra_message)?',"message":"'.$extra_message.'"':'').'}')
+            ->setBody($json_obj->serialize($json_arr))
             ->setHttpResponseCode(200);
     }
 
@@ -86,10 +101,17 @@ class Registration extends \Magento\Framework\App\Action\Action
      */
     protected function sendResponseError($message, $httpCode = 0)
     {
+        $json_obj = $this->json;
+
+        $json_arr = [
+            'ok' => false,
+            'message' => $message,
+        ];
+
         $this->getResponse()
             ->clearHeader('Content-Type')
             ->setHeader('Content-Type', 'application/json')
-            ->setBody($message);
+            ->setBody($json_obj->serialize($json_arr));
 
         if ($httpCode!==0) {
             $this->getResponse()->setHttpResponseCode($httpCode);

@@ -60,6 +60,16 @@ class Registration extends \Magento\Config\Block\System\Config\Form\Field
         return $this->s2pHelper->getRegistrationNotificationOption();
     }
 
+    public function getPaymentNotificationURL()
+    {
+        return $this->s2pHelper->getPaymentNotificationURL();
+    }
+
+    public function getPaymentReturnURL()
+    {
+        return $this->s2pHelper->getPaymentReturnURL();
+    }
+
     public function getNotificationURL()
     {
         $params = ['nounce'=>$this->s2pHelper->getRegistrationNotificationNounce(),'_nosid' => true];
@@ -69,7 +79,7 @@ class Registration extends \Magento\Config\Block\System\Config\Form\Field
     public function getReturnURL()
     {
         $params = ['_nosid' => true];
-        return $this->backendUrl->getUrl('admin/admin/system_config/edit/section/payment',$params);
+        return $this->backendUrl->getUrl('admin/admin/system_config/edit/section/payment', $params);
     }
 
     public function getRegistrationLink()

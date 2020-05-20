@@ -59,6 +59,9 @@ class S2pHelper extends AbstractHelper
     /** @var ResolverInterface */
     private $localeResolver;
 
+    /** @var \Magento\Framework\Url */
+    protected $frontUrl;
+
     /**
      * @param \Smart2Pay\GlobalPay\Helper\S2pSDK $helperS2pSDK
      * @param \Smart2Pay\GlobalPay\Model\ConfiguredMethodsFactory $configuredMethodsFactory
@@ -73,6 +76,7 @@ class S2pHelper extends AbstractHelper
         \Magento\Directory\Model\CurrencyFactory $currencyFactory,
         \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
+        \Magento\Framework\Url $frontUrl,
         ResolverInterface $localeResolver = null
     ) {
         parent::__construct($context);
@@ -85,7 +89,21 @@ class S2pHelper extends AbstractHelper
         $this->storeManager = $storeManager;
         $this->localeResolver = $localeResolver ?: ObjectManager::getInstance()->get(ResolverInterface::class);
 
+        $this->frontUrl = $frontUrl;
+
         $this->_sdk_helper->s2pHelper($this);
+    }
+
+    public function getPaymentNotificationURL()
+    {
+        $params = ['_nosid' => true, '_secure' => true, '_forced_secure' => true];
+        return $this->frontUrl->getUrl('smart2pay/payment/notification', $params);
+    }
+
+    public function getPaymentReturnURL()
+    {
+        $params = ['_nosid' => true, '_secure' => true];
+        return $this->frontUrl->getUrl('smart2pay/payment/finish', $params);
     }
 
     public static function convertGPStatusToMagentoStatus($status_code)

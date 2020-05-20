@@ -8,6 +8,9 @@ if (!($plugin_settings = $block->getPluginSettings())) {
 
 echo '['.$block->getNotificationURL().']';
 echo '['.$block->getReturnURL().']';
+echo '<br/>';
+echo '['.$block->getPaymentNotificationURL().']';
+echo '['.$block->getPaymentReturnURL().']';
 
 if (true or !$block->getRegistrationNotificationOption()) {
     echo '<p>'.__('If you don\'t have yet a Smart2Pay account, you can create one by clicking the link below.'.
