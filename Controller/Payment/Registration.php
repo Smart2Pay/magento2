@@ -12,15 +12,26 @@ class Registration extends \Magento\Framework\App\Action\Action
     /** @var \Magento\Framework\Serialize\Serializer\Json */
     protected $json;
 
+    /** @var \Magento\Framework\App\Cache\TypeList|\Magento\Framework\App\Cache\TypeList */
+    protected $_cacheTypeList;
+
+    /** @var \Magento\Framework\App\Cache\Frontend\Pool  */
+    protected $_cacheFrontendPool;
+
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\Serialize\Serializer\Json $json,
+        \Magento\Framework\App\Cache\TypeListInterface $cacheTypeList,
+        \Magento\Framework\App\Cache\Frontend\Pool $cacheFrontendPool,
         \Smart2Pay\GlobalPay\Helper\S2pHelper $helperSmart2Pay
     ) {
         parent::__construct($context);
 
         $this->helper = $helperSmart2Pay;
         $this->json = $json;
+
+        $this->_cacheTypeList = $cacheTypeList;
+        $this->_cacheFrontendPool = $cacheFrontendPool;
 
         // Ugly bug when sending POST data to a script...
         if (interface_exists('\Magento\Framework\App\CsrfAwareActionInterface')) {
@@ -57,7 +68,6 @@ class Registration extends \Magento\Framework\App\Action\Action
                     400
                 );
             }
-            var_dump( $json_arr );
 
             $site_id = $json_arr['site_id'];
             $apikey = $json_arr['apikey'];
@@ -74,6 +84,16 @@ class Registration extends \Magento\Framework\App\Action\Action
         }
 
         $helper_obj->upateRegistrationNotificationSettings($site_id, $apikey);
+
+        $types = [ 'config', 'config_integration', 'config_integration_api', 'config_webservice' ];
+
+        foreach ($types as $type) {
+            $this->_cacheTypeList->cleanType($type);
+        }
+
+        foreach ($this->_cacheFrontendPool as $cacheFrontend) {
+            $cacheFrontend->getBackend()->clean();
+        }
 
         return $this->sendResponseOk();
     }
