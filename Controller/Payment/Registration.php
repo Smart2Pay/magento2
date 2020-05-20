@@ -48,10 +48,18 @@ class Registration extends \Magento\Framework\App\Action\Action
 
         if (!($site_id = $helper_obj->getParam('site_id', ''))
          || !($apikey = $helper_obj->getParam('apikey', ''))) {
-            return $this->sendResponseError(
-                'Invalid parameters.',
-                400
-            );
+            if (($input = file_get_contents('php://input')) === false
+             || !($json_arr = $json_obj->unserialize($input))
+             || empty($json_arr['site_id'])
+             || empty($json_arr['apikey'])) {
+                return $this->sendResponseError(
+                    'Invalid parameters.',
+                    400
+                );
+            }
+
+            $site_id = $json_arr['site_id'];
+            $apikey = $json_arr['apikey'];
         }
 
         if ($helper_obj->getRegistrationNotificationOption()) {

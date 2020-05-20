@@ -73,7 +73,15 @@ class Registration extends \Magento\Config\Block\System\Config\Form\Field
     public function getNotificationURL()
     {
         $params = ['nounce'=>$this->s2pHelper->getRegistrationNotificationNounce(),'_nosid' => true];
-        return $this->frontUrl->getUrl('smart2pay/payment/registration', $params);
+        $url = $this->frontUrl->getUrl('smart2pay/payment/registration', $params);
+
+        if (false === strpos($url, '?')) {
+            $url .= '?';
+        }
+
+        $url .= '&__json_data=1';
+
+        return $url;
     }
 
     public function getReturnURL()

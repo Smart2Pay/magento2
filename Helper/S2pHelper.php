@@ -96,7 +96,7 @@ class S2pHelper extends AbstractHelper
 
     public function getPaymentNotificationURL()
     {
-        $params = ['_nosid' => true, '_secure' => true];//, '_forced_secure' => true];
+        $params = ['_nosid' => true, '_secure' => true];
         return $this->frontUrl->getUrl('smart2pay/payment/notification', $params);
     }
 
