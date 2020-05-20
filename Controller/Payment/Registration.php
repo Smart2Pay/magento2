@@ -57,6 +57,7 @@ class Registration extends \Magento\Framework\App\Action\Action
                     400
                 );
             }
+            var_dump( $json_arr );
 
             $site_id = $json_arr['site_id'];
             $apikey = $json_arr['apikey'];
@@ -88,7 +89,7 @@ class Registration extends \Magento\Framework\App\Action\Action
         $json_obj = $this->json;
 
         $json_arr = [
-            'ok' => false,
+            'ok' => true,
             'message' => $message,
             'notification_url' => $helper_obj->getPaymentNotificationURL(),
         ];
