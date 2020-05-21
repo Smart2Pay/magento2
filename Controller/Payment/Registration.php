@@ -77,9 +77,7 @@ class Registration extends \Magento\Framework\App\Action\Action
             return $this->sendResponseOk('Notification already processed.');
         }
 
-        if (($api_settings = $helper_obj->getApiSettingsByEnvironment(Environment::ENV_TEST))
-         && !empty($api_settings['site_id'])
-         && !empty($api_settings['apikey'])) {
+        if ($helper_obj->getTestEnvironmentSettingsSet()) {
             return $this->sendResponseOk('TEST environment already set.');
         }
 

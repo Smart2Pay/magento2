@@ -786,6 +786,19 @@ class S2pHelper extends AbstractHelper
         return $full_config_arr['registration_notification'];
     }
 
+    public function getTestEnvironmentSettingsSet()
+    {
+        return (($api_settings = $this->getApiSettingsByEnvironment(Environment::ENV_TEST))
+            && !empty($api_settings['site_id'])
+            && !empty($api_settings['apikey']));
+    }
+
+    public function canRegisterNewAccountForThisPlatform()
+    {
+        return (!$this->getRegistrationNotificationOption()
+             && !$this->getTestEnvironmentSettingsSet());
+    }
+
     public function upateLastMethodsSyncOption($value, $environment = false)
     {
         if ($environment === false) {
