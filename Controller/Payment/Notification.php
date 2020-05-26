@@ -86,11 +86,6 @@ class Notification extends \Magento\Framework\App\Action\Action
         }
     }
 
-    private function initSDK()
-    {
-    }
-
-
     /**
      * @return \Magento\Framework\Controller\ResultInterface|\Magento\Framework\App\ResponseInterface
      */

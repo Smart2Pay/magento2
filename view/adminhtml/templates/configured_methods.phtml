@@ -90,7 +90,7 @@ function s2p_submit_sync_methods()
 }
 </script>
 <?php
-    $environment = $block->getEnvironment();
+$environment = $block->getEnvironment();
 if (!($all_methods = $block->getAllActiveMethods($environment, [ 'include_countries' => true ]))) {
     $all_methods = [];
 }

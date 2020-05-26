@@ -12,6 +12,9 @@ class S2pHelper extends AbstractHelper
 {
     const METHOD_CODE = 'smart2pay';
 
+    const DEMO_ENV_SITE_ID = '33844',
+          DEMO_ENV_APIKEY = 'gb0LO1CS7iHihW+3yygoPJOmrlrQ2e0UQRGKPdznYgFW3mohdg';
+
     const STATUS_NEW = 'smart2pay_new', STATUS_SUCCESS = 'smart2pay_success', STATUS_CANCELED = 'smart2pay_canceled',
           STATUS_FAILED = 'smart2pay_failed', STATUS_EXPIRED = 'smart2pay_expired';
 
@@ -50,8 +53,14 @@ class S2pHelper extends AbstractHelper
     /** @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface */
     protected $timezone;
 
+    /** @var \Magento\Store\Model\StoreManagerInterface */
+    protected $storeManager;
+
     /** @var ResolverInterface */
     private $localeResolver;
+
+    /** @var \Magento\Framework\Url */
+    protected $frontUrl;
 
     /**
      * @param \Smart2Pay\GlobalPay\Helper\S2pSDK $helperS2pSDK
@@ -66,6 +75,8 @@ class S2pHelper extends AbstractHelper
         \Magento\Framework\App\Config\ConfigResource\ConfigInterface $resourceConfig,
         \Magento\Directory\Model\CurrencyFactory $currencyFactory,
         \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
+        \Magento\Framework\Url $frontUrl,
         ResolverInterface $localeResolver = null
     ) {
         parent::__construct($context);
@@ -75,9 +86,24 @@ class S2pHelper extends AbstractHelper
         $this->_resourceConfig = $resourceConfig;
         $this->_currencyFactory = $currencyFactory;
         $this->timezone = $timezone;
+        $this->storeManager = $storeManager;
         $this->localeResolver = $localeResolver ?: ObjectManager::getInstance()->get(ResolverInterface::class);
 
+        $this->frontUrl = $frontUrl;
+
         $this->_sdk_helper->s2pHelper($this);
+    }
+
+    public function getPaymentNotificationURL()
+    {
+        $params = ['_nosid' => true, '_secure' => true];
+        return $this->frontUrl->getUrl('smart2pay/payment/notification', $params);
+    }
+
+    public function getPaymentReturnURL()
+    {
+        $params = ['_nosid' => true, '_secure' => true];
+        return $this->frontUrl->getUrl('smart2pay/payment/finish', $params);
     }
 
     public static function convertGPStatusToMagentoStatus($status_code)
@@ -512,13 +538,23 @@ class S2pHelper extends AbstractHelper
         return $currency->getConfigBaseCurrencies();
     }
 
-    public function getStoreName($storeId = null)
+    public function getStoreBaseURL()
     {
-        return $this->scopeConfig->getValue(
-            'general/store_information/name',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
+        try {
+            return $this->storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB);
+        } catch (\Exception $e) {
+            return 'ErrorObtainingStoreBaseURL';
+        }
+    }
+
+    public function getRegistrationNotificationNounce()
+    {
+        return md5($this->getStoreBaseURL());
+    }
+
+    public function checkRegistrationNotificationNounce($nounce)
+    {
+        return (!empty($nounce) && $this->getRegistrationNotificationNounce()===$nounce);
     }
 
     public function getStoreConfig($path, $storeId = null)
@@ -531,6 +567,21 @@ class S2pHelper extends AbstractHelper
         $path = 'payment/' . self::METHOD_CODE . '/' . $field;
 
         return $this->scopeConfig->getValue($path, \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $storeId);
+    }
+
+    public function quickUpdateModuleConfigValue($key, $value)
+    {
+        $this->_resourceConfig->saveConfig(
+            'payment/'.self::METHOD_CODE.'/'.$key,
+            $value,
+            \Magento\Framework\App\Config\ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+            \Magento\Store\Model\Store::DEFAULT_STORE_ID
+        );
+    }
+
+    public function getStoreName($storeId = null)
+    {
+        return $this->getStoreConfig('general/store_information/name', $storeId);
     }
 
     public function getFrontConfigArray($storeId = null)
@@ -570,6 +621,7 @@ class S2pHelper extends AbstractHelper
             'last_sync_demo' => false,
             'last_sync_test' => false,
             'last_sync_live' => false,
+            'registration_notification' => false,
             'site_id_test' => 0,
             'apikey_test' => '',
             'site_id_live' => 0,
@@ -650,8 +702,8 @@ class S2pHelper extends AbstractHelper
         if ($environment === Environment::ENV_DEMO) {
             // demo environment
             $api_settings['api_environment'] = Environment::ENV_TEST;
-            $api_settings['apikey'] = 'gb0LO1CS7iHihW+3yygoPJOmrlrQ2e0UQRGKPdznYgFW3mohdg';
-            $api_settings['site_id'] = '33844';
+            $api_settings['apikey'] = self::DEMO_ENV_APIKEY;
+            $api_settings['site_id'] = self::DEMO_ENV_SITE_ID;
             $api_settings['last_sync'] = $this->getModuleConfig('last_sync_demo', $storeId);
         } elseif (in_array($environment, [ Environment::ENV_TEST, Environment::ENV_LIVE ], true)) {
             $api_settings['api_environment'] = $environment;
@@ -711,18 +763,49 @@ class S2pHelper extends AbstractHelper
         return $return_arr;
     }
 
+    public function upateRegistrationNotificationOption($value)
+    {
+        $this->quickUpdateModuleConfigValue('registration_notification', $value);
+    }
+
+    public function upateRegistrationNotificationSettings($site_id, $apikey)
+    {
+        $this->quickUpdateModuleConfigValue('site_id_'.Environment::ENV_TEST, trim($site_id));
+        $this->quickUpdateModuleConfigValue('apikey_'.Environment::ENV_TEST, trim($apikey));
+
+        $this->upateRegistrationNotificationOption(time());
+    }
+
+    public function getRegistrationNotificationOption()
+    {
+        if (!($full_config_arr = $this->getFullConfigArray())
+         || empty($full_config_arr['registration_notification'])) {
+            return false;
+        }
+
+        return $full_config_arr['registration_notification'];
+    }
+
+    public function getTestEnvironmentSettingsSet()
+    {
+        return (($api_settings = $this->getApiSettingsByEnvironment(Environment::ENV_TEST))
+            && !empty($api_settings['site_id'])
+            && !empty($api_settings['apikey']));
+    }
+
+    public function canRegisterNewAccountForThisPlatform()
+    {
+        return (!$this->getRegistrationNotificationOption()
+             && !$this->getTestEnvironmentSettingsSet());
+    }
+
     public function upateLastMethodsSyncOption($value, $environment = false)
     {
         if ($environment === false) {
             $environment = $this->getEnvironment();
         }
 
-        $this->_resourceConfig->saveConfig(
-            'payment/smart2pay/last_sync_'.$environment,
-            $value,
-            \Magento\Framework\App\Config\ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            \Magento\Store\Model\Store::DEFAULT_STORE_ID
-        );
+        $this->quickUpdateModuleConfigValue('last_sync_'.$environment, $value);
     }
 
     public function lastMethodsSyncOption($value = null)

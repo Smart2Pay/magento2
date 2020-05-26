@@ -1,0 +1,14 @@
+<?php
+/** @var \Smart2Pay\GlobalPay\Block\Adminhtml\System\Config\Field\Registration $block */
+/** @var Magento\Framework\View\TemplateEngine\Php $this */
+
+if ($block->canRegisterNewAccountForThisPlatform()) {
+    echo '<p>'.__('If you don\'t have yet a Smart2Pay account, you can create one by clicking the link below.'.
+            ' If you already have an account, please provide your Test or Live environment settings below.'.
+            ' Don\'t forget to change your Environment option according.').'</p>';
+    echo '<p>'.__('Once you create a new account, Test Site ID and Test API Key will be automatically populated '.
+            'by a notification sent by our server to your shop. As this notification might take some time, please '.
+            'refresh settings page.').'</p>';
+    echo '<p>&nbsp;</p>';
+    echo '<p><a class="action-default" href="'.$block->getRegistrationLink().'">'.__('Create a Smart2Pay Account').'</a></p>';
+}
