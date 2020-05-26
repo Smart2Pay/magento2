@@ -549,7 +549,7 @@ class S2pHelper extends AbstractHelper
 
     public function getRegistrationNotificationNounce()
     {
-        return md5($this->getStoreBaseURL());
+        return hash('sha256', $this->getStoreBaseURL());
     }
 
     public function checkRegistrationNotificationNounce($nounce)
