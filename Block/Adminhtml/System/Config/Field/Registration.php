@@ -92,8 +92,8 @@ class Registration extends \Magento\Config\Block\System\Config\Form\Field
         $notification_url = $this->getNotificationURL();
         $return_url = $this->getReturnURL();
 
-        return 'https://webtest.smart2pay.com/microsoft/signup/?'.
-               'utm_medium=affiliates&utm_source=magento2&utm_campaign=premium_partnership'.
+        return 'https://www.smart2pay.com/microsoft/signup/?'.
+               'utm_medium=affiliates&utm_source=magento&utm_campaign=premium_partnership'.
                '&notification_url='.urlencode($notification_url).
                '&return_url='.urlencode($return_url);
     }
