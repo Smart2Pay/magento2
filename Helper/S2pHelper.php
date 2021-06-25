@@ -648,6 +648,7 @@ class S2pHelper extends AbstractHelper
             'auto_invoice' => 0,
             'auto_ship' => 0,
             'use_3dsecure' => 0,
+            'use_base_currency' => 1,
             'order_status' => 'pending',
             'order_status_on_2' => 'processing',
             'order_status_on_3' => 'canceled',

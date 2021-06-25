@@ -74,11 +74,14 @@ class Info extends ConfigurableInfo
             $method_arr = [];
         }
 
-        $this->setDataToTransfer(
-            $transport,
-            __('Payment Method'),
-            $method_arr['display_name'].(!$is_in_frontend?' (#'.$method_arr['method_id'].')':'')
-        );
+        if (!empty($method_arr)) {
+            $this->setDataToTransfer(
+                $transport,
+                __('Payment Method'),
+                $method_arr['display_name'].
+                (!$is_in_frontend?' (#'.$method_arr['method_id'].')':'')
+            );
+        }
 
         if (!$is_in_frontend) {
             $this->setDataToTransfer(

@@ -163,6 +163,12 @@
                         <config_path>payment/smart2pay/auto_ship</config_path>
                     </field>
                     -->
+                    <field id="use_base_currency" translate="label" type="select" sortOrder="12" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Use Base Currency</label>
+                        <comment><![CDATA[Yes: Initiate payments in base currency. No: Initiate payments in current selected currency.]]></comment>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/smart2pay/use_base_currency</config_path>
+                    </field>
                     <field id="use_3dsecure" translate="label" type="select" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Use 3DSecure</label>
                         <comment><![CDATA[Use 3DSecure for SmartCards payment method.]]></comment>

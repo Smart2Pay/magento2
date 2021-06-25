@@ -133,10 +133,18 @@ class CaptureRequest implements BuilderInterface
 
         $total_surcharge_amount = $surcharge_amount + $surcharge_fixed_amount;
 
-        $order_original_amount = $amount_to_pay = $quote->getBaseGrandTotal();
+        if (!empty($config_arr['use_base_currency'])) {
+            $order_original_amount = $amount_to_pay = $quote->getBaseGrandTotal();
+        } else {
+            $order_original_amount = $amount_to_pay = $quote->getGrandTotal();
+        }
 
         $articles_params = [];
-        $articles_params['transport_amount'] = $quote->getShippingAddress()->getBaseShippingAmount();
+        if (!empty($config_arr['use_base_currency'])) {
+            $articles_params['transport_amount'] = $quote->getShippingAddress()->getBaseShippingAmount();
+        } else {
+            $articles_params['transport_amount'] = $quote->getShippingAddress()->getShippingAmount();
+        }
         $articles_params['total_surcharge'] = $total_surcharge_amount;
         $articles_params['amount_to_pay'] = $amount_to_pay;
 
@@ -173,7 +181,11 @@ class CaptureRequest implements BuilderInterface
             }
         }
 
-        $currency = $quote->getCurrency()->getBaseCurrencyCode();
+        if (!empty($config_arr['use_base_currency'])) {
+            $currency = $quote->getCurrency()->getBaseCurrencyCode();
+        } else {
+            $currency = $quote->getCurrency()->getQuoteCurrencyCode();
+        }
 
         //
         // SDK functionality

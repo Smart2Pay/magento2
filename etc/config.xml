@@ -63,6 +63,7 @@
 
                 <auto_invoice>0</auto_invoice>
                 <auto_ship>0</auto_ship>
+                <use_base_currency>1</use_base_currency>
                 <use_3dsecure>0</use_3dsecure>
                 <order_status>pending</order_status>
                 <order_status_on_2>processing</order_status_on_2>
