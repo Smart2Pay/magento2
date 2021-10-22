@@ -106,19 +106,22 @@ class Send extends \Magento\Framework\View\Element\Template
         $helper_obj = $this->_helper;
         $s2p_transaction = $this->_s2pTransaction->create();
 
+        // Clearing cache affected performance on big sites. In case your transactions don't work
+        // please contact us for more investigation on the problem.
+        //
         // Sorry for any inconvenience!!! No other way to obtain order after gateway payment processing...
         // If you have a cleaner solution, please contact us!
-        $types = [ 'config', 'layout', 'block_html', 'collections', 'reflection', 'db_ddl', 'eav',
-                        'config_integration', 'config_integration_api', 'full_page', 'translate',
-                        'config_webservice' ];
-
-        foreach ($types as $type) {
-            $this->_cacheTypeList->cleanType($type);
-        }
-
-        foreach ($this->_cacheFrontendPool as $cacheFrontend) {
-            $cacheFrontend->getBackend()->clean();
-        }
+        // $types = [ 'config', 'layout', 'block_html', 'collections', 'reflection', 'db_ddl', 'eav',
+        //                 'config_integration', 'config_integration_api', 'full_page', 'translate',
+        //                 'config_webservice' ];
+        //
+        // foreach ($types as $type) {
+        //     $this->_cacheTypeList->cleanType($type);
+        // }
+        //
+        // foreach ($this->_cacheFrontendPool as $cacheFrontend) {
+        //     $cacheFrontend->getBackend()->clean();
+        // }
 
         $order_is_ok = true;
         $order_error_message = '';
