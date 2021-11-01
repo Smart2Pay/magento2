@@ -585,7 +585,7 @@ class Notification extends \Magento\Framework\App\Action\Action
         return $this->getResponse()
             ->clearHeader('Content-Type')
             ->setHeader('Content-Type', 'text/plain')
-            ->setBody()
+            ->setBody('')
             ->setHttpResponseCode(204);
     }
 
