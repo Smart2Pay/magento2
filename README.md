@@ -2,6 +2,8 @@
 
 Tested on Magento 2.1.15, 2.2.5, 2.2.6 and 2.3.4.
 
+#### !!! This is a breaking change for Multibanco payment method if not configured correctly !!!
+
 #### Composer installation (recommended)
 
 1. Install Smart2Pay Magento plugin using composer:

@@ -119,8 +119,6 @@ class Finish extends \Magento\Framework\View\Element\Template
 
         $transaction_extra_data = [];
         $transaction_details_titles = [];
-        // if( in_array( $s2p_transaction->getMethodId(),
-        //                     [ $helper_obj::PAYMENT_METHOD_BT, $helper_obj::PAYMENT_METHOD_SIBS ] ) )
         if (!empty($all_params)) {
             if (($transaction_details_titles = $helper_obj::getTransactionReferenceTitles())
              && is_array($transaction_details_titles)) {

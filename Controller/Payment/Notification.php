@@ -305,8 +305,8 @@ class Notification extends \Magento\Framework\App\Action\Action
 
                         // if (!empty($payment_arr['methodid'])
                         // && $module_config['notify_payment_instructions']
-                        // && in_array((int)$payment_arr['methodid'], [ $helper_obj::PAYMENT_METHOD_BT,
-                        // $helper_obj::PAYMENT_METHOD_SIBS ], true)) {
+                        // && in_array((int)$payment_arr['methodid'], [ $helper_obj::PAYMENT_METHOD_BT ],
+                        // true)) {
                         //     // Inform customer
                         //     $this->sendPaymentDetails($order, $transaction_extra_data_arr);
                         // }

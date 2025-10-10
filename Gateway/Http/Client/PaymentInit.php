@@ -162,7 +162,7 @@ class PaymentInit implements ClientInterface
         $redirect_parameters['_query'] = [];
 
         $redirect_to_payment = true;
-        if ($method_id === $s2p_helper::PAYMENT_METHOD_BT || $method_id === $s2p_helper::PAYMENT_METHOD_SIBS) {
+        if ($method_id === $s2p_helper::PAYMENT_METHOD_BT) {
             $redirect_to_payment = false;
         }
 
@@ -249,6 +249,11 @@ class PaymentInit implements ClientInterface
             return $response_flow_arr;
         }
 
+        if($method_id === $s2p_helper::PAYMENT_METHOD_SIBS) {
+            // Make sure we redirect to payment for SIBS
+            $redirect_to_payment = true;
+        }
+
         $payment->setAdditionalInformation('sp_transaction', $s2p_transaction->getID());
         $payment->setAdditionalInformation('sp_payment_id', $s2p_transaction->getPaymentId());
         $payment->setAdditionalInformation('sp_redirect_url', $payment_request['redirecturl']);
@@ -258,7 +263,7 @@ class PaymentInit implements ClientInterface
         && !empty($extra_data_arr)
         && in_array(
             $method_id,
-            [ $s2p_helper::PAYMENT_METHOD_BT, $s2p_helper::PAYMENT_METHOD_SIBS ],
+            [ $s2p_helper::PAYMENT_METHOD_BT, $s2p_helper::PAYMENT_METHOD_SIBS, ],
             true
         )
         && ($quote_obj = $this->_checkoutSession->getQuote())) {
